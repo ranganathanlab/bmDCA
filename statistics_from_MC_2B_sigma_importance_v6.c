@@ -251,6 +251,6 @@ free(n1squared);
 free(n2squared);
 
 
-return;
+return 0;
 }
 

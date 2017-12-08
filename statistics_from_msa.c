@@ -99,6 +99,6 @@ free(n1);
 free(n2);
 free(n3);
 
-return;
+return 0;
 }
 
