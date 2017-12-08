@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cc reweighting.c -o reweighting.out
 cc -o initialize.out initialize.c -lm -O3
 cc -o initialize_ind.out initialize_ind.c -lm -O3
 cc -o statMSA.out statistics_from_msa.c 

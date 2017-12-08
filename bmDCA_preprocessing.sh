@@ -4,11 +4,11 @@
 while getopts ":wrh" opt; do
   case $opt in
     w)
-      echo "-w: Reiweighting will be applied." 
+      # echo "-w: Reiweighting will be applied." 
       REWEIGHTING=1
       ;;
     r)
-	  echo "-r: Converting input from fasta format to numerical format."
+	  # echo "-r: Converting input from fasta format to numerical format."
 	  CONVERT=1
 	  ;;
 	h)
@@ -30,11 +30,13 @@ shift $((OPTIND-1))
 
 mkdir -p Processed
 input=$@
-weights_file="Processed/weights.txt"
 out="Processed/msa_numerical.txt"
+weights_file="Processed/weights.txt"
 
 ##### Converting fasta to numerical alignment
 if [ $CONVERT ]; then
+	echo " "
+	echo "Converting "$input" to numerical format in "$out" ..."
 	if test -e $out
 	then
 		rm $out
@@ -57,12 +59,19 @@ if [ $CONVERT ]; then
 	' $input
 	cat Processed/temp2 Processed/temp1 > $out
 	rm Processed/temp2 Processed/temp1
+	echo "Done!"
+	echo " "
 else
 	cp $1 $out
 fi
 
 ##### Computing weights
-if [$REWEIGHTING];
+if [ $REWEIGHTING ]
 	then
-	
+	echo " "
+	echo "Computing weights for "$out" ..."
+	./reweighting.out $out $weights_file
+	echo "Done"
+	echo "Output written in "$weights_file"."
+	echo " "
 fi
