@@ -28,11 +28,11 @@ while getopts ":wrh" opt; do
 done
 shift $((OPTIND-1))
 
+mkdir -p Processed
 input=$@
 weights_file="Processed/weights.txt"
 out="Processed/msa_numerical.txt"
 
-mkdir -p Processed
 ##### Converting fasta to numerical alignment
 if [ $CONVERT ]; then
 	if test -e $out
@@ -58,5 +58,11 @@ if [ $CONVERT ]; then
 	cat Processed/temp2 Processed/temp1 > $out
 	rm Processed/temp2 Processed/temp1
 else
-	cp $1 out
+	cp $1 $out
+fi
+
+##### Computing weights
+if [$REWEIGHTING];
+	then
+	
 fi
