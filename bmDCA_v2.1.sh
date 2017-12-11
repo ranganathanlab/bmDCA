@@ -94,12 +94,12 @@ step=0
 ################
 
 #M_TEST=$(head -1 $Test_file  | awk '{print $1}')
-#./../compute_energies.out $Test_file  $Parameters_true_file my_energy_true.dat
+#./../sources/compute_energies.out $Test_file  $Parameters_true_file my_energy_true.dat
 
 ##### 1 STATISTICS TARGET MSA
  
 echo 'Statistics of MSA...'
-./../statMSA.out $MSA_file $Weights_file
+./../sources/statMSA.out $MSA_file $Weights_file
 MEFF=$(awk '{sum+=$1}END{print sum}' $Weights_file)
 
 
@@ -117,7 +117,7 @@ echo "Starting point: independent model"
 
 PSEUDOCOUNT_IND=$(ps -ef | awk -v MEFF=$MEFF 'BEGIN{print 1.0/MEFF}')
 echo $PSEUDOCOUNT_IND
-./../initialize_ind.out  $N $Q parameters_temp.txt stat_align_1p.txt $PSEUDOCOUNT_IND
+./../sources/initialize_ind.out  $N $Q parameters_temp.txt stat_align_1p.txt $PSEUDOCOUNT_IND
 else
 echo "Starting point: user-defined model"
 cp $Parameters_input parameters_temp.txt 
@@ -126,13 +126,13 @@ fi
 if [ $LEARN_init == '1' ]
 then
 echo "Initializing learning rates: homogeneous"
-./../initialize.out  $N $Q learning_rate.txt $EPSILON_0_J $EPSILON_0_h
+./../sources/initialize.out  $N $Q learning_rate.txt $EPSILON_0_J $EPSILON_0_h
 else
 echo "Initializing learning rates: user-defined rates"
 cp $LEARN_input learning_rate.txt 
 fi
 	
-./../initialize.out  $N $Q gradient_old.txt 0 0
+./../sources/initialize.out  $N $Q gradient_old.txt 0 0
 
 
 echo 'stdev_gradh stdev_gradJ gradtot max_gradh max_gradJ stdev_zscore1 stdev_zscore2 zscore_tot %singlepoint_updated %2points_updated sigma_connected_corr correlation_connected_corr slope_connected_corr correlation_single_frequencies' > error.txt
@@ -151,12 +151,12 @@ do
 		
 		echo $MNEW $N $Q > $MC_file
 		#tail -n +2 $MC_file | shuf -n $N_OLD  >> initial_conf.txt
-		./../MCMC_rip_v2.out -n $N -q $Q -m $M -T $T_WAIT -t $DELTA_T -s $step -r $COUNT_MAX < parameters_temp.txt 
+		./../sources/MCMC_rip_v2.out -n $N -q $Q -m $M -T $T_WAIT -t $DELTA_T -s $step -r $COUNT_MAX < parameters_temp.txt 
 		tail -n +2 out_samples_montecarlo*.txt  >> $MC_file
 				
 		rm out_*.txt
 
-		#./../plot_relax.sh
+		#./../sources/plot_relax.sh
 		#mv relax_DE.jpeg relax_DE_$step.jpeg
 		
 		##### 3b-check correct thermalization and decorrelation
@@ -164,7 +164,7 @@ do
 		if [ $CHECK_ERGO == '1' ]
 			then	
 
-			./../compute_energies.out $MC_file parameters_temp.txt my_out_energies.txt
+			./../sources/compute_energies.out $MC_file parameters_temp.txt my_out_energies.txt
 			tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==1'   > my_energies_start.txt
 			tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==(M-1)'   > my_energies_end.txt
 		
@@ -173,7 +173,7 @@ do
 			echo $a $b  >> my_energies_cfr.txt
 			awk -v  COUNT_MAX=$COUNT_MAX '{print $2, $5, sqrt($3*$3+$6*$6)/sqrt(COUNT_MAX)}' my_energies_cfr.txt > my_energies_cfr_err.txt 
 
-			./../autocorrelation.out $MC_file $COUNT_MAX $DELTA_T overlap.txt
+			./../sources/autocorrelation.out $MC_file $COUNT_MAX $DELTA_T overlap.txt
 			 
 			auto_corr=$(tail -1 ergo.txt  | awk {'print $1'})
 			check_corr=$(tail -1 ergo.txt  | awk {'print $2'})
@@ -245,27 +245,27 @@ do
 		##### 3d-Statistics of MC configuration
 		echo 'Statistics of MC...'
 		if [ $step_importance -gt 1 ]
-			then ./../statMC_sigma_importance_v6.out $MC_file $COUNT_MAX parameters_temp.txt parameters_ref.txt			
+			then ./../sources/statMC_sigma_importance_v6.out $MC_file $COUNT_MAX parameters_temp.txt parameters_ref.txt			
 			coherence=$(tail -1 coherence_importance.txt  | awk {'print $1'})
 			echo $coherence
 			flag_coherence=$(echo " $coherence > $COHERENCE_MIN && 1.0/$coherence > $COHERENCE_MIN" | bc -l)
-			else  ./../statMC_sigma.out $MC_file $COUNT_MAX parameters_temp.txt
+			else  ./../sources/statMC_sigma.out $MC_file $COUNT_MAX parameters_temp.txt
 			fi
 
 		#### 3d-estimate likelihood gradient...
 		echo 'compute gradient...'
  
-		./../compute_error_reparametrization_v3.out stat_MC_1p.txt stat_MC_2p.txt stat_align_1p.txt stat_align_2p.txt $N $Q $ERROR_MAX $LAMBDA_REG1 $LAMBDA_REG2 stat_MC_1p_sigma.txt stat_MC_2p_sigma.txt parameters_temp.txt $ERROR_MIN_UPDATE $MEFF
+		./../sources/compute_error_reparametrization_v3.out stat_MC_1p.txt stat_MC_2p.txt stat_align_1p.txt stat_align_2p.txt $N $Q $ERROR_MAX $LAMBDA_REG1 $LAMBDA_REG2 stat_MC_1p_sigma.txt stat_MC_2p_sigma.txt parameters_temp.txt $ERROR_MIN_UPDATE $MEFF
 			
 		######check error
 
-		#./../compute_energies.out $Test_file  parameters_temp.txt energy_temp.dat
-		#./../compare_energies.out energy_temp.dat my_energy_true.dat $M_test energy_cfr.txt
+		#./../sources/compute_energies.out $Test_file  parameters_temp.txt energy_temp.dat
+		#./../sources/compare_energies.out energy_temp.dat my_energy_true.dat $M_test energy_cfr.txt
 
 		##### 3e-update learning rate...
 		if [ $step -gt 0 ]	
 			then				
-			./../update_learning_rate_v4.out $N $Q learning_rate.txt gradient.txt gradient_old.txt $ADAPT_UP $ADAPT_DOWN $MIN_STEPH $MAX_STEPH $MIN_STEPJ $MAX_STEPJ			
+			./../sources/update_learning_rate_v4.out $N $Q learning_rate.txt gradient.txt gradient_old.txt $ADAPT_UP $ADAPT_DOWN $MIN_STEPH $MAX_STEPH $MIN_STEPJ $MAX_STEPJ			
 			fi		
 		cp gradient.txt gradient_old.txt
 
@@ -284,7 +284,7 @@ do
 		let "resto= $step % $STEP_CHECK"
 		if [ $resto == '0' -a $step -gt 0 ]
 			then
-			./../MC_analysis_check.sh $LAMBDA_REG1 $LAMBDA_REG2 $step $T_WAIT_CHECK $DELTA_T_CHECK $M_CHECK $COUNT_CHECK $MSA_file $Weights_file
+			./../sources/MC_analysis_check.sh $LAMBDA_REG1 $LAMBDA_REG2 $step $T_WAIT_CHECK $DELTA_T_CHECK $M_CHECK $COUNT_CHECK $MSA_file $Weights_file
 			#cp MC_analysis_$step/MC_samples_ERG.txt MC_samples.txt
 		fi
 
@@ -301,7 +301,7 @@ do
 		##### 3j-update parameters
 		echo 'update parameters...'
 
-		./../update_reparametrization.out $N $Q learning_rate.txt parameters_temp.txt gradient.txt parameters_temp.txt stat_align_1p.txt
+		./../sources/update_reparametrization.out $N $Q learning_rate.txt parameters_temp.txt gradient.txt parameters_temp.txt stat_align_1p.txt
 		
 
 	done
