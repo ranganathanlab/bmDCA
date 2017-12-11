@@ -1,5 +1,5 @@
 #!/bin/bash
-
+cd sources
 cc reweighting.c -o reweighting.out
 cc -o initialize.out initialize.c -lm -O3
 cc -o initialize_ind.out initialize_ind.c -lm -O3
@@ -18,7 +18,7 @@ cc -o compute_energies.out compute_energies.c -lm -O3
 g++ MCMC_files_v2/MCMC_rip_v2.cpp  MCMC_files_v2/graph2_rip_init.cpp  MCMC_files_v2/graphs.cpp -o MCMC_rip_v2.out -O3
 #chmod +x plot_relax.sh
 #chmod +x MC_analysis.sh
-chmod +x bmDCA_preprocessing.sh
-chmod +x bmDCA_v2.1.sh
 chmod +x MC_analysis_check.sh
+cd ..
+chmod +x bmDCA_preprocessing.sh
 chmod +x bmDCA_v2.1.sh
