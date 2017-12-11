@@ -18,5 +18,7 @@ cc -o compute_energies.out compute_energies.c -lm -O3
 g++ MCMC_files_v2/MCMC_rip_v2.cpp  MCMC_files_v2/graph2_rip_init.cpp  MCMC_files_v2/graphs.cpp -o MCMC_rip_v2.out -O3
 #chmod +x plot_relax.sh
 #chmod +x MC_analysis.sh
+chmod +x bmDCA_preprocessing.sh
+chmod +x bmDCA_v2.1.sh
 chmod +x MC_analysis_check.sh
 chmod +x bmDCA_v2.1.sh
