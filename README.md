@@ -3,6 +3,7 @@
 Here is the 'working version' code for bmDCA. The main routine bmDCA_v2.1.sh is a collage of different scripts (c/c++/awk). 
 
 Steps to use the code
+
 1/ Compiling
 ./bmDCA_compile_v2.1.sh 
 
