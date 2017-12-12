@@ -45,7 +45,7 @@ if [ $CONVERT ]; then
 		touch $out
 	fi
 	
-	gawk '
+	awk '
 	BEGIN{Keep="-ACDEFGHIKLMNPQRSTVWY"; Gap="[BJOUXZ]";printf "">"Processed/temp2";printf "">"Processed/temp1"; Nseq=0; seq_length_tot=0;out="";}
 	$0 ~ /^>/ {if(seq_length>0){printf("%s\n",substr(out,1,length(out)-1))>>"Processed/temp1"; if(seq_length>seq_length_tot){seq_length_tot=seq_length;}}
 			   out="";seq_length = 0;Nseq++;
