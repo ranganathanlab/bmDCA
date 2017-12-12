@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Compiling ..."
 cd sources
 cc reweighting.c -o reweighting.out
 cc -o initialize.out initialize.c -lm -O3
@@ -22,3 +23,5 @@ chmod +x MC_analysis_check.sh
 cd ..
 chmod +x bmDCA_preprocessing.sh
 chmod +x bmDCA_v2.1.sh
+echo "Compilation done."
+echo " "
