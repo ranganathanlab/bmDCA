@@ -2,7 +2,7 @@
 
 Here is the 'working version' code for bmDCA. The main routine
 bmDCA\_v2.1.sh contains different scripts (c/c++/awk) and can be
-executed in command line in UNIX based operating systems.
+executed in command line in UNIX/Linux based operating systems.
 
 Steps to use the code
 
