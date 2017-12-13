@@ -1,6 +1,7 @@
 #!/bin/bash
 
-
+CONVERT=0
+REWEIGHTING=0
 while getopts ":wrh" opt; do
   case $opt in
     w)
@@ -27,6 +28,14 @@ while getopts ":wrh" opt; do
   esac
 done
 shift $((OPTIND-1))
+
+if [ $REWEIGHTING -eq 0 ] && [ $CONVERT -eq 0 ]
+	then
+	echo " "
+	echo "`basename $0` - No option specified. No action is performed."
+	echo " "
+	exit 0
+fi
 
 mkdir -p Processed
 input=$@
