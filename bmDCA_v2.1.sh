@@ -201,23 +201,23 @@ do
 
 			if [ $flag_deltat_up == '0' ]
 				then
-				DELTA_T=$(printf %.0f $(echo "$DELTA_T*$ADAPT_UP_TIME" | bc | tr '.' ','))
+				DELTA_T=$(printf %d $(echo "$DELTA_T*$ADAPT_UP_TIME/1" | bc ))
 				echo "UPDATE DELTAT= $DELTA_T"
 			elif  [ $flag_deltat_down == '0' ]	
 				then
-				DELTA_T=$(printf %.0f $(echo "$DELTA_T*$ADAPT_DOWN_TIME" | bc | tr '.' ',' ))
+				DELTA_T=$(printf %d $(echo "$DELTA_T*$ADAPT_DOWN_TIME/1" | bc ))
 				echo "UPDATE DELTAT= $DELTA_T"	
 			fi
 
 			if [ $flag_twaiting_up == '0' ]
 				then
-				T_WAIT=$(printf %.0f $(echo "$T_WAIT*$ADAPT_UP_TIME" | bc | tr '.' ','))
+				T_WAIT=$(printf %d $(echo "$T_WAIT*$ADAPT_UP_TIME/1" | bc ))
 				echo "UPDATE T_WAIT=$T_WAIT"
 			fi
 
 			if [ $flag_twaiting_down == '0' ]
 				then
-				T_WAIT=$(printf %.0f $(echo "$T_WAIT*$ADAPT_DOWN_TIME" | bc | tr '.' ','))
+				T_WAIT=$(printf %d $(echo "$T_WAIT*$ADAPT_DOWN_TIME/1" | bc ))
 				echo "UPDATE T_WAIT=$T_WAIT"
 			fi
 
