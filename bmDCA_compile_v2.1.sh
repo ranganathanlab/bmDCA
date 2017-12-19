@@ -4,7 +4,7 @@ cd sources
 cc reweighting.c -o reweighting.out
 cc -o initialize.out initialize.c -lm -O3
 cc -o initialize_ind.out initialize_ind.c -lm -O3
-cc -o statMSA.out statistics_from_msa.c 
+cc -o statMSA.out statistics_from_msa.c -lm -O3
 cc -o statMC_sigma_importance_v6.out statistics_from_MC_2B_sigma_importance_v6.c -lm -O3 
 cc -o statMC_sigma.out statistics_from_MC_2B_sigma.c -lm -O3 
 cc -o autocorrelation.out autocorrelation.c -lm -O3 
