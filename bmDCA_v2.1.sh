@@ -7,7 +7,7 @@ LAMBDA_REG1=0.01 #L2 regularization strength for 1p statistics
 LAMBDA_REG2=0.01 #L2 regularization strength for 2p statistics
 STEP_MAX=2000 #max number of BM steps
 ERROR_MAX=0.00001 #exit error
-SAVE_PARAMETERS=3 #numero di iterazioni ogni quale si salvano i parametri
+SAVE_PARAMETERS=20 #numero di iterazioni ogni quale si salvano i parametri
 STEP_CHECK=$STEP_MAX #numero di iterazioni ogni quale si fa il check
 
 ##### LEARNING RATES SETTINGS
