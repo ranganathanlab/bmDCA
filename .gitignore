@@ -1,4 +1,21 @@
+# Generated files and directries
 relic/
+src/.deps/
+src/mcmc/.deps/
+example/processed/
+src/autocorrelation
+src/compute_energies
+src/compute_error_reparametrization
+src/compute_relaxation
+src/initialize
+src/initialize_ind
+src/mcmc/MCMC_rip
+src/reweighting
+src/statMC_sigma
+src/statMC_sigma_importance
+src/statMSA
+src/update_learning_rate
+src/update_reparametrization
 
 # Text editor backups
 *~
@@ -14,16 +31,6 @@ config.log
 config.status
 install-sh
 missing
-
-# generated files
-backgrounds/*.xml
-backgrounds/Makefile
-backgrounds/Makefile.in
-backgrounds/times.txt
-
-
-# Binaries
-src/settime
 
 ## From: https://github.com/github/gitignore/blob/master/C.gitignore
 # Prerequisites
@@ -107,7 +114,3 @@ autom4te.cache
 /install-sh
 /missing
 /stamp-h1
-
-
-src/.deps/
-src/mcmc/.deps/
