@@ -24,8 +24,7 @@ sudo make install
 
 If instead you want to install the code locally, run:
 ```
-./autogen.sh
-./configure --prefix=${HOME}/.local
+./autogen.sh --prefix=${HOME}/.local
 make
 make install
 ```
