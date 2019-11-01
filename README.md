@@ -1,6 +1,6 @@
 # Boltzmann-machine Direct Coupling Analysis (bmDCA)
 
-## Installation
+## Usage
 
 C implementation of bmDCA adapted from [the original](https://github.com/matteofigliuzzi/bmDCA)
 code. Method is described in:
@@ -12,7 +12,7 @@ code. Method is described in:
 
 Steps to use the code:
 
-### 1. Compile the code
+### 1. Compile and install the code
 
 To install the program globally (default: `/usr/local`), run:
 
@@ -82,7 +82,6 @@ sequence go from 0 to L-1 in the output format. The file `error.txt` contained
 in the output directory contains information about the fitting quality at
 different iterations of the Boltzmann machine, and can be used to decide when
 to stop calculations. 
-
 
 ## Example
 
