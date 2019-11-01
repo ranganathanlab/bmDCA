@@ -1,0 +1,88 @@
+#! /bin/bash
+set -eu
+
+CONVERT=0
+REWEIGHTING=0
+while getopts ":wrh" opt; do
+  case $opt in
+    w)
+      # echo "-w: Reiweighting will be applied."
+      REWEIGHTING=1
+      ;;
+    r)
+    # echo "-r: Converting input from fasta format to numerical format."
+    CONVERT=1
+    ;;
+  h)
+    echo " "
+    echo "Preprocessing of data for bmDCA -- Usage: `basename $0` input_alignment -- "
+    echo "Options"
+    echo "  -r: Converts input alignment from fasta format to numerical format, using integers from 0 to 20."
+    echo "  -w: Computes weights of each sequence in alignment. Input should be in numerical format, or -r option used."
+    echo " "
+    exit 0
+    ;;
+    \?)
+      echo "Invalid option: -$OPTARG"
+      exit 0
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [ $REWEIGHTING -eq 0 ] && [ $CONVERT -eq 0 ]
+  then
+  echo " "
+  echo "`basename $0` - No option specified. No action is performed."
+  echo " "
+  exit 0
+fi
+
+mkdir -p processed
+input=$@
+out="processed/msa_numerical.txt"
+weights_file="processed/weights.txt"
+
+##### Converting fasta to numerical alignment
+if [ $CONVERT ]; then
+  echo " "
+  echo "Converting "$input" to numerical format in "$out" ..."
+  if test -e $out
+  then
+    rm $out
+    touch $out
+  else
+    touch $out
+  fi
+
+  awk '
+  BEGIN{Keep="-ACDEFGHIKLMNPQRSTVWY"; Gap="[BJOUXZ]";printf "">"processed/temp2";printf "">"processed/temp1"; Nseq=0; seq_length_tot=0;out="";}
+  $0 ~ /^>/ {if(seq_length>0){printf("%s\n",substr(out,1,length(out)-1))>>"processed/temp1"; if(seq_length>seq_length_tot){seq_length_tot=seq_length;}}
+         out="";seq_length = 0;Nseq++;
+        }
+  $0 !~ /^>/ {gsub(Gap,"-",$0);
+        for(i=1;i<=length($0);i++){if(index(Keep,substr($0,i,1))){out = out index(Keep,substr($0,i,1))-1 " ";seq_length++;}}
+        }
+  END {if(seq_length>0){printf("%s\n",out)>>"processed/temp1";}
+    printf("Number of sequences: %d\nSize of sequences: %d\n",Nseq,seq_length_tot);
+    printf("%d %d %d\n",Nseq,seq_length,21)>>"processed/temp2"}
+  ' $input
+  cat processed/temp2 processed/temp1 > $out
+  rm processed/temp2 processed/temp1
+  echo "Done!"
+  echo " "
+else
+  cp $1 $out
+fi
+
+##### Computing weights
+if [ $REWEIGHTING ]
+  then
+  echo " "
+  echo "Computing weights for "$out" ..."
+  # ./sources/reweighting.out $out $weights_file
+  reweighting $out $weights_file
+  echo "Done"
+  echo "Output written in "$weights_file"."
+  echo " "
+fi

@@ -1,53 +1,103 @@
-# bmDCA
+# Boltzmann-machine Direct Coupling Analysis (bmDCA)
 
-Here is the 'working version' code for bmDCA, as described in 
+## Installation
 
-M. Figliuzzi, P.Barrat-Charlaix, and M.Weigt, How pairwise coevolutionary models capture the collective residue variability in proteins. Molecular Biology and Evolution, Under Review
+C implementation of bmDCA adapted from [the original](https://github.com/matteofigliuzzi/bmDCA)
+code. Method is described in:
 
-The main routine
-bmDCA\_v2.1.sh contains different scripts (c/c++/awk) and can be
-executed in command line in macOS/Linux based operating systems.
+>  Figliuzzi, M., Barrat-Charlaix, P. & Weigt, M. How Pairwise Coevolutionary
+>  Models Capture the Collective Residue Variability in Proteins? Molecular
+>  Biology and Evolution 35, 1018–1027 (2018).
 
-Steps to use the code
 
-1/ Compile the code by executing the shell script:
+Steps to use the code:
 
-$./bmDCA\_compile\_v2.1.sh
+### 1. Compile the code
 
-2/ Pre-process the MSA (fasta format):
+To install the program globally (default: `/usr/local`), run:
 
-$./bmDCA\_preprocessing.sh [-rw] input\_alignment.fasta
+```
+./autogen.sh
+make
+sudo make install
+```
 
-If option -r is used, the input alignment in fasta format will be
-converted to a numerical format used by the learning procedure. If
-option -w is used, reweighting coefficients will be computed for each
-sequence in the alignment. Note that this step may take a long time,
-as it is quadratic in the number of sequences of the alignment.
-Processed data are then found in the "Processed" folder.
+If instead you want to install the code locally, run:
+```
+./autogen.sh
+./configure --prefix=${HOME}/.local
+make
+make install
+```
 
-3/ Run bmDCA to learn the model parameters:
+Replace the `--prefix` value with any local path.
 
-   $./bmDCA\_v2.1.sh Processed/msa\_numerical.txt Processed/weights.txt
-OutputFolder
+In the event you with to uninstall the code, simply run `make uninstall`.
+
+### 2. Pre-process the multiple sequence alignment (FASTA format)
+
+This step is required to convert the MSA text file into numerical format.
+```
+bmDCA_preprocess.sh [-rw] input_alignment.fasta
+```
+
+If option `-r` is used, the input alignment in FASTA format will be converted
+to a numerical format used by the learning procedure. If option `-w` is used,
+re-weighting coefficients will be computed for each sequence in the alignment.
+Note that this step may take a long time, as it is quadratic in the number of
+sequences of the alignment. Processed data are then found in the "Processed"
+folder.
+
+### 3. Run bmDCA to learn the model parameters
+
+```
+bmDCA_run.sh Processed/msa_numerical.txt Processed/weights.txt OutputFolder
+```
 
 The three inputs of bmDCA.sh are:
 
-- Processed/msa\_numerical.txt: this is the target MSA in a numeric
-format (see the EXAMPLE folder, the file is generated in the
-preprocessing step). The first line contains three integers specifying
-the number of sequences, the sequence length and the alphabet size;
-- Processed/weights.txt: this is the file containing a single column
-with the statistical weights of the MSA sequences, it is generated in
-the pre-processing step;
-- OutputFolder: this is the folder where all outputs will be saved.
+- *Processed/msa_numerical.txt*: this is the target MSA in a numeric format (see
+  the EXAMPLE folder, the file is generated in the preprocessing step). The
+  first line contains three integers specifying the number of sequences, the
+  sequence length and the alphabet size;
+- *Processed/weights.txt*: this is the file containing a single column with the
+  statistical weights of the MSA sequences, it is generated in the
+  pre-processing step;
+- *OutputFolder*: this is the folder where all outputs will be saved.
 
-Inside the script bmDCA\_v2.1.sh there are hyperparameters that can be
-set, modifying the learning, such as values of regularization or
-number of iterations. Inferred parameters are present in the
-OutputFolder, in files parameters\_learnt\_%d.txt No stopping procedure
-has been implemented to stop the learning. The default number of
-iterations of the Boltzmann machine is 2000.
+Inside the script `bmDCA_v2.1.sh` there are hyperparameters that can be set,
+modifying the learning, such as values of regularization or number of
+iterations. Inferred parameters are present in the `OutputFolder`, in files
+`parameters_learnt_%d.txt` No stopping procedure has been implemented to stop
+the learning. The default number of iterations of the Boltzmann machine is
+2000.
 
-The mapping from amino acids to integers is defined in the following way. Amino acids are ordered as in the following string "-ACDEFGHIKLMNPQRSTVWY". They are then mapped to the integer corresponding to their position in the string, minus one. The gap symbol is mapped to 0, A is mapped to 1, etc ... 
-The output directory contains learned parameters saved every 3 iterations (default) in files called parameters\_learnt\_[it].txt. Indices of sites in the sequence go from 0 to L-1 in the output format. 
-The file error.txt contained in the output directory contains information about the fitting quality at different iterations of the boltzmann machine, and can be used to decide when to stop calculations. 
+The mapping from amino acids to integers is defined in the following way. Amino
+acids are ordered as in the following string "-ACDEFGHIKLMNPQRSTVWY". They are
+then mapped to the integer corresponding to their position in the string, minus
+one. The gap symbol is mapped to 0, A is mapped to 1, etc...
+
+The output directory contains learned parameters saved every 3 iterations
+(default) in files called `parameters_learnt_[it].txt`. Indices of sites in the
+sequence go from 0 to L-1 in the output format. The file `error.txt` contained
+in the output directory contains information about the fitting quality at
+different iterations of the Boltzmann machine, and can be used to decide when
+to stop calculations. 
+
+
+## Example
+
+An example file with processed output is provided in the examples directory. To
+use it, run:
+
+```
+bmDCA_preprocessing.sh -rw example/PF00014_raw.fasta
+bmDCA_run.sh processed/msa_numerical.txt processed/weights.txt bminf_example
+```
+
+The above commands will first compute sequence weights and convert amino acids
+to a numerical code. The results will be stored in the "processed" directory.
+The output file should match those within "example/results".
+
+The inference is then run on the two processed files, and the output is stored
+in the bminf_example directory.

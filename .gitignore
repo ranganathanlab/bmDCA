@@ -1,0 +1,113 @@
+relic/
+
+# Text editor backups
+*~
+*.sw[a-p]
+
+# autotools
+autom4te.cache
+configure
+Makefile.in
+Makefile
+aclocal.m4
+config.log
+config.status
+install-sh
+missing
+
+# generated files
+backgrounds/*.xml
+backgrounds/Makefile
+backgrounds/Makefile.in
+backgrounds/times.txt
+
+
+# Binaries
+src/settime
+
+## From: https://github.com/github/gitignore/blob/master/C.gitignore
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+## From: https://github.com/github/gitignore/blob/master/Autotools.gitignore
+# http://www.gnu.org/software/automake
+
+Makefile.in
+/ar-lib
+/mdate-sh
+/py-compile
+/test-driver
+/ylwrap
+
+# http://www.gnu.org/software/autoconf
+
+autom4te.cache
+/autoscan.log
+/autoscan-*.log
+/aclocal.m4
+/compile
+/config.guess
+/config.h.in
+/config.log
+/config.status
+/config.sub
+/configure
+/configure.scan
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+
+
+src/.deps/
+src/mcmc/.deps/
