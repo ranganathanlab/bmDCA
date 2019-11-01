@@ -65,7 +65,7 @@ The three inputs of bmDCA.sh are:
   pre-processing step;
 - *OutputFolder*: this is the folder where all outputs will be saved.
 
-Inside the script `bmDCA_v2.1.sh` there are hyperparameters that can be set,
+Inside the script `bmDCA_run.sh` there are hyperparameters that can be set,
 modifying the learning, such as values of regularization or number of
 iterations. Inferred parameters are present in the `OutputFolder`, in files
 `parameters_learnt_%d.txt` No stopping procedure has been implemented to stop

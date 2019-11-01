@@ -80,7 +80,6 @@ if [ $REWEIGHTING ]
   then
   echo " "
   echo "Computing weights for "$out" ..."
-  # ./sources/reweighting.out $out $weights_file
   reweighting $out $weights_file
   echo "Done"
   echo "Output written in "$weights_file"."
