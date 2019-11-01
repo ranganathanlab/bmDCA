@@ -51,15 +51,15 @@ LEARN_init=1 #0 choose for user defined learning rates, 1 for homogeneous initia
 LEARN_input=../OUTPUT_test2/learning_rate.txt #starting learning rate file
 
 # SETTINGs FRESH ROUTINE
-T_WAIT=$T_WAIT0           # 
-DELTA_T=$DELTA_T0         # 
+T_WAIT=$T_WAIT0           #
+DELTA_T=$DELTA_T0         #
 MNEW=$(($M * $COUNT_MAX)) #
 
 ##### CHECK ROUTINE SETTINGS
-T_WAIT_CHECK=$T_WAIT   # 
-DELTA_T_CHECK=$DELTA_T # 
-M_CHECK=$M             # 
-COUNT_CHECK=$COUNT_MAX # 
+T_WAIT_CHECK=$T_WAIT   #
+DELTA_T_CHECK=$DELTA_T #
+M_CHECK=$M             #
+COUNT_CHECK=$COUNT_MAX #
 
 ##### INPUTS
 MSA_file=../$1
@@ -76,7 +76,7 @@ MC_file=MC_samples.txt
 mkdir -p $Output_folder
 cd $Output_folder
 
-M_NAT=$(head -1 $MSA_file  | awk '{print $1}')
+M_NAT=$(head -1 $MSA_file | awk '{print $1}')
 N=$(head -1 $MSA_file | awk '{print $2}')
 Q=$(head -1 $MSA_file | awk '{print $3}')
 
@@ -95,8 +95,8 @@ step=0
 
 ################
 
-# M_TEST=$(head -1 $Test_file  | awk '{print $1}')
-# compute_energies $Test_file  $Parameters_true_file my_energy_true.dat
+# M_TEST=$(head -1 $Test_file | awk '{print $1}')
+# compute_energies $Test_file $Parameters_true_file my_energy_true.dat
 
 ##### 1 STATISTICS TARGET MSA
 
@@ -134,7 +134,7 @@ else
   cp $LEARN_input learning_rate.txt
 fi
 
-initialize  $N $Q gradient_old.txt 0 0
+initialize $N $Q gradient_old.txt 0 0
 
 
 echo 'stdev_gradh stdev_gradJ gradtot max_gradh max_gradJ stdev_zscore1 stdev_zscore2 zscore_tot %singlepoint_updated %2points_updated sigma_connected_corr correlation_connected_corr slope_connected_corr correlation_single_frequencies' > error.txt
@@ -152,9 +152,9 @@ do
   while [ $flag_mc == '0' ]
   do
     echo $MNEW $N $Q > $MC_file
-    # tail -n +2 $MC_file | shuf -n $N_OLD  >> initial_conf.txt
+    # tail -n +2 $MC_file | shuf -n $N_OLD >> initial_conf.txt
     MCMC_rip -n $N -q $Q -m $M -T $T_WAIT -t $DELTA_T -s $step -r $COUNT_MAX < parameters_temp.txt
-    tail -n +2 out_samples_montecarlo*.txt  >> $MC_file
+    tail -n +2 out_samples_montecarlo*.txt >> $MC_file
 
     rm out_*.txt
 
@@ -168,27 +168,27 @@ do
     then
 
       compute_energies $MC_file parameters_temp.txt my_out_energies.txt
-      tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==1'   > my_energies_start.txt
-      tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==(M-1)'   > my_energies_end.txt
+      tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==1' > my_energies_start.txt
+      tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==(M-1)' > my_energies_end.txt
 
       a=$(awk 'BEGIN{sum=0;sum2=0}{sum+=$1;sum2+=$1*$1;counter++;}END{av=sum/counter; av2=sum2/counter;print counter,av,sqrt(av2-av*av)}' my_energies_start.txt)
       b=$(awk 'BEGIN{sum=0;sum2=0}{sum+=$1;sum2+=$1*$1;counter++;}END{av=sum/counter; av2=sum2/counter;print counter,av,sqrt(av2-av*av)}' my_energies_end.txt)
-      echo $a $b  >> my_energies_cfr.txt
-      awk -v  COUNT_MAX=$COUNT_MAX '{print $2, $5, sqrt($3*$3+$6*$6)/sqrt(COUNT_MAX)}' my_energies_cfr.txt > my_energies_cfr_err.txt
+      echo $a $b >> my_energies_cfr.txt
+      awk -v COUNT_MAX=$COUNT_MAX '{print $2, $5, sqrt($3*$3+$6*$6)/sqrt(COUNT_MAX)}' my_energies_cfr.txt > my_energies_cfr_err.txt
 
       autocorrelation $MC_file $COUNT_MAX $DELTA_T overlap.txt
 
-      auto_corr=$(tail -1 ergo.txt  | awk {'print $1'})
-      check_corr=$(tail -1 ergo.txt  | awk {'print $2'})
-      cross_corr=$(tail -1 ergo.txt  | awk {'print $3'})
-      cross_check_err=$(tail -1 ergo.txt  | awk {'print $8'})
-      auto_cross_err=$(tail -1 ergo.txt  | awk {'print $7'})
+      auto_corr=$(tail -1 ergo.txt | awk {'print $1'})
+      check_corr=$(tail -1 ergo.txt | awk {'print $2'})
+      cross_corr=$(tail -1 ergo.txt | awk {'print $3'})
+      cross_check_err=$(tail -1 ergo.txt | awk {'print $8'})
+      auto_cross_err=$(tail -1 ergo.txt | awk {'print $7'})
 
-      e_start=$(tail -1 my_energies_cfr_err.txt  | awk {'print $1'})
-      e_end=$(tail -1 my_energies_cfr_err.txt  | awk {'print $2'})
-      e_err=$(tail -1 my_energies_cfr_err.txt  | awk {'print $3'})
+      e_start=$(tail -1 my_energies_cfr_err.txt | awk {'print $1'})
+      e_end=$(tail -1 my_energies_cfr_err.txt | awk {'print $2'})
+      e_err=$(tail -1 my_energies_cfr_err.txt | awk {'print $3'})
 
-      echo "ergodicity test:  $check_corr- $cross_corr < $cross_check_err" #if not sat, possible ergodicity issue: sampling times are too short
+      echo "ergodicity test: $check_corr- $cross_corr < $cross_check_err" #if not sat, possible ergodicity issue: sampling times are too short
       echo "autocorrelation test: $auto_corr - $cross_corr > $auto_cross_err" #if not sat, sampling times are too long
       echo "Twaiting test: $e_start - $e_end < 2*$e_err" #if not sat, waiting time for thermalization is too short
       echo "Twaiting test2: $e_start - $e_end > - 2*$e_err" #if not sat, waiting time for thermalization is too short
@@ -206,7 +206,7 @@ do
         then
         DELTA_T=$(printf %d $(echo "$DELTA_T*$ADAPT_UP_TIME/1" | bc ))
         echo "UPDATE DELTAT= $DELTA_T"
-      elif  [ $flag_deltat_down == '0' ]
+      elif [ $flag_deltat_down == '0' ]
         then
         DELTA_T=$(printf %d $(echo "$DELTA_T*$ADAPT_DOWN_TIME/1" | bc ))
         echo "UPDATE DELTAT= $DELTA_T"
@@ -243,13 +243,13 @@ do
   do
     step_importance=$(( $step_importance + 1))
     echo "Importance step: $step_importance"
-    
+
     ##### 3d-Statistics of MC configuration
     echo '3d-Statistics of MC configuration'
     if [ $step_importance -gt 1 ]
     then
       statMC_sigma_importance $MC_file $COUNT_MAX parameters_temp.txt parameters_ref.txt
-      coherence=$(tail -1 coherence_importance.txt  | awk {'print $1'})
+      coherence=$(tail -1 coherence_importance.txt | awk {'print $1'})
       echo $coherence
       flag_coherence=$(echo " $coherence > $COHERENCE_MIN && 1.0/$coherence > $COHERENCE_MIN" | bc -l)
     else
@@ -263,7 +263,7 @@ do
 
     ###### check error
 
-    # compute_energies $Test_file  parameters_temp.txt energy_temp.dat
+    # compute_energies $Test_file parameters_temp.txt energy_temp.dat
     # compare_energies energy_temp.dat my_energy_true.dat $M_test energy_cfr.txt
 
     ##### 3e-update learning rate...
