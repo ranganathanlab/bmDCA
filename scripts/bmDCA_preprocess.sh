@@ -10,14 +10,14 @@ while getopts ":wrh" opt; do
       REWEIGHTING=1
       ;;
     r)
-    # echo "-r: Converting input from fasta format to numerical format."
+    # echo "-r: Converting input from FASTA format to numerical format."
     CONVERT=1
     ;;
   h)
     echo " "
     echo "Preprocessing of data for bmDCA -- Usage: `basename $0` input_alignment -- "
     echo "Options"
-    echo "  -r: Converts input alignment from fasta format to numerical format, using integers from 0 to 20."
+    echo "  -r: Converts input alignment from FASTA format to numerical format, using integers from 0 to 20."
     echo "  -w: Computes weights of each sequence in alignment. Input should be in numerical format, or -r option used."
     echo " "
     exit 0
@@ -43,7 +43,7 @@ input=$@
 out="processed/msa_numerical.txt"
 weights_file="processed/weights.txt"
 
-##### Converting fasta to numerical alignment
+##### Converting FASTA to numerical alignment
 if [ $CONVERT ]; then
   echo " "
   echo "Converting "$input" to numerical format in "$out" ..."
