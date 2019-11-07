@@ -1,7 +1,7 @@
 #! /bin/bash
 set -eu
 
-######################HYPERPARAMETERS SETTINGS
+###################### HYPERPARAMETERS SETTINGS
 
 ##### BM SETTINGS
 LAMBDA_REG1=0.01     # L2 regularization strength for 1p statistics
@@ -41,14 +41,14 @@ M=1000       # number of samples for each MCMC run
 COUNT_MAX=10 # number of independent MCMC runs
 
 ##### PARAMETERS INITIALIZATION SETTINGS
-# MC_init=0 #1 se si dispone di un campionamento di equilibio iniziale
+# MC_init=0 # 1 se si dispone di un campionamento di equilibio iniziale
 # MC_file_input=../PCDSHUFCHECK_REP_M10000_TWF100000_DT1000_MAX0.1MIN0001_L-2_fromPLM_2/MC_analysis_150_long40/MC_samples_ERG.txt
-PAR_init=1 #0 choose for user defined parameter initialization, 1 for independent model initialization
+PAR_init=1 # 0 choose for user defined parameter initialization, 1 for independent model initialization
 Parameters_input=../OUTPUT_smallcoup/parameters_learnt_50.txt #starting parameter file
 
-#LEARNING RATE
-LEARN_init=1 #0 choose for user defined learning rates, 1 for homogeneous initialization
-LEARN_input=../OUTPUT_test2/learning_rate.txt #starting learning rate file
+# LEARNING RATE
+LEARN_init=1 # 0 choose for user defined learning rates, 1 for homogeneous initialization
+LEARN_input=../OUTPUT_test2/learning_rate.txt # starting learning rate file
 
 # SETTINGs FRESH ROUTINE
 T_WAIT=$T_WAIT0           #
@@ -104,7 +104,6 @@ echo 'Statistics of MSA...'
 statMSA $MSA_file $Weights_file
 MEFF=$(awk '{sum+=$1}END{print sum}' $Weights_file)
 
-
 echo "Sequence length: $N"
 echo "Training MSA size: $M_NAT"
 echo "Effective Size: $MEFF"
@@ -136,13 +135,16 @@ fi
 
 initialize $N $Q gradient_old.txt 0 0
 
-
-echo 'stdev_gradh stdev_gradJ gradtot max_gradh max_gradJ stdev_zscore1 stdev_zscore2 zscore_tot %singlepoint_updated %2points_updated sigma_connected_corr correlation_connected_corr slope_connected_corr correlation_single_frequencies' > error.txt
-echo '$step, $step_importance, $T_WAIT, $DELTA_T, $auto_corr, $cross_corr, $e_start, $e_end, $e_err, $error, $errorh, $errorj, $DELTA_T, $T_WAIT' > T_wait.txt
+echo 'stdev_gradh stdev_gradJ gradtot max_gradh max_gradJ stdev_zscore1' \
+     'stdev_zscore2 zscore_tot %singlepoint_updated %2points_updated' \
+     'sigma_connected_corr correlation_connected_corr slope_connected_corr' \
+     'correlation_single_frequencies' > error.txt
+echo '$step, $step_importance, $T_WAIT, $DELTA_T, $auto_corr, $cross_corr,' \
+     '$e_start, $e_end, $e_err, $error, $errorh, $errorj' > T_wait.txt
 
 ##### 3 STARTING BM LOOP
 
-while [ $step -lt $STEP_MAX -a  $error > $ERROR_MAX ]
+while [ $step -lt $STEP_MAX ]
 do
   echo "New Iteration step: $step"
 
@@ -153,7 +155,14 @@ do
   do
     echo $MNEW $N $Q > $MC_file
     # tail -n +2 $MC_file | shuf -n $N_OLD >> initial_conf.txt
-    MCMC_rip -n $N -q $Q -m $M -T $T_WAIT -t $DELTA_T -s $step -r $COUNT_MAX < parameters_temp.txt
+    MCMC_rip \
+      -n $N \
+      -q $Q \
+      -m $M \
+      -T $T_WAIT \
+      -t $DELTA_T \
+      -s $step \
+      -r $COUNT_MAX < parameters_temp.txt
     tail -n +2 out_samples_montecarlo*.txt >> $MC_file
 
     rm out_*.txt
@@ -171,10 +180,38 @@ do
       tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==1' > my_energies_start.txt
       tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==(M-1)' > my_energies_end.txt
 
-      a=$(awk 'BEGIN{sum=0;sum2=0}{sum+=$1;sum2+=$1*$1;counter++;}END{av=sum/counter; av2=sum2/counter;print counter,av,sqrt(av2-av*av)}' my_energies_start.txt)
-      b=$(awk 'BEGIN{sum=0;sum2=0}{sum+=$1;sum2+=$1*$1;counter++;}END{av=sum/counter; av2=sum2/counter;print counter,av,sqrt(av2-av*av)}' my_energies_end.txt)
+      a=$(awk \
+          'BEGIN {
+             sum=0;
+             sum2=0
+           } {
+             sum+=$1;
+             sum2+=$1*$1;
+             counter++;
+           } END {
+             av=sum/counter;
+             av2=sum2/counter;
+             print counter,av,sqrt(av2-av*av)
+           }
+          ' my_energies_start.txt)
+      b=$(awk \
+          'BEGIN{
+             sum=0;
+             sum2=0;
+           } {
+             sum+=$1;
+             sum2+=$1*$1;
+             counter++;
+           } END {
+             av=sum/counter;
+             av2=sum2/counter;
+             print counter,av,sqrt(av2-av*av)
+           }
+          ' my_energies_end.txt)
       echo $a $b >> my_energies_cfr.txt
-      awk -v COUNT_MAX=$COUNT_MAX '{print $2, $5, sqrt($3*$3+$6*$6)/sqrt(COUNT_MAX)}' my_energies_cfr.txt > my_energies_cfr_err.txt
+      awk -v COUNT_MAX=$COUNT_MAX \
+        '{print $2, $5, sqrt($3*$3+$6*$6)/sqrt(COUNT_MAX)}' \
+        my_energies_cfr.txt > my_energies_cfr_err.txt
 
       autocorrelation $MC_file $COUNT_MAX $DELTA_T overlap.txt
 
@@ -188,40 +225,47 @@ do
       e_end=$(tail -1 my_energies_cfr_err.txt | awk {'print $2'})
       e_err=$(tail -1 my_energies_cfr_err.txt | awk {'print $3'})
 
-      echo "ergodicity test: $check_corr- $cross_corr < $cross_check_err" #if not sat, possible ergodicity issue: sampling times are too short
-      echo "autocorrelation test: $auto_corr - $cross_corr > $auto_cross_err" #if not sat, sampling times are too long
-      echo "Twaiting test: $e_start - $e_end < 2*$e_err" #if not sat, waiting time for thermalization is too short
-      echo "Twaiting test2: $e_start - $e_end > - 2*$e_err" #if not sat, waiting time for thermalization is too short
+      # if not sat, possible ergodicity issue: sampling times are too short
+      echo "ergodicity test: $check_corr - $cross_corr < $cross_check_err"
 
-      flag_deltat_up=$(echo " $check_corr- $cross_corr < $cross_check_err " | bc -l)
-      echo $flag_deltat_up
+      # if not sat, sampling times are too long
+      echo "autocorrelation test: $auto_corr - $cross_corr > $auto_cross_err"
+
+      # if not sat, waiting time for thermalization is too short
+      echo "Twaiting test: $e_start - $e_end < 2*$e_err"
+
+      # if not sat, waiting time for thermalization is too short
+      echo "Twaiting test2: $e_start - $e_end > - 2*$e_err"
+
+      flag_deltat_up=$(echo " $check_corr - $cross_corr < $cross_check_err " | bc -l)
+      echo "flag DELTA_T up: $flag_deltat_up"
       flag_deltat_down=$(echo " $auto_corr - $cross_corr > $auto_cross_err" | bc -l)
-      echo $flag_deltat_down
+      echo "flag DELTA_T down: $flag_deltat_down"
       flag_twaiting_up=$(echo " $e_start - $e_end < 2*$e_err" | bc -l)
-      echo $flag_twaiting_up
+      echo "flag T_WAIT up: $flag_twaiting_up"
       flag_twaiting_down=$(echo " $e_start - $e_end > -2*$e_err" | bc -l)
-      echo $flag_twaiting_down
+      echo "flag T_WAIT down: $flag_twaiting_down"
 
       if [ $flag_deltat_up == '0' ]
         then
         DELTA_T=$(printf %d $(echo "$DELTA_T*$ADAPT_UP_TIME/1" | bc ))
-        echo "UPDATE DELTAT= $DELTA_T"
+        echo "Updating DELTA_T=$DELTA_T"
       elif [ $flag_deltat_down == '0' ]
         then
         DELTA_T=$(printf %d $(echo "$DELTA_T*$ADAPT_DOWN_TIME/1" | bc ))
-        echo "UPDATE DELTAT= $DELTA_T"
+        echo "Updating DELTA_T=$DELTA_T"
       fi
 
       if [ $flag_twaiting_up == '0' ]
         then
         T_WAIT=$(printf %d $(echo "$T_WAIT*$ADAPT_UP_TIME/1" | bc ))
-        echo "UPDATE T_WAIT=$T_WAIT"
+        echo "Updating T_WAIT=$T_WAIT"
       fi
 
       if [ $flag_twaiting_down == '0' ]
         then
         T_WAIT=$(printf %d $(echo "$T_WAIT*$ADAPT_DOWN_TIME/1" | bc ))
-        echo "UPDATE T_WAIT=$T_WAIT"
+        echo "Updating T_WAIT=$T_WAIT"
       fi
 
       if [ $flag_deltat_up == '1' -a $flag_twaiting_up == '1' ]
@@ -248,7 +292,10 @@ do
     echo '3d-Statistics of MC configuration'
     if [ $step_importance -gt 1 ]
     then
-      statMC_sigma_importance $MC_file $COUNT_MAX parameters_temp.txt parameters_ref.txt
+      statMC_sigma_importance \
+        $MC_file $COUNT_MAX \
+        parameters_temp.txt \
+        parameters_ref.txt
       coherence=$(tail -1 coherence_importance.txt | awk {'print $1'})
       echo $coherence
       flag_coherence=$(echo " $coherence > $COHERENCE_MIN && 1.0/$coherence > $COHERENCE_MIN" | bc -l)
@@ -259,7 +306,21 @@ do
     #### 3d-estimate likelihood gradient...
     echo '3d-estimate likelihood gradient...'
 
-    compute_error_reparametrization stat_MC_1p.txt stat_MC_2p.txt stat_align_1p.txt stat_align_2p.txt $N $Q $ERROR_MAX $LAMBDA_REG1 $LAMBDA_REG2 stat_MC_1p_sigma.txt stat_MC_2p_sigma.txt parameters_temp.txt $ERROR_MIN_UPDATE $MEFF
+    compute_error_reparametrization \
+      stat_MC_1p.txt \
+      stat_MC_2p.txt \
+      stat_align_1p.txt \
+      stat_align_2p.txt \
+      $N \
+      $Q \
+      $ERROR_MAX \
+      $LAMBDA_REG1 \
+      $LAMBDA_REG2 \
+      stat_MC_1p_sigma.txt \
+      stat_MC_2p_sigma.txt \
+      parameters_temp.txt \
+      $ERROR_MIN_UPDATE \
+      $MEFF
 
     ###### check error
 
@@ -270,7 +331,18 @@ do
     echo 3e-update learning rate...
     if [ $step -gt 0 ]
     then
-      update_learning_rate $N $Q learning_rate.txt gradient.txt gradient_old.txt $ADAPT_UP $ADAPT_DOWN $MIN_STEPH $MAX_STEPH $MIN_STEPJ $MAX_STEPJ
+      update_learning_rate \
+        $N \
+        $Q \
+        learning_rate.txt \
+        gradient.txt \
+        gradient_old.txt \
+        $ADAPT_UP \
+        $ADAPT_DOWN \
+        $MIN_STEPH \
+        $MAX_STEPH \
+        $MIN_STEPJ \
+        $MAX_STEPJ
       cp gradient.txt gradient_old.txt
     fi
 
@@ -280,15 +352,24 @@ do
     errorh=$(tail -1 error.txt | awk {'print $1'})
     errorj=$(tail -1 error.txt | awk {'print $2'})
 
-    echo $step, $step_importance, $T_WAIT, $DELTA_T, $auto_corr, $cross_corr, $e_start, $e_end, $e_err, $error, $errorh, $errorj, $DELTA_T, $T_WAIT >> T_wait.txt
+    echo $step, $step_importance, $T_WAIT, $DELTA_T, $auto_corr, $cross_corr, \
+         $e_start, $e_end, $e_err, $error, $errorh, $errorj >> T_wait.txt
 
     ##### 3g check analysis
     echo 3g check analysis
     resto=$(( $step % $STEP_CHECK ))
     if [ $resto == '0' -a $step -gt 0 ]
     then
-      MC_analysis_check.sh $LAMBDA_REG1 $LAMBDA_REG2 $step $T_WAIT_CHECK $DELTA_T_CHECK $M_CHECK $COUNT_CHECK $MSA_file $Weights_file
-      # cp MC_analysis_$step/MC_samples_ERG.txt MC_samples.txt
+      MC_analysis_check.sh \
+        $LAMBDA_REG1 \
+        $LAMBDA_REG2 \
+        $step \
+        $T_WAIT_CHECK \
+        $DELTA_T_CHECK \
+        $M_CHECK \
+        $COUNT_CHECK \
+        $MSA_file \
+        $Weights_file
     fi
 
     ##### 3h save parameters
@@ -305,7 +386,14 @@ do
     ##### 3j-update parameters
     echo '3j-update parameters...'
 
-    update_reparametrization $N $Q learning_rate.txt parameters_temp.txt gradient.txt parameters_temp.txt stat_align_1p.txt
+    update_reparametrization \
+      $N \
+      $Q \
+      learning_rate.txt \
+      parameters_temp.txt \
+      gradient.txt \
+      parameters_temp.txt \
+      stat_align_1p.txt
 
   done
 done
