@@ -87,8 +87,26 @@ plot_energy.sh
 
 #########################
 
-statMC_sigma $MC_file_ERG $COUNT_MAX_ERG parameters_temp.txt
-compute_error_reparametrization stat_MC_1p.txt stat_MC_2p.txt stat_align_1p.txt stat_align_2p.txt $N $Q $ERROR_MAX $LAMBDA_REG1 $LAMBDA_REG2 stat_MC_1p_sigma.txt stat_MC_2p_sigma.txt parameters_temp.txt $ERROR_MIN_UPDATE $MEFF
+statMC_sigma \
+  $MC_file_ERG \
+  $COUNT_MAX_ERG \
+  parameters_temp.txt
+
+compute_error_reparametrization \
+  stat_MC_1p.txt \
+  stat_MC_2p.txt \
+  stat_align_1p.txt \
+  stat_align_2p.txt \
+  $N \
+  $Q \
+  $ERROR_MAX \
+  $LAMBDA_REG1 \
+  $LAMBDA_REG2 \
+  stat_MC_1p_sigma.txt \
+  stat_MC_2p_sigma.txt \
+  parameters_temp.txt \
+  $ERROR_MIN_UPDATE \
+  $MEFF
 
 echo "stat_MC_1p.txt stat_MC_2p.txt stat_align_1p.txt stat_align_2p.txt $N $Q $ERROR_MAX $LAMBDA_REG1 $LAMBDA_REG2 stat_MC_1p_sigma.txt stat_MC_2p_sigma.txt parameters_temp.txt $ERROR_MIN_UPDATE $MEFF"
 plot_stat.sh

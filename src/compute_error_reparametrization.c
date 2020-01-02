@@ -13,26 +13,26 @@ main(int argc, char* argv[])
   int i, j, k, a, b, m;
   int M, N, q;
   double ERROR_MAX, W1, W2;
-  int z1, z2, z3, z4;
+  int z1, z2, z3, z4; // are these just placeholders?
   double delta;
   double LAMBDA_h, LAMBDA_J;
 
   double rho, beta, den_beta, num_beta, num_rho, den_stat, den_mc, c_mc_av,
     c_stat_av, rho_1p, num_rho_1p, den_stat_1p, den_mc_1p = 0;
-  FILE* fp1mc = fopen(argv[1], "r");
-  FILE* fp2mc = fopen(argv[2], "r");
-  FILE* fp1msa = fopen(argv[3], "r");
-  FILE* fp2msa = fopen(argv[4], "r");
-  FILE* fperror = fopen("errorlist.txt", "w");
+  FILE* fp1mc = fopen(argv[1], "r");  // 1st order statistics from MC sampling
+  FILE* fp2mc = fopen(argv[2], "r");  // 2nd order statistics from MC sampling
+  FILE* fp1msa = fopen(argv[3], "r"); // 1st order statistics from alignment
+  FILE* fp2msa = fopen(argv[4], "r"); // 2nd order statistics from alignment
+  FILE* fperror = fopen("errorlist.txt", "w"); // error per aa per position
 
-  N = (int)atoi(argv[5]);
-  q = (int)atoi(argv[6]);
+  N = (int)atoi(argv[5]); // Sequence length in alignment
+  q = (int)atoi(argv[6]); // Number of amino acids (including gaps)
   ERROR_MAX = atof(argv[7]);
-  LAMBDA_h = atof(argv[8]);
-  LAMBDA_J = atof(argv[9]);
+  LAMBDA_h = atof(argv[8]); // L2 regularization strength for 1p statistics
+  LAMBDA_J = atof(argv[9]); // L2 regularization strength for 2p statistics
   FILE* fp1mcsigma = fopen(argv[10], "r");
   FILE* fp2mcsigma = fopen(argv[11], "r");
-  FILE* fpw = fopen(argv[12], "r");
+  FILE* fpw = fopen(argv[12], "r"); // Read the parameters_temp file.
 
   double ERROR_MIN_UPDATE;
   ERROR_MIN_UPDATE = atof(argv[13]);
@@ -58,6 +58,7 @@ main(int argc, char* argv[])
 
   /////////////////////////////////////////////////////////////////////////
   // reading statistics 1p and 2p
+
   for (i = 0; i < N; i++) {
     fscanf(fp1msa, "%d ", &z1);
     fscanf(fp1mc, "%d ", &z2);
@@ -164,7 +165,6 @@ main(int argc, char* argv[])
 
     for (j = i + 1; j < N; j++) {
       for (a = 0; a < q * q; a++) {
-
         a1 = (int)(a / (q));
         a2 = (int)(a - a1 * q);
         delta = -(n2[a + q * q * j + i * N * q * q] -
