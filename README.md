@@ -1,9 +1,12 @@
 # Boltzmann-machine Direct Coupling Analysis (bmDCA)
 
+**Dependencies:** armadillo c++
+
 ## Usage
 
-C implementation of bmDCA adapted from [the original](https://github.com/matteofigliuzzi/bmDCA)
-code. Method is described in:
+C implementation of bmDCA adapted from [the
+original](https://github.com/matteofigliuzzi/bmDCA) code. Method is described
+in:
 
 >  Figliuzzi, M., Barrat-Charlaix, P. & Weigt, M. How Pairwise Coevolutionary
 >  Models Capture the Collective Residue Variability in Proteins? Molecular
@@ -37,15 +40,13 @@ In the event you with to uninstall the code, simply run `make uninstall`.
 
 This step is required to convert the MSA text file into numerical format.
 ```
-bmDCA_preprocess.sh [-rw] input_alignment.fasta
+bmDCA_preprocess.sh -i input_alignment.fasta -d output_directory -r
 ```
 
-If option `-r` is used, the input alignment in FASTA format will be converted
-to a numerical format used by the learning procedure. If option `-w` is used,
-re-weighting coefficients will be computed for each sequence in the alignment.
-Note that this step may take a long time, as it is quadratic in the number of
-sequences of the alignment. Processed data are then found in the "Processed"
-folder.
+If option `-r` is used, re-weighting coefficients will be computed for each
+sequence in the alignment. Note that this step may take a long time, as it is
+quadratic in the number of sequences of the alignment. Processed data are then
+found in the 'ouput_directory' folder.
 
 ### 3. Run bmDCA to learn the model parameters
 
@@ -89,7 +90,7 @@ An example file with processed output is provided in the examples directory. To
 use it, run:
 
 ```
-bmDCA_preprocessing.sh -rw example/PF00014_raw.fasta
+bmDCA_preprocessing.sh -i example/PF00014_raw.fasta -d processed -r
 bmDCA_run.sh processed/msa_numerical.txt processed/weights.txt bminf_example
 ```
 
@@ -98,4 +99,4 @@ to a numerical code. The results will be stored in the "processed" directory.
 The output file should match those within "example/results".
 
 The inference is then run on the two processed files, and the output is stored
-in the bminf_example directory.
+in the 'bminf_example' directory.
