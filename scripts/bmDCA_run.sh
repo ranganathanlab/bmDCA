@@ -84,9 +84,6 @@ MAX_STEPJ=$(ps -ef | awk -v MAX_STEPJ_N=$MAX_STEPJ_N -v N=$N 'BEGIN{print MAX_ST
 
 # echo $MAX_STEPJ
 # echo ps -ef | awk -v MAX_STEPJ_N=$MAX_STEPJ_N -v N=$N 'BEGIN{print MAX_STEPJ_N/N}'
-# 
-# exit
-
 
 rm -f out*
 rm -f parameters_learnt*
@@ -95,6 +92,7 @@ rm -f overlap*
 rm -f stat_*
 rm -f ergo*
 rm -f coherence*
+rm -f my_energies_cfr.txt
 
 error=$ERROR_MAX
 step=0
@@ -142,11 +140,11 @@ fi
 initialize $N $Q gradient_old.txt 0 0
 
 echo 'stdev_gradh stdev_gradJ gradtot max_gradh max_gradJ stdev_zscore1' \
-     'stdev_zscore2 zscore_tot %singlepoint_updated %2points_updated' \
+     'stdev_zscore2 zscore_tot singlepoint_updated 2points_updated' \
      'sigma_connected_corr correlation_connected_corr slope_connected_corr' \
      'correlation_single_frequencies' > error.txt
-echo '$step, $step_importance, $T_WAIT, $DELTA_T, $auto_corr, $cross_corr,' \
-     '$e_start, $e_end, $e_err, $error, $errorh, $errorj' > T_wait.txt
+echo 'step, step_importance, T_WAIT, DELTA_T, auto_corr, cross_corr,' \
+     'e_start, e_end, e_err, error, errorh, errorj' > T_wait.txt
 
 ##### 3 STARTING BM LOOP
 
@@ -159,8 +157,15 @@ do
   flag_mc=0
   while [ $flag_mc == '0' ]
   do
-    echo $MNEW $N $Q > $MC_file
-    # tail -n +2 $MC_file | shuf -n $N_OLD >> initial_conf.txt
+    echo $MNEW $N $Q
+    echo MCMC_rip \
+      -n $N \
+      -q $Q \
+      -m $M \
+      -T $T_WAIT \
+      -t $DELTA_T \
+      -s $step \
+      -r $COUNT_MAX
     MCMC_rip \
       -n $N \
       -q $Q \
@@ -169,9 +174,7 @@ do
       -t $DELTA_T \
       -s $step \
       -r $COUNT_MAX < parameters_temp.txt
-    tail -n +2 out_samples_montecarlo*.txt >> $MC_file
-
-    rm out_*.txt
+    mv out_samples_montecarlo*.txt $MC_file
 
     # plot_relax.sh
     # mv relax_DE.jpeg relax_DE_$step.jpeg
@@ -184,7 +187,7 @@ do
 
       compute_energies $MC_file parameters_temp.txt my_out_energies.txt
       tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==1' > my_energies_start.txt
-      tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==(M-1)' > my_energies_end.txt
+      tail -n +1 my_out_energies.txt | awk -v M=$M 'NR%M==0' > my_energies_end.txt
 
       a=$(awk \
           'BEGIN {
@@ -215,6 +218,7 @@ do
            }
           ' my_energies_end.txt)
       echo $a $b >> my_energies_cfr.txt
+
       awk -v COUNT_MAX=$COUNT_MAX \
         '{print $2, $5, sqrt($3*$3+$6*$6)/sqrt(COUNT_MAX)}' \
         my_energies_cfr.txt > my_energies_cfr_err.txt
@@ -306,7 +310,7 @@ do
       echo $coherence
       flag_coherence=$(echo " $coherence > $COHERENCE_MIN && 1.0/$coherence > $COHERENCE_MIN" | bc -l)
     else
-      statMC_sigma $MC_file $COUNT_MAX parameters_temp.txt
+      statMC_sigma $MC_file $COUNT_MAX
     fi
 
     #### 3d-estimate likelihood gradient...
