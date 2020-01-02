@@ -30,6 +30,6 @@ AC_CHECK_HEADERS([locale.h stdint.h stdlib.h string.h unistd.h signal.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T
 
-AC_CONFIG_FILES([Makefile scripts/Makefile src/Makefile src/mcmc/Makefile])
+AC_CONFIG_FILES([Makefile scripts/Makefile src/Makefile])
 
 AC_OUTPUT

@@ -1,5 +1,3 @@
-SUBDIRS = mcmc
-
 bin_PROGRAMS = initialize \
 	       initialize_ind \
 	       statMSA \
@@ -11,9 +9,10 @@ bin_PROGRAMS = initialize \
 	       update_reparametrization \
 	       update_learning_rate \
 	       compute_energies \
+	       MCMC_rip \
 	       preprocess
 
-LIBS = -lm -larmadillo
+LIBS = -lm -larmadillo -fopenmp
 
 DISTCLEANFILES = Makefile.in
 
@@ -30,3 +29,4 @@ compute_relaxation_SOURCES = compute_relaxation.c
 update_reparametrization_SOURCES = update_reparametrization.c
 update_learning_rate_SOURCES = update_learning_rate.c
 compute_energies_SOURCES = compute_energies.c
+MCMC_rip_SOURCES = MCMC_rip.cpp graph.cpp

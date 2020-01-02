@@ -1,7 +1,6 @@
 # Generated files and directries
 relic/
 src/.deps/
-src/mcmc/.deps/
 example/processed/
 src/autocorrelation
 src/compute_energies
@@ -9,7 +8,7 @@ src/compute_error_reparametrization
 src/compute_relaxation
 src/initialize
 src/initialize_ind
-src/mcmc/MCMC_rip
+src/MCMC_rip
 src/reweighting
 src/preprocess
 src/statMC_sigma

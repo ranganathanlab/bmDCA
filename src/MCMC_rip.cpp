@@ -1,16 +1,11 @@
-#include "graph1.hpp"
-#include "graphs.hpp"
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <unistd.h>
-//#include "graph2.hpp"
-#include "graph2_init.hpp"
-//#include "graph3.hpp"
-//#include "graph4.hpp"
-//#include "graph5.hpp"
+
+#include "graph.hpp"
 
 using namespace std;
 
@@ -122,10 +117,10 @@ main(int argc, char** argv)
   out_samples << mtot << " " << n << " " << q << endl;
 
   if (not init) {
-    Graph2 g2(n, q);
-    g2.read(cin);
+    Graph graph(n, q);
+    graph.read(cin);
     for (rip = 0; rip < mc_rip; rip++) {
-      g2.sample_from_distribution_montecarlo(
+      graph.sample_mcmc(
         out_samples, m, mc_iters0, mc_iters, out_energies_name, seed + rip);
     }
   } else {
@@ -140,21 +135,21 @@ main(int argc, char** argv)
     tot_de_record = (double*)malloc(sizeof(double) * mc_iters);
     double* tot_de_record2;
     tot_de_record2 = (double*)malloc(sizeof(double) * mc_iters);
-    Graph2 g2(n, q);
-    g2.read(cin);
+    Graph graph(n, q);
+    graph.read(cin);
     for (rip = 0; rip < mc_rip; rip++) {
       for (i = 0; i < n; i++) {
         fscanf(fp, "%d", &initial_conf[i]);
       }
       fscanf(fp, "\n");
-      g2.sample_from_distribution_montecarlo_init(out_samples,
-                                                  m,
-                                                  mc_iters0,
-                                                  mc_iters,
-                                                  out_energies_name,
-                                                  initial_conf,
-                                                  tot_de_record,
-                                                  tot_de_record2);
+      graph.initialize_mcmc(out_samples,
+                            m,
+                            mc_iters0,
+                            mc_iters,
+                            out_energies_name,
+                            initial_conf,
+                            tot_de_record,
+                            tot_de_record2);
     }
     fclose(fp);
     fp = fopen("tot_de_record.txt", "w");

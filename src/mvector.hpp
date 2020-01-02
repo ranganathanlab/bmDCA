@@ -24,8 +24,6 @@
 #include <ostream>
 #include <vector>
 
-//#define XSTD_DEBUG
-
 #ifdef XSTD_DEBUG
 #include <iostream>
 #define XSTD_DBGOUT(x) (std::cerr << x << std::endl)

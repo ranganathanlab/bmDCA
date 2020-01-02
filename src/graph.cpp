@@ -1,4 +1,3 @@
-#include "mvector.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -6,119 +5,19 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
-//#include "gasdev.hpp"
-#include "graph1.hpp"
-//#include "graph2.hpp"
-#include "graph2_init.hpp"
-//#include "graph3.hpp"
+
+#include "graph.hpp"
+#include "mvector.hpp"
 
 using namespace std;
 using namespace xstd;
 
-extern ostream& log_out;
-
-Graph2::Graph2(Graph1 const& g1)
-  : n(g1.n)
-  , q(g1.q)
-  , J(mshape<4>(n, n, q, q))
-  , h(mshape<2>(n, q))
-{
-  log_out << "converting Js" << endl;
-#pragma omp parallel for schedule(dynamic)
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = i + 1; j < n; ++j) {
-      /*cerr << "K:" << endl;
-      for (size_t yi = 0; yi < q; ++yi) {
-              for (size_t yj = 0; yj < q; ++yj) {
-                      cerr << g1.K[i][j][yi][yj] << " ";
-              }
-              cerr << endl;
-      }*/
-      vector<double> sumKi(q), sumKj(q);
-      double sumKall = 0.;
-      for (size_t yi = 0; yi < q; ++yi) {
-        for (size_t yj = 0; yj < q; ++yj) {
-          sumKi[yi] += g1.K[i][j][yi][yj];
-          sumKj[yj] += g1.K[i][j][yi][yj];
-          sumKall += g1.K[i][j][yi][yj];
-        }
-      }
-      /*cerr << endl;
-      cerr << "sumKi: "; for (size_t yi = 0; yi < q; ++yi) { cerr << sumKi[yi]
-      << " "; } cerr << endl; cerr << "sumKj: "; for (size_t yj = 0; yj < q;
-      ++yj) { cerr << sumKj[yj] << " "; } cerr << endl; cerr << "sumKall: " <<
-      sumKall << endl;*/
-      for (size_t yi = 0; yi < q; ++yi) {
-        for (size_t yj = 0; yj < q; ++yj) {
-          J[i][j][yi][yj] = g1.K[i][j][yi][yj] -
-                            (1. / q) * (sumKi[yi] + sumKj[yj]) +
-                            1. / (q * q) * sumKall;
-          // J[i][j][yi][yj] /= 5; // XXX
-          J[j][i][yj][yi] = J[i][j][yi][yj];
-        }
-      }
-      /*cerr << endl;
-      cerr << "J:" << endl;
-      for (size_t yi = 0; yi < q; ++yi) {
-              for (size_t yj = 0; yj < q; ++yj) {
-                      cerr << J[i][j][yi][yj] << " ";
-              }
-              cerr << endl;
-      }
-      cerr << endl;*/
-      vector<double> sumJi(q), sumJj(q);
-      double sumJall = 0.;
-      for (size_t yi = 0; yi < q; ++yi) {
-        for (size_t yj = 0; yj < q; ++yj) {
-          sumJi[yi] += J[i][j][yi][yj];
-          sumJj[yj] += J[i][j][yi][yj];
-          sumJall += J[i][j][yi][yj];
-        }
-      }
-      /*cerr << endl;
-      cerr << "sumJi: "; for (size_t yi = 0; yi < q; ++yi) { cerr << sumJi[yi]
-      << " "; } cerr << endl; cerr << "sumJj: "; for (size_t yj = 0; yj < q;
-      ++yj) { cerr << sumJj[yj] << " "; } cerr << endl; cerr << "sumJall: " <<
-      sumJall << endl;*/
-      for (size_t y = 0; y < q; ++y) {
-        assert(fabs(sumJi[y]) < 1e-10);
-        assert(fabs(sumJj[y]) < 1e-10);
-      }
-      // cout<<sumJall<<endl;
-      assert(fabs(sumJall) < 1e-10);
-    }
-  }
-  log_out << "converting Hs" << endl;
-#pragma omp parallel for
-  for (size_t i = 0; i < n; ++i) {
-    vector<double> sumKi(q);
-    double sumKall = 0.;
-    for (size_t yi = 0; yi < q; ++yi) {
-      for (size_t j = 0; j < n; ++j)
-        if (j != i) {
-          for (size_t yj = 0; yj < q; ++yj) {
-            sumKi[yi] += g1.K[i][j][yi][yj];
-            sumKall += g1.K[i][j][yi][yj];
-          }
-        }
-    }
-    for (size_t yi = 0; yi < q; ++yi) {
-      h[i][yi] = 1. / q * sumKi[yi] - 1. / (q * q) * sumKall;
-    }
-    double sumhall = 0.;
-    for (size_t yi = 0; yi < q; ++yi) {
-      sumhall += h[i][yi];
-    }
-    // cerr << "sumhall=" << sumhall << endl;
-    assert(fabs(sumhall) < 1e-10);
-  }
-  log_out << "conversion done" << endl;
-}
+std::ostream& log_out = std::cerr;
 
 void
-Graph2::read(istream& is)
+Graph::read(istream& is)
 {
-  log_out << "reading Graph2" << endl;
+  log_out << "reading Graph" << endl;
   string tok;
   for (size_t i = 0; i < n; ++i) {
     for (size_t j = i + 1; j < n; ++j) {
@@ -144,8 +43,6 @@ Graph2::read(istream& is)
         }
       }
       for (size_t y = 0; y < q; ++y) {
-        // cerr << i << " " << j << " " << " sumJi[y]=" << sumJi[y] << endl;
-        // cerr << i << " " << j << " " << " sumJj[y]=" << sumJj[y] << endl;
         assert(fabs(sumJi[y]) < 1e10);
         assert(fabs(sumJj[y]) < 1e10);
       }
@@ -170,13 +67,12 @@ Graph2::read(istream& is)
 }
 
 ostream&
-Graph2::print_distribution(ostream& os)
+Graph::print_distribution(ostream& os)
 {
   vector<size_t> conf(n);
 
   double norm = 0;
   while (true) {
-    // for (size_t i = 0; i < n; ++i) { cerr << conf[i] << " "; } cerr << endl;
     double x = 0;
     for (size_t i = 0; i < n; ++i) {
       x += h[i][conf[i]];
@@ -197,7 +93,6 @@ Graph2::print_distribution(ostream& os)
     }
   }
   while (true) {
-    // for (size_t i = 0; i < n; ++i) { cerr << conf[i] << " "; } cerr << endl;
     double x = 0;
     for (size_t i = 0; i < n; ++i) {
       x += h[i][conf[i]];
@@ -221,7 +116,7 @@ Graph2::print_distribution(ostream& os)
 }
 
 ostream&
-Graph2::sample_from_distribution(ostream& os, size_t m)
+Graph::sample_distribution(ostream& os, size_t m)
 {
   vector<size_t> conf(n);
 
@@ -231,7 +126,6 @@ Graph2::sample_from_distribution(ostream& os, size_t m)
 
   size_t c = 1;
   while (true) {
-    // for (size_t i = 0; i < n; ++i) { cerr << conf[i] << " "; } cerr << endl;
     double x = 0;
     for (size_t i = 0; i < n; ++i) {
       x += h[i][conf[i]];
@@ -244,8 +138,6 @@ Graph2::sample_from_distribution(ostream& os, size_t m)
     double nnp = exp(x);
     cumulative[c] = cumulative[c - 1];
     cumulative[c++] += nnp;
-    // cout << c - 2 << ": ( "; for (size_t i = 0; i < n; ++i) cout << conf[i]
-    // << " "; cout << ") : " << exp(x) << " " << cumulative[c - 1] << endl;
 
     size_t j = 0;
     while (j < n && ++conf[j] == q) {
@@ -263,7 +155,6 @@ Graph2::sample_from_distribution(ostream& os, size_t m)
   size_t s = 0;
   while (s < m) {
     double x = norm * drand48();
-    // double x = norm * (double(s) / m);
 
     size_t i0 = 0;
     size_t i1 = num;
@@ -275,7 +166,6 @@ Graph2::sample_from_distribution(ostream& os, size_t m)
         i0 = i;
       }
     }
-    // cout << "x=" << x << " i0=" << i0 << " : ";
     size_t qq = i0;
     for (size_t i = 0; i < n; ++i) {
       os << qq % q;
@@ -292,25 +182,25 @@ Graph2::sample_from_distribution(ostream& os, size_t m)
 }
 
 ostream&
-Graph2::sample_from_distribution_montecarlo(ostream& os,
-                                            size_t m,
-                                            size_t mc_iters0,
-                                            size_t mc_iters,
-                                            string const& out_energies_name,
-                                            long int seed)
+Graph::sample_mcmc(ostream& os,
+                   size_t m,
+                   size_t mc_iters0,
+                   size_t mc_iters,
+                   string const& out_energies_name,
+                   long int seed)
 {
 
+  // std::cout << out_energies_name << std::endl;
   srand48(seed);
-  //        srand48(time(NULL));
+  // srand48(time(NULL));
 
   size_t ts = 0;
   vector<size_t> conf(n);
   for (size_t i = 0; i < n; ++i) {
     conf[i] = size_t(q * drand48());
     assert(conf[i] < q);
-    // cerr << conf[i] << " ";
   }
-  ofstream out_energies(out_energies_name.c_str());
+  // ofstream out_energies(out_energies_name.c_str());
   log_out << "computing initial energy... ";
   double en = 0.;
   for (size_t i = 0; i < n; ++i) {
@@ -320,7 +210,7 @@ Graph2::sample_from_distribution_montecarlo(ostream& os,
     }
   }
   log_out << "done." << endl;
-  out_energies << "-1 " << en << endl;
+  // out_energies << "-1 " << en << endl;
 
   log_out << "initialize montecarlo sampling... ";
   double tot_de = 0;
@@ -343,14 +233,13 @@ Graph2::sample_from_distribution_montecarlo(ostream& os,
       }
     double de = e1 - e0;
     if ((de < 0) || (drand48() < exp(-de))) {
-      // cerr << i << " -> " << q1 << " (" << dq << ")" << endl;
       conf[i] = q1;
       tot_de += de;
     }
   }
   log_out << " [tot_de=" << tot_de << "] done." << endl;
   en += tot_de;
-  out_energies << "0 " << en << endl;
+  // out_energies << "0 " << en << endl;
   tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
@@ -372,14 +261,13 @@ Graph2::sample_from_distribution_montecarlo(ostream& os,
         }
       double de = e1 - e0;
       if ((de < 0) || (drand48() < exp(-de))) {
-        // cerr << i << " -> " << q1 << " (" << dq << ")" << endl;
         conf[i] = q1;
         tot_de += de;
       }
     }
     log_out << "\rs=" << ++ts << "/" << m << " de=" << tot_de
             << "                 ";
-    out_energies << s + 1 << " " << en + tot_de << endl;
+    // out_energies << s + 1 << " " << en + tot_de << endl;
     for (size_t i = 0; i < n; ++i) {
       os << conf[i];
       if (i < n - 1) {
@@ -390,20 +278,20 @@ Graph2::sample_from_distribution_montecarlo(ostream& os,
     }
   }
   log_out << endl;
-  out_energies.close();
+  // out_energies.close();
+  // exit(1);
   return os;
 }
 
 ostream&
-Graph2::sample_from_distribution_montecarlo_init(
-  ostream& os,
-  size_t m,
-  size_t mc_iters0,
-  size_t mc_iters,
-  string const& out_energies_name,
-  int* initial_conf,
-  double* tot_de_record,
-  double* tot_de_record2)
+Graph::initialize_mcmc(ostream& os,
+                       size_t m,
+                       size_t mc_iters0,
+                       size_t mc_iters,
+                       string const& out_energies_name,
+                       int* initial_conf,
+                       double* tot_de_record,
+                       double* tot_de_record2)
 {
 
   srand48(time(NULL));
@@ -413,7 +301,6 @@ Graph2::sample_from_distribution_montecarlo_init(
   for (size_t i = 0; i < n; ++i) {
     conf[i] = initial_conf[i];
     assert(conf[i] < q);
-    // cerr << conf[i] << " ";
   }
   ofstream out_energies(out_energies_name.c_str());
   log_out << "computing initial energy... ";
@@ -448,7 +335,6 @@ Graph2::sample_from_distribution_montecarlo_init(
       }
     double de = e1 - e0;
     if ((de < 0) || (drand48() < exp(-de))) {
-      // cerr << i << " -> " << q1 << " (" << dq << ")" << endl;
       conf[i] = q1;
       tot_de += de;
     }
@@ -508,7 +394,7 @@ Graph2::sample_from_distribution_montecarlo_init(
 }
 
 ostream&
-Graph2::print_parameters(ostream& os)
+Graph::print_parameters(ostream& os)
 {
   log_out << "printing parameters J" << endl;
   for (size_t i = 0; i < n; ++i) {
@@ -532,7 +418,7 @@ Graph2::print_parameters(ostream& os)
 }
 
 void
-Graph2::print_parameters(FILE* of)
+Graph::print_parameters(FILE* of)
 {
   log_out << "printing parameters J" << endl;
   for (size_t i = 0; i < n; ++i) {
