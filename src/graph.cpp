@@ -18,7 +18,6 @@ std::ostream& log_out = std::cerr;
 void
 Graph::load(potts_model model)
 {
-  log_out << "loading data" << endl;
   for (size_t i = 0; i < n; ++i) {
     for (size_t j = i + 1; j < n; ++j) {
       vector<double> sumJi(q);
@@ -40,7 +39,6 @@ Graph::load(potts_model model)
       sumh += h[i][yi];
     }
   }
-  log_out << "done" << endl;
 }
 
 void
@@ -211,7 +209,6 @@ Graph::sample_distribution(ostream& os, size_t m)
   return os;
 }
 
-// arma::Mat<int>
 void
 Graph::sample_mcmc(arma::Mat<int>* ptr,
                    size_t m,
@@ -228,7 +225,6 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
     assert(conf[i] < q);
   }
 
-  log_out << "computing initial energy... ";
   double en = 0.;
   for (size_t i = 0; i < n; ++i) {
     en -= h[i][conf[i]];
@@ -236,9 +232,7 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
       en -= J[i][j][conf[i]][conf[j]];
     }
   }
-  log_out << "done." << endl;
 
-  log_out << "initialize montecarlo sampling... ";
   double tot_de = 0;
   for (size_t k = 0; k < mc_iters0; ++k) {
     size_t i = size_t(n * drand48());
@@ -263,7 +257,6 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
       tot_de += de;
     }
   }
-  log_out << " [tot_de=" << tot_de << "] done." << endl;
   en += tot_de;
   tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
@@ -290,13 +283,11 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
         tot_de += de;
       }
     }
-    log_out << "\rs=" << ++ts << "/" << m << " de=" << tot_de
-            << "                 ";
     for (size_t i = 0; i < n; ++i) {
       (*ptr)(s, i) = conf[i];
     }
   }
-  log_out << endl;
+  log_out << "sampled " << m << " [de=" << tot_de << "]" << endl;
   return;
 }
 
