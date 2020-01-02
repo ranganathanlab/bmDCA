@@ -288,11 +288,6 @@ MCMCStats::computeSampleStats(void)
     }
   }
 
-  // for (int pos = 0; pos < M; pos++) {
-  //   double* freq_ptr = frequency_1p.colptr(pos);
-  //   double* freq_sigma_ptr = frequency_1p_sigma.colptr(pos);
-  // }
-
   arma::Mat<int> n1 = arma::Mat<int>(Q, reps, arma::fill::zeros);
   arma::field<arma::Mat<int>> n2 = arma::field<arma::Mat<int>>(reps);
   for (int rep = 0; rep < reps; rep++) {
@@ -305,26 +300,24 @@ MCMCStats::computeSampleStats(void)
   arma::Col<int> n1squared = arma::Col<int>(Q, arma::fill::zeros);
   arma::Mat<int> n2squared = arma::Mat<int>(Q, Q, arma::fill::zeros);
 
-  // output
-  // std::cout<<"flag 1"<<std::endl;
   for (int i = 0; i < N; i++) {
     n1.zeros();
     n1av.zeros();
     n1squared.zeros();
     for (int rep = 0; rep < reps; rep++) {
       for (int m = 0; m < M; m++) {
-        n1(samples.at(rep).at(m, i), rep)++;
+        n1.at(samples.at(rep).at(m, i), rep)++;
       }
     }
     for (int aa = 0; aa < Q; aa++) {
       for (int rep = 0; rep < reps; rep++) {
-        n1av(aa) += n1(aa, rep);
-        n1squared(aa) += pow(n1(aa, rep), 2);
+        n1av.at(aa) += n1.at(aa, rep);
+        n1squared.at(aa) += pow(n1.at(aa, rep), 2);
       }
-      frequency_1p.at(aa, i) = (double)n1av(aa) / M / reps;
+      frequency_1p.at(aa, i) = (double)n1av.at(aa) / M / reps;
       frequency_1p_sigma.at(aa, i) =
-        maximum(sqrt(((double)n1squared(aa) / (M * M * reps) -
-                      pow((double)n1av(aa) / (M * reps), 2)) /
+        maximum(sqrt(((double)n1squared.at(aa) / (M * M * reps) -
+                      pow((double)n1av.at(aa) / (M * reps), 2)) /
                      sqrt(reps)),
                 0);
     }
