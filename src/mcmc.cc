@@ -1,4 +1,5 @@
 #include "mcmc.h"
+
 #include "graph.hpp"
 
 // void MCMC::initializeGraph(potts_model model) {
@@ -49,10 +50,6 @@ MCMC::MCMC(potts_model params, size_t N, size_t Q)
   mtot = m * mc_rip;
 
   graph.load(params);
-
-  // for (int rip = 0; rip < mc_rip; rip++) {
-  //   graph.sample_mcmc(m, mc_iters0, mc_iters, seed + rip);
-  // }
 };
 
 void
@@ -64,11 +61,12 @@ MCMC::sample(arma::field<arma::Mat<int>>* ptr,
              int mc_iters,
              int seed)
 {
-  // arma::field<arma::Mat<int>> samples = *ptr;
+#pragma omp parallel
+{
+  // std::cout << omp_get_num_threads() << std::endl;
+#pragma omp for
   for (int rep = 0; rep < reps; rep++) {
-    // graph.sample_mcmc(samples(rep).memptr(), M, mc_iters0, mc_iters, seed +
-    // rep); graph.sample_mcmc(&(samples(rep)), M, mc_iters0, mc_iters, seed +
-    // rep);
     graph.sample_mcmc(&((*ptr)(rep)), M, mc_iters0, mc_iters, seed + rep);
   }
+}
 }
