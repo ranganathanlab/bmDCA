@@ -1,108 +1,43 @@
 #! /bin/bash
 set -eu
 
-CONVERT=0
-REWEIGHTING=0
-while getopts ":wrh" opt; do
-  case $opt in
-    w)
-      # echo "-w: Reiweighting will be applied."
-      REWEIGHTING=1
+OPTIONS=i:d:rh
+LONGOPTIONS=input:,destination:,reweight,help
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--input)
+      infile="${2}"
+      shift 2
       ;;
-    r)
-    # echo "-r: Converting input from FASTA format to numerical format."
-    CONVERT=1
-    ;;
-  h)
-    echo
-    echo "Preprocessing of data for bmDCA -- Usage: `basename $0` input_alignment -- "
-    echo "Options"
-    echo "  -r: Converts input alignment from FASTA format to numerical format, using integers from 0 to 20."
-    echo "  -w: Computes weights of each sequence in alignment. Input should be in numerical format, or -r option used."
-    echo
-    exit 0
-    ;;
-  \?)
-    echo "Invalid option: -$OPTARG"
-    exit 0
-    ;;
+    -d|--destination)
+      destdir="${2}"
+      shift 2
+      ;;
+    -r|--reweight)
+      reweight=true
+      shift
+      ;;
+    -h|--help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "ERROR"
+      exit 3
+      ;;
   esac
 done
-shift $((OPTIND-1))
 
-if [ $REWEIGHTING -eq 0 ] && [ $CONVERT -eq 0 ]
-then
-  echo
-  echo "`basename $0` - No option specified. No action is performed."
-  echo
-  exit 0
-fi
-
-mkdir -p processed
-input=$@
-out="processed/msa_numerical.txt"
-weights_file="processed/weights.txt"
-
-##### Converting FASTA to numerical alignment
-if [ $CONVERT ]; then
-  echo
-  echo "Converting "$input" to numerical format in "$out" ..."
-  rm -f ${out}
-
-  awk '
-    BEGIN {
-      Keep="-ACDEFGHIKLMNPQRSTVWY";
-      Gap="[BJOUXZ]";
-      printf "" > "processed/temp2";
-      printf "" > "processed/temp1";
-      Nseq=0;
-      seq_length_tot=0;
-      out="";
-    }
-    $0 ~ /^>/ {
-      if(seq_length>0) {
-        printf("%s\n", substr(out, 1, length(out)-1)) >> "processed/temp1";
-        if(seq_length > seq_length_tot) {
-          seq_length_tot = seq_length;
-        }
-      }
-      out="";
-      seq_length=0;
-      Nseq++;
-    }
-    $0 !~ /^>/ {
-      gsub(Gap, "-", $0);
-      for(i=1; i<=length($0); i++) {
-        if(index(Keep, substr($0, i, 1))) {
-          out = out index(Keep, substr($0, i, 1))-1 " ";
-          seq_length++;
-        }
-      }
-    }
-    END {
-      if(seq_length > 0) {
-        printf("%s\n", out) >> "processed/temp1";
-      }
-      printf("Number of sequences: %d\nSize of sequences: %d\n", Nseq, seq_length_tot);
-      printf("%d %d %d\n", Nseq, seq_length, 21) >> "processed/temp2";
-    }
-  ' $input
-
-  cat processed/temp2 processed/temp1 > $out
-  rm processed/temp2 processed/temp1
-  echo "Done!"
-  echo
+mkdir -p ${destdir}
+if [[ -v reweight ]]; then
+  preprocess -i "${infile}" -d "${destdir}" -r
 else
-  cp $1 $out
-fi
-
-##### Computing weights
-if [ $REWEIGHTING ]
-then
-  echo
-  echo "Computing weights for "$out" ..."
-  reweighting $out $weights_file
-  echo "Done"
-  echo "Output written in "$weights_file"."
-  echo
+  preprocess -i "${infile}" -d "${destdir}"
 fi

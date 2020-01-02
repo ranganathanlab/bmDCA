@@ -1,7 +1,6 @@
 SUBDIRS = mcmc
 
-bin_PROGRAMS = reweighting \
-	       initialize \
+bin_PROGRAMS = initialize \
 	       initialize_ind \
 	       statMSA \
 	       statMC_sigma_importance \
@@ -11,13 +10,15 @@ bin_PROGRAMS = reweighting \
 	       compute_relaxation \
 	       update_reparametrization \
 	       update_learning_rate \
-	       compute_energies
+	       compute_energies \
+	       preprocess
 
-LIBS = -lm
+LIBS = -lm -larmadillo
 
 DISTCLEANFILES = Makefile.in
 
-reweighting_SOURCES = reweighting.c
+preprocess_SOURCES = preprocess.cc msa.cc msa_stats.cc
+
 initialize_SOURCES = initialize.c
 initialize_ind_SOURCES = initialize_ind.c
 statMSA_SOURCES = statistics_from_msa.c

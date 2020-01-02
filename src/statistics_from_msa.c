@@ -7,19 +7,17 @@ main(int argc, char* argv[])
 {
 
   int i, j, k, a, b, m;
-  int M, N, q;
+  int M, N, q; // nseq, npos, naa
   double Meff;
   FILE* fp;
-  fp = fopen(argv[1], "r");
-  // fp=fopen("../Model_inference/BetaLactamaseN10Q21/align.txt","r");
+  fp = fopen(argv[1], "r"); // msa file
   fscanf(fp, "%d %d %d\n", &M, &N, &q);
 
   FILE* fp2;
-  fp2 = fopen(argv[2], "r");
-  // fp2=fopen("../Model_inference/BetaLactamaseN10Q21/weights.txt","r");
+  fp2 = fopen(argv[2], "r"); // weights file
 
   int* x;
-  x = (int*)malloc(sizeof(int) * N * M);
+  x = (int*)malloc(sizeof(int) * N * M); // numerical alignment
 
   double* n1;
   n1 = (double*)malloc(sizeof(double) * q);
