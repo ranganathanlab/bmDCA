@@ -1,7 +1,6 @@
 #include "run.h"
 
 #include <armadillo>
-#include <chrono>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -139,6 +138,8 @@ void
 Sim::run(void)
 {
 
+  std::cout<<"initialing run"<<std::endl<<std::endl;
+
   int N = current_model->params.h.n_cols;
   int Q = current_model->params.h.n_rows;
 
@@ -160,8 +161,13 @@ Sim::run(void)
     while (flag_mc) {
 
       // Draw from MCMC
+      std::cout<<"loading params to mcmc"<<std::endl;
       mcmc->load(current_model->params);
+
+      std::cout<<"sampling model with mcmc"<<std::endl;
       mcmc->sample(&samples, count_max, M, N, t_wait, delta_t, step);
+
+      std::cout<<"computing mcmc stats"<<std::endl;
       mcmc_stats->updateData(samples, current_model->params);
 
       // run checks
@@ -226,15 +232,14 @@ Sim::run(void)
       if (step_importance > 1) {
         std::cout << "imporance sampling" << std::endl;
       } else {
-        // std::cout<<"stat mc sigma"<<std::endl;
-        // mcmc_stats.computeSampleStats();
+        std::cout<<"computing mcmc corr and energy"<<std::endl;
         mcmc_stats->computeSampleStats();
       }
 
       // Compute error reparametrization
       previous_model->gradient.h = current_model->gradient.h;
       previous_model->gradient.J = current_model->gradient.J;
-      std::cout << "compute error and update gradient" << std::endl;
+      std::cout << "computing error and update gradient" << std::endl;
       bool converged = computeErrorReparametrization();
       if (converged) {
         std::cout << "writing results" << std::endl;
@@ -243,14 +248,10 @@ Sim::run(void)
       }
 
       // Update learning rate
-      // previous_model->learning_rates = current_model->learning_rates;
       previous_model->learning_rates.h = current_model->learning_rates.h;
       previous_model->learning_rates.J = current_model->learning_rates.J;
       std::cout << "update learning rate" << std::endl;
-      ;
       updateLearningRate();
-      // WritePottsModelCompat(current_model->learning_rates,
-      // "learning_rate.txt");
 
       // Compare error and save
 
@@ -260,22 +261,16 @@ Sim::run(void)
       if (step % save_parameters == 0) {
         std::cout << "writing step " << step << std::endl;
         writeData(step);
-        // WriteMCMCSamplesCompat(samples,
-        //                        "MC_samples_" + std::to_string(step) +
-        //                        ".txt");
       }
 
       // Update parameters
-      // previous_model->params = current_model->params;
       previous_model->params.h = current_model->params.h;
       previous_model->params.J = current_model->params.J;
-      std::cout << "update parameters" << std::endl;
-      ;
+      std::cout << "updating parameters" << std::endl;
+
       updateReparameterization();
     }
-    // delete mcmc;
-    // delete mcmc_stats;
-    // break;
+    std::cout<<std::endl;
   }
   std::cout << "writing results" << std::endl;
   writeData();
