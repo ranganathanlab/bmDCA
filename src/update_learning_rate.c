@@ -53,14 +53,14 @@ main(int argc, char* argv[])
   double ADAPT_UP, ADAPT_DOWN;
   int z1, z2, z3, z4;
 
-  N = (int)atoi(argv[1]);
-  q = (int)atoi(argv[2]);
+  N = (int)atoi(argv[1]); // n samples
+  q = (int)atoi(argv[2]); // alphabet size
   char* learning_file;
-  learning_file = argv[3];
+  learning_file = argv[3]; // learning_rate.txt
   char* gradient_file;
-  gradient_file = argv[4];
+  gradient_file = argv[4]; // gradient.txt
   char* gradient_file_old;
-  gradient_file_old = argv[5];
+  gradient_file_old = argv[5]; // gradient_old.txt
 
   ADAPT_UP = atof(argv[6]);
   ADAPT_DOWN = atof(argv[7]);

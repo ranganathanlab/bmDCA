@@ -1,3 +1,4 @@
+#include <armadillo>
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -13,6 +14,34 @@ using namespace std;
 using namespace xstd;
 
 std::ostream& log_out = std::cerr;
+
+void
+Graph::load(potts_model model)
+{
+  log_out << "loading data" << endl;
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = i + 1; j < n; ++j) {
+      vector<double> sumJi(q);
+      vector<double> sumJj(q);
+      for (size_t yi = 0; yi < q; yi++) {
+        for (size_t yj = 0; yj < q; yj++) {
+          J[i][j][yi][yj] = model.J(i, j)(yi, yj);
+          J[j][i][yj][yi] = J[i][j][yi][yj];
+          sumJi[yi] += J[i][j][yi][yj];
+          sumJi[yj] += J[i][j][yi][yj];
+        }
+      }
+    }
+  }
+  for (size_t i = 0; i < n; ++i) {
+    double sumh = 0;
+    for (size_t yi = 0; yi < q; ++yi) {
+      h[i][yi] = model.h(yi, i);
+      sumh += h[i][yi];
+    }
+  }
+  log_out << "done" << endl;
+}
 
 void
 Graph::read(istream& is)
@@ -61,7 +90,6 @@ Graph::read(istream& is)
       h[i][yi] = atof(tok.c_str());
       sumh += h[i][yi];
     }
-    // assert(fabs(sumh) < 1e-3);
   }
   log_out << "done" << endl;
 }
@@ -123,6 +151,7 @@ Graph::sample_distribution(ostream& os, size_t m)
   size_t num = size_t(round(pow(double(q), double(n))));
 
   vector<double> cumulative(num + 1);
+  std::cout << "flag 1" << std::endl;
 
   size_t c = 1;
   while (true) {
@@ -146,6 +175,7 @@ Graph::sample_distribution(ostream& os, size_t m)
     }
     if (j == n) {
       break;
+    } else {
     }
   }
   assert(c == num + 1);
@@ -181,18 +211,15 @@ Graph::sample_distribution(ostream& os, size_t m)
   return os;
 }
 
-ostream&
-Graph::sample_mcmc(ostream& os,
+// arma::Mat<int>
+void
+Graph::sample_mcmc(arma::Mat<int>* ptr,
                    size_t m,
                    size_t mc_iters0,
                    size_t mc_iters,
-                   string const& out_energies_name,
                    long int seed)
 {
-
-  // std::cout << out_energies_name << std::endl;
   srand48(seed);
-  // srand48(time(NULL));
 
   size_t ts = 0;
   vector<size_t> conf(n);
@@ -200,7 +227,7 @@ Graph::sample_mcmc(ostream& os,
     conf[i] = size_t(q * drand48());
     assert(conf[i] < q);
   }
-  // ofstream out_energies(out_energies_name.c_str());
+
   log_out << "computing initial energy... ";
   double en = 0.;
   for (size_t i = 0; i < n; ++i) {
@@ -210,7 +237,6 @@ Graph::sample_mcmc(ostream& os,
     }
   }
   log_out << "done." << endl;
-  // out_energies << "-1 " << en << endl;
 
   log_out << "initialize montecarlo sampling... ";
   double tot_de = 0;
@@ -239,7 +265,6 @@ Graph::sample_mcmc(ostream& os,
   }
   log_out << " [tot_de=" << tot_de << "] done." << endl;
   en += tot_de;
-  // out_energies << "0 " << en << endl;
   tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
@@ -267,7 +292,95 @@ Graph::sample_mcmc(ostream& os,
     }
     log_out << "\rs=" << ++ts << "/" << m << " de=" << tot_de
             << "                 ";
-    // out_energies << s + 1 << " " << en + tot_de << endl;
+    for (size_t i = 0; i < n; ++i) {
+      (*ptr)(s, i) = conf[i];
+    }
+  }
+  log_out << endl;
+  return;
+}
+
+ostream&
+Graph::sample_mcmc(ostream& os,
+                   size_t m,
+                   size_t mc_iters0,
+                   size_t mc_iters,
+                   string const& out_energies_name,
+                   long int seed)
+{
+  srand48(seed);
+
+  size_t ts = 0;
+  vector<size_t> conf(n);
+  for (size_t i = 0; i < n; ++i) {
+    conf[i] = size_t(q * drand48());
+    assert(conf[i] < q);
+  }
+
+  log_out << "computing initial energy... ";
+  double en = 0.;
+  for (size_t i = 0; i < n; ++i) {
+    en -= h[i][conf[i]];
+    for (size_t j = i + 1; j < n; ++j) {
+      en -= J[i][j][conf[i]][conf[j]];
+    }
+  }
+  log_out << "done." << endl;
+
+  log_out << "initialize montecarlo sampling... ";
+  double tot_de = 0;
+  for (size_t k = 0; k < mc_iters0; ++k) {
+    size_t i = size_t(n * drand48());
+    size_t dq = 1 + size_t((q - 1) * drand48());
+
+    size_t q0 = conf[i];
+    size_t q1 = (q0 + dq) % q;
+
+    double e0 = -h[i][q0];
+    for (size_t j = 0; j < n; ++j)
+      if (j != i) {
+        e0 -= J[i][j][q0][conf[j]];
+      }
+    double e1 = -h[i][q1];
+    for (size_t j = 0; j < n; ++j)
+      if (j != i) {
+        e1 -= J[i][j][q1][conf[j]];
+      }
+    double de = e1 - e0;
+    if ((de < 0) || (drand48() < exp(-de))) {
+      conf[i] = q1;
+      tot_de += de;
+    }
+  }
+  log_out << " [tot_de=" << tot_de << "] done." << endl;
+  en += tot_de;
+  tot_de = 0.;
+  for (size_t s = 0; s < m; ++s) {
+    for (size_t k = 0; k < mc_iters; ++k) {
+      size_t i = size_t(n * drand48());
+      size_t dq = 1 + size_t((q - 1) * drand48());
+
+      size_t q0 = conf[i];
+      size_t q1 = (q0 + dq) % q;
+
+      double e0 = -h[i][q0];
+      for (size_t j = 0; j < n; ++j)
+        if (j != i) {
+          e0 -= J[i][j][q0][conf[j]];
+        }
+      double e1 = -h[i][q1];
+      for (size_t j = 0; j < n; ++j)
+        if (j != i) {
+          e1 -= J[i][j][q1][conf[j]];
+        }
+      double de = e1 - e0;
+      if ((de < 0) || (drand48() < exp(-de))) {
+        conf[i] = q1;
+        tot_de += de;
+      }
+    }
+    log_out << "\rs=" << ++ts << "/" << m << " de=" << tot_de
+            << "                 ";
     for (size_t i = 0; i < n; ++i) {
       os << conf[i];
       if (i < n - 1) {
@@ -278,8 +391,6 @@ Graph::sample_mcmc(ostream& os,
     }
   }
   log_out << endl;
-  // out_energies.close();
-  // exit(1);
   return os;
 }
 

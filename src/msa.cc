@@ -9,45 +9,6 @@
 #include <vector>
 /* #include <chrono> */
 
-SeqRecord::SeqRecord(std::string h, std::string s)
-  : header(h)
-  , sequence(s){};
-
-void
-SeqRecord::PrintRecord(void)
-{
-  std::cout << ">" << header << std::endl;
-  std::cout << sequence << std::endl;
-};
-
-std::string
-SeqRecord::GetRecord(void)
-{
-  std::string record_string = ">" + header + "\n" + sequence + "\n";
-  return record_string;
-};
-
-std::string
-SeqRecord::GetHeader(void)
-{
-  return header;
-};
-
-std::string
-SeqRecord::GetSequence(void)
-{
-  return sequence;
-};
-
-// MSA::MSA(std::string msa_file)
-// {
-//   ReadInputMSA(msa_file);
-//   SequenceCount = SeqRecords.size();
-//   SequenceLength = GetSequenceLength(SeqRecords.begin()->GetSequence());
-//   MakeNumericalMatrix();
-//   ComputeSequenceWeights(0.8);
-// };
-
 MSA::MSA(std::string msa_file, bool reweight, double threshold)
 {
   ReadInputMSA(msa_file);

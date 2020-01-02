@@ -30,8 +30,8 @@ main(int argc, char* argv[])
   ERROR_MAX = atof(argv[7]);
   LAMBDA_h = atof(argv[8]); // L2 regularization strength for 1p statistics
   LAMBDA_J = atof(argv[9]); // L2 regularization strength for 2p statistics
-  FILE* fp1mcsigma = fopen(argv[10], "r");
-  FILE* fp2mcsigma = fopen(argv[11], "r");
+  FILE* fp1mcsigma = fopen(argv[10], "r"); // std dev of 1st order MC stats
+  FILE* fp2mcsigma = fopen(argv[11], "r"); // std dev of 2nd order MC stats
   FILE* fpw = fopen(argv[12], "r"); // Read the parameters_temp file.
 
   double ERROR_MIN_UPDATE;
@@ -89,8 +89,6 @@ main(int argc, char* argv[])
     }
   }
 
-  // printf("read\n");
-  // fflush(0);
   ///////////////////////////////////////////////////////////////////////////////////
   // reading parameters
 
@@ -126,7 +124,6 @@ main(int argc, char* argv[])
   double error_tot = 0;
 
   for (i = 0; i < N; i++) {
-
     for (a = 0; a < q; a++) {
       delta = (n1mc[a + q * i] - n1[a + q * i] + LAMBDA_h * h[a + q * i]);
       delta_stat = (n1mc[a + q * i] - n1[a + q * i]) /
@@ -255,10 +252,6 @@ main(int argc, char* argv[])
   error_tot = error_1p + error_2p;
   error_stat_tot = error_stat_1p + error_stat_2p;
 
-  // printf(" error 1p=%lf\n error 2p=%lf\n error tot=%lf EPSILON_h=%lf
-  // EPSILON_J=%lf, Errormax1p=%lf
-  // Errormax2p=%lf\n",error_1p,error_2p,error_tot,EPSILON_h,EPSILON_J,deltamax_1,deltamax_2);
-
   FILE* fp_error;
   fp_error = fopen("error.txt", "a");
   fprintf(fp_error,
@@ -277,17 +270,14 @@ main(int argc, char* argv[])
           rho,
           beta,
           rho_1p);
-
-  // printf("error computed\n");
-  // fflush(0);
-  ///////////////////////////////////////////////////////////////////////////////////////////
+ 
+  /////////////////////////////////////////////////////////////////
   // exit or update gradients
 
   if (error_tot < ERROR_MAX) {
     printf("converged\n");
     return 0;
   } else {
-    //	printf("update couplings...\n");
 
     fclose(fpw);
     fpw = fopen("gradient.txt", "w");
@@ -311,14 +301,9 @@ main(int argc, char* argv[])
     for (i = 0; i < N; i++) {
       for (a = 0; a < q; a++) {
         fprintf(fpw, "h %d %d %lf\n", i, a, gradh[a + i * q]);
-        // printf("h %d %d %lf %lf %lf
-        // %lf\n",i,a,deltah[a+i*q],n1[a+q*i],n1mc[a+q*i],log(n1[a+q*i]+LAMBDA_MSA)-log(n1mc[a+q*i]+LAMBDA_MC));
       }
     }
   }
-
-  // printf("parameters updated\n");
-  // fflush(0);
 
   free(n1);
   free(n2);

@@ -11,8 +11,6 @@ main(int argc, char* argv[])
 
   // reading sequences...
 
-  // printf("lettura..%s\n",argv[1]);
-  // fflush(0);
   FILE* fp;
   fp = fopen(argv[1], "r");
   fscanf(fp, "%d %d %d\n", &M, &N, &q);
@@ -28,8 +26,6 @@ main(int argc, char* argv[])
   }
 
   // read parameters
-  // printf("Read parameters...\n");
-  // fflush(0);
   double E;
   int z1, z2, z3, z4;
   double* h;
@@ -60,10 +56,6 @@ main(int argc, char* argv[])
     }
   }
   fclose(fpw);
-
-  // read parameters
-  // printf("Compute energies...%d\n",M);
-  // fflush(0);
 
   FILE* fpe;
   fpe = fopen(argv[3], "w");

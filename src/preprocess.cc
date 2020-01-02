@@ -16,6 +16,7 @@ main(int argc, char* argv[])
   std::string infile;
   std::string dest;
   bool reweight = false;
+
   char c;
   while ((c = getopt(argc, argv, "i:d:r")) != -1) {
     switch (c) {
@@ -33,25 +34,14 @@ main(int argc, char* argv[])
     }
   }
 
-  if (reweight == true) {
-    MSA msa = MSA(infile);
-    msa.WriteSequenceWeightsCompat(dest + "/weights.txt");
-    msa.WriteMatrixCompat(dest + "/msa_numerical.txt");
-    MSAStats msa_stats = MSAStats(msa);
-    msa_stats.WriteFrequency1pCompat(dest + "/stat_align_1p.txt");
-    msa_stats.WriteFrequency2pCompat(dest + "/stat_align_2p.txt");
-    msa_stats.WriteRelEntropyGradientCompat(dest +
-                                            "/relentropy_grad_align_1p.txt");
-  } else {
-    MSA msa = MSA(infile, reweight);
-    // msa.WriteSequenceWeightsCompat(dest + "/weights.txt");
-    msa.WriteMatrixCompat(dest + "/msa_numerical.txt");
-    MSAStats msa_stats = MSAStats(msa);
-    msa_stats.WriteFrequency1pCompat(dest + "/stat_align_1p.txt");
-    msa_stats.WriteFrequency2pCompat(dest + "/stat_align_2p.txt");
-    msa_stats.WriteRelEntropyGradientCompat(dest +
-                                            "/relentropy_grad_align_1p.txt");
-  }
-
+  MSA msa = MSA(infile, reweight);
+  msa.WriteSequenceWeightsCompat(dest + "/weights.txt");
+  msa.WriteMatrixCompat(dest + "/msa_numerical.txt");
+  MSAStats msa_stats = MSAStats(msa);
+  msa_stats.WriteFrequency1pCompat(dest + "/stat_align_1p.txt");
+  msa_stats.WriteFrequency2pCompat(dest + "/stat_align_2p.txt");
+  // msa_stats.WriteFrequency3pCompat(dest + "/stat_align_3p.txt");
+  msa_stats.WriteRelEntropyGradientCompat(dest +
+                                          "/relentropy_grad_align_1p.txt");
   return 0;
 }

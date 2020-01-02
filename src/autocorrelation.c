@@ -49,7 +49,7 @@ main(int argc, char* argv[])
   d2 = (double*)malloc(sizeof(double) * (int)(M / RIP));
 
   int* counter;
-  counter = (int*)malloc(sizeof(int) * (int)(M / RIP));
+  counter = (int*)malloc(sizeof(int) * (int)(M / RIP)); // number of sequences x apart in time
 
   // printf("M=%d N=%d q=%d\n",M,N,q);
   // fflush(0);
@@ -63,6 +63,9 @@ main(int argc, char* argv[])
   }
 
   // compute distances
+  /* d[0] = M; */
+  /* d2[0] = M; */
+  /* counter[0] = M; */
   for (rip = 0; rip < RIP; rip++) {
     for (m = 0; m < M / RIP; m++) {
       for (m2 = m + 1; m2 < M / RIP; m2++) {
@@ -78,7 +81,6 @@ main(int argc, char* argv[])
     }
   }
 
-  // m=M/RIP-1; ////guardo solo l'ultima
   dinf = 0;
   dinf2 = 0;
 
@@ -91,7 +93,6 @@ main(int argc, char* argv[])
             id++;
         }
         dinf += (double)id / N;
-        // printf("%d\n",id);
         dinf2 += (double)id * id / (N * N);
       }
     }
@@ -99,6 +100,7 @@ main(int argc, char* argv[])
 
   // output
   for (i = 1; i < M / RIP - 1; i++) {
+  /* for (i = 0; i < M / RIP; i++) { */
     fprintf(fpw,
             "%d %lf %lf\n",
             i * DT,
@@ -127,7 +129,7 @@ main(int argc, char* argv[])
   double overlap_auto, overlap_cross, overlap_check;
   double err_cross_auto, err_cross_check, err_check_auto;
   int i_auto, i_check;
-  i_check = max((M / RIP) / 10, 1); //
+  i_check = max((M / RIP) / 10, 1);
   i_auto = 1;
 
   overlap_cross = (double)2.0 * dinf / (double)(RIP * (RIP - 1) * (M / RIP));
@@ -163,11 +165,8 @@ main(int argc, char* argv[])
           err_check_auto);
 
   free(x);
-
   free(counter);
-
   free(d2);
-
   free(d);
 
   return 0;

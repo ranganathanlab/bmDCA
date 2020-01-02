@@ -1,12 +1,12 @@
-#ifndef GRAPH2_HPP
-#define GRAPH2_HPP
+#ifndef GRAPH_HPP
+#define GRAPH_HPP
 
+#include <armadillo>
 #include <iostream>
 #include <string>
 
-// #include "graph1.hpp"
-#include "graph.hpp"
 #include "mvector.hpp"
+#include "utils.h"
 
 class Graph
 {
@@ -15,8 +15,9 @@ public:
     : n(n)
     , q(q)
     , J(xstd::mshape<4>(n, n, q, q))
-    , h(xstd::mshape<2>(n, q))
-  {}
+    , h(xstd::mshape<2>(n, q)){};
+
+  void load(potts_model);
 
   size_t n, q;
   xstd::mvector<4, double> J;
@@ -31,6 +32,12 @@ public:
   std::ostream& print_distribution(std::ostream& os);
 
   std::ostream& sample_distribution(std::ostream& os, size_t m);
+
+  void sample_mcmc(arma::Mat<int>* ptr,
+                   size_t m,
+                   size_t mc_iters0,
+                   size_t mc_iters,
+                   long int seed);
 
   std::ostream& sample_mcmc(std::ostream& os,
                             size_t m,
@@ -53,4 +60,4 @@ public:
   void print_parameters(FILE* of);
 };
 
-#endif // GRAPH2_HPP
+#endif // GRAPH_HPP

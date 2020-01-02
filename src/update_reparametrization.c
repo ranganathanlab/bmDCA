@@ -202,8 +202,6 @@ main(int argc, char* argv[])
               a,
               h[a + i * q] + eps_h[a + i * q] * gradh[a + i * q] +
                 Dh[a + i * q]);
-      // printf("h %d %d %lf %lf %lf
-      // %lf\n",i,a,deltah[a+i*q],n1[a+q*i],n1mc[a+q*i],log(n1[a+q*i]+LAMBDA_MSA)-log(n1mc[a+q*i]+LAMBDA_MC));
     }
   }
 

@@ -10,13 +10,15 @@ bin_PROGRAMS = initialize \
 	       update_learning_rate \
 	       compute_energies \
 	       MCMC_rip \
-	       preprocess
+	       preprocess \
+	       bmdca
 
 LIBS = -lm -larmadillo -fopenmp
 
 DISTCLEANFILES = Makefile.in
 
-preprocess_SOURCES = preprocess.cc msa.cc msa_stats.cc
+preprocess_SOURCES = preprocess.cc msa.cc msa_stats.cc utils.cc
+bmdca_SOURCES = bmdca.cc msa.cc msa_stats.cc run.cc mcmc.cc mcmc_stats.cc utils.cc graph.cpp
 
 initialize_SOURCES = initialize.c
 initialize_ind_SOURCES = initialize_ind.c

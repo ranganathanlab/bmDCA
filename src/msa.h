@@ -4,22 +4,10 @@
 #include <armadillo>
 #include <string>
 #include <vector>
-/* #include <fstream> */
 
-class SeqRecord
-{
-private:
-  const std::string header;
-  const std::string sequence;
+#include "utils.h"
 
-public:
-  SeqRecord(std::string, std::string);
-  /* virtual ~SeqRecord(void); */
-  void PrintRecord();
-  std::string GetRecord();
-  std::string GetHeader();
-  std::string GetSequence();
-};
+// #include <fstream>
 
 class MSA
 {
@@ -30,13 +18,13 @@ public:
   int SequenceLength;
 
   // MSA(std::string);
-  MSA(std::string, bool=true, double=0.8);
+  MSA(std::string, bool = true, double = 0.8);
   void PrintAlignment();
   void WriteMatrixCompat(std::string);
   void WriteSequenceWeightsCompat(std::string);
-  /* void SaveAlignment1D(std::string); */
-  /* void SaveAlignment2D(std::string); */
-  /* virtual ~MSA(void); */
+  // void SaveAlignment1D(std::string);
+  // void SaveAlignment2D(std::string);
+  // virtual ~MSA(void);
 
 private:
   std::vector<SeqRecord> SeqRecords;

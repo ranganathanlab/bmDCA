@@ -13,15 +13,13 @@ main(int argc, char* argv[])
   char* stat_file;
   double* n1;
 
-  N = (int)atoi(argv[1]);
-  q = (int)atoi(argv[2]);
-  output_file = argv[3];
-  stat_file = argv[4];
-  pc = (double)atof(argv[5]);
+  N = (int)atoi(argv[1]); // number of positions
+  q = (int)atoi(argv[2]); // number of amino acids
+  output_file = argv[3]; // parameters_temp.txt
+  stat_file = argv[4]; // read in 1p statistics
+  pc = (double)atof(argv[5]); // 1 / M_eff (i.e. 1 / effective # of sequences)
 
   n1 = (double*)malloc(sizeof(double) * N * q);
-
-  ///////////read learning rates and gradie
 
   // read
   FILE* fp1msa;
@@ -69,9 +67,8 @@ main(int argc, char* argv[])
   fclose(fp1msa);
   free(n1);
 
-  printf("zzzzzz %lf\n", pc);
+  printf("pseudocount: %lf\n", pc);
   fflush(0);
-  ///////////////////////
 
   return 0;
 }
