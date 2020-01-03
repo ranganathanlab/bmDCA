@@ -1,17 +1,10 @@
-#include "mcmc_stats.h"
+#include "mcmc_stats.hpp"
 
 #include <armadillo>
-#include <iomanip>
 #include <iostream>
 
-#include "utils.h"
+#include "utils.hpp"
 
-// MCMCSamples::MCMCSamples(int reps, int N, int M) {
-//   samples = arma::field<arma::Mat<int>>(reps);
-//   for (int i = 0; i < reps; i++) {
-//     samples(i) = arma::Mat<int>(M, N);
-//   }
-// }
 
 MCMCStats::MCMCStats(arma::field<arma::Mat<int>> s, potts_model p)
 {
@@ -23,16 +16,13 @@ MCMCStats::MCMCStats(arma::field<arma::Mat<int>> s, potts_model p)
   params = p;
 
   computeEnergies();
-  // WriteMCMCEnergiesCompat(energies, "my_out_energies.txt");
-
   computeEnergiesStats();
-  // writeEnergyStatsCompat("my_energies_start.txt",
-  //                        "my_energies_end.txt",
-  //                        "my_energies_cfr.txt",
-  //                        "my_energies_cfr_err.txt");
+  // writeEnergyStats("my_energies_start.txt",
+  //                  "my_energies_end.txt",
+  //                  "my_energies_cfr.txt",
+  //                  "my_energies_cfr_err.txt");
   computeAutocorrelation();
-  // writeAutocorrelationStatsCompat("overlap.txt", "overlap_inf.txt",
-  // "ergo.txt");
+  // writeAutocorrelationStats("overlap.txt", "overlap_inf.txt", "ergo.txt");
 }
 
 void
@@ -78,31 +68,24 @@ MCMCStats::computeEnergiesStats(void)
   }
 
   energies_start_avg = arma::mean(energies_start);
-  energies_start_sigma = arma::stddev(energies_start, 1); // not sample std dev
+  energies_start_sigma = arma::stddev(energies_start, 1); // std dev over reps
   energies_end_avg = arma::mean(energies_end);
-  energies_end_sigma = arma::stddev(energies_end, 1); // not sample std dev
+  energies_end_sigma = arma::stddev(energies_end, 1); // std dev over reps
   energies_err =
     sqrt((pow(energies_start_sigma, 2) + pow(energies_end_sigma, 2)) / reps);
 }
 
 void
-MCMCStats::writeEnergyStatsCompat(std::string output_file_start,
+MCMCStats::writeEnergyStats(std::string output_file_start,
                                   std::string output_file_end,
                                   std::string output_file_cfr,
                                   std::string output_file_cfr_err)
 {
 
   std::ofstream output_stream_start(output_file_start);
-  output_stream_start << std::fixed << std::setprecision(6);
-
   std::ofstream output_stream_end(output_file_end);
-  output_stream_end << std::fixed << std::setprecision(6);
-
   std::ofstream output_stream_cfr(output_file_cfr);
-  output_stream_cfr << std::fixed << std::setprecision(6);
-
   std::ofstream output_stream_cfr_err(output_file_cfr_err);
-  output_stream_cfr_err << std::fixed << std::setprecision(6);
 
   for (int rep = 0; rep < reps; rep++) {
     output_stream_start << energies(M * rep) << std::endl;
@@ -120,12 +103,8 @@ MCMCStats::writeEnergyStatsCompat(std::string output_file_start,
 void
 MCMCStats::computeAutocorrelation(void)
 {
-  // overlaps = arma::Col<double>(
-  // double *d = (double*)malloc(sizeof(double)*M);
   arma::Col<double> d = arma::Col<double>(M, arma::fill::zeros);
-  // double *d2 = (double*)malloc(sizeof(double)*M);
   arma::Col<double> d2 = arma::Col<double>(M, arma::fill::zeros);
-  // int *count = (int*)malloc(sizeof(int)*M);
   arma::Col<int> count = arma::Col<int>(M, arma::fill::zeros);
   int id;
   double dinf, dinf2;
@@ -179,7 +158,7 @@ MCMCStats::computeAutocorrelation(void)
          pow(2.0 * dinf / (double)(reps * (reps - 1) * M), 2));
 
   int i_auto = 1;
-  int i_check = maximum((double)M / 10.0, 1.0);
+  int i_check = Max((double)M / 10.0, 1.0);
 
   overlap_cross = (double)2.0 * dinf / (double)(reps * (reps - 1) * M);
   overlap_auto = d(i_auto) / (double)(count(i_auto));
@@ -199,18 +178,15 @@ MCMCStats::computeAutocorrelation(void)
 }
 
 void
-MCMCStats::writeAutocorrelationStatsCompat(std::string overlap_file,
+MCMCStats::writeAutocorrelationStats(std::string overlap_file,
                                            std::string overlap_inf_file,
                                            std::string ergo_file)
 {
   std::ofstream output_stream_overlap(overlap_file);
-  output_stream_overlap << std::fixed << std::setprecision(6);
 
   std::ofstream output_stream_overlap_inf(overlap_inf_file);
-  output_stream_overlap_inf << std::fixed << std::setprecision(6);
 
   std::ofstream output_stream_ergo(ergo_file);
-  output_stream_ergo << std::fixed << std::setprecision(6);
 
   for (int i = 0; i < M - 2; i++) {
     output_stream_overlap << i << " " << overlaps(i) << " " << overlaps_sigma(i)
@@ -248,32 +224,6 @@ MCMCStats::getCorrelationsStats(void)
   return values;
 };
 
-// arma::Col<double> MCMCStats::getEnergiesStats(void) {
-//   arma::Col<double> values = arma::Col<double>(5);
-//   values(0) = energies_start_avg;
-//   values(1) = energies_start_sigma;
-//   values(2) = energies_end_avg;
-//   values(3) = energies_end_sigma;
-//   values(4) = energies_err;
-//   return values;
-// };
-//
-// arma::Col<double> MCMCStats::getCorrelationsStats(void) {
-//   arma::Col<double> values = arma::Col<double>(11);
-//   values(0) = overlap_inf;
-//   values(1) = overlap_inf_sigma;
-//   values(2) = overlap_auto;
-//   values(3) = overlap_cross;
-//   values(4) = overlap_check;
-//   values(5) = sigma_auto;
-//   values(6) = sigma_cross;
-//   values(7) = sigma_check;
-//   values(8) = err_cross_auto;
-//   values(9) = err_cross_check;
-//   values(10) = err_check_auto;
-//   return values;
-// };
-
 void
 MCMCStats::computeSampleStats(void)
 {
@@ -300,6 +250,9 @@ MCMCStats::computeSampleStats(void)
   arma::Col<int> n1squared = arma::Col<int>(Q, arma::fill::zeros);
   arma::Mat<int> n2squared = arma::Mat<int>(Q, Q, arma::fill::zeros);
 
+// #pragma omp parallel
+// {
+// #pragma omp for
   for (int i = 0; i < N; i++) {
     n1.zeros();
     n1av.zeros();
@@ -316,13 +269,17 @@ MCMCStats::computeSampleStats(void)
       }
       frequency_1p.at(aa, i) = (double)n1av.at(aa) / M / reps;
       frequency_1p_sigma.at(aa, i) =
-        maximum(sqrt(((double)n1squared.at(aa) / (M * M * reps) -
+        Max(sqrt(((double)n1squared.at(aa) / (M * M * reps) -
                       pow((double)n1av.at(aa) / (M * reps), 2)) /
                      sqrt(reps)),
                 0);
     }
   }
+// }
 
+// #pragma omp parallel
+// {
+// #pragma omp for
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
       for (int rep = 0; rep < reps; rep++) {
@@ -344,7 +301,7 @@ MCMCStats::computeSampleStats(void)
           frequency_2p.at(i, j).at(aa1, aa2) =
             (double)n2av.at(aa1, aa2) / (M * reps);
           frequency_2p_sigma.at(i, j).at(aa1, aa2) =
-            maximum(sqrt(((double)n2squared.at(aa1, aa2) / (M * M * reps) -
+            Max(sqrt(((double)n2squared.at(aa1, aa2) / (M * M * reps) -
                           pow((double)n2av.at(aa1, aa2) / (M * reps), 2)) /
                          sqrt(reps)),
                     0);
@@ -352,16 +309,15 @@ MCMCStats::computeSampleStats(void)
       }
     }
   }
+// }
 }
 
 void
-MCMCStats::writeFrequency1pCompat(std::string output_file,
+MCMCStats::writeFrequency1p(std::string output_file,
                                   std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
-  output_stream << std::fixed << std::setprecision(6);
   std::ofstream output_stream_sigma(output_file_sigma);
-  output_stream_sigma << std::fixed << std::setprecision(6);
 
   for (int i = 0; i < N; i++) {
     output_stream << i;
@@ -376,13 +332,11 @@ MCMCStats::writeFrequency1pCompat(std::string output_file,
 }
 
 void
-MCMCStats::writeFrequency2pCompat(std::string output_file,
+MCMCStats::writeFrequency2p(std::string output_file,
                                   std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
-  output_stream << std::fixed << std::setprecision(6);
   std::ofstream output_stream_sigma(output_file_sigma);
-  output_stream_sigma << std::fixed << std::setprecision(6);
 
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
@@ -402,12 +356,10 @@ MCMCStats::writeFrequency2pCompat(std::string output_file,
 }
 
 void
-MCMCStats::writeSamplesCompat(std::string output_file)
+MCMCStats::writeSamples(std::string output_file)
 {
   std::ofstream output_stream(output_file);
-  output_stream << std::fixed << std::setprecision(6);
 
-  // int reps = samples.n_cols;
   int reps = samples.n_rows;
   int N = samples(0).n_cols;
   int M = samples(0).n_rows;
@@ -426,10 +378,9 @@ MCMCStats::writeSamplesCompat(std::string output_file)
 };
 
 void
-MCMCStats::writeSampleEnergiesCompat(std::string output_file)
+MCMCStats::writeSampleEnergies(std::string output_file)
 {
   std::ofstream output_stream(output_file);
-  output_stream << std::fixed << std::setprecision(6);
   int M = energies.n_rows;
 
   for (int i = 0; i < M; i++) {

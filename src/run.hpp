@@ -1,11 +1,11 @@
-#ifndef BMDCA_RUN_H
-#define BMDCA_RUN_H
+#ifndef BMDCA_RUN_HPP
+#define BMDCA_RUN_HPP
 
-#include "mcmc.h"
-#include "mcmc_stats.h"
-#include "msa.h"
-#include "msa_stats.h"
-#include "utils.h"
+#include "mcmc.hpp"
+#include "mcmc_stats.hpp"
+#include "msa.hpp"
+#include "msa_stats.hpp"
+#include "utils.hpp"
 
 class Model
 {
@@ -13,40 +13,38 @@ public:
   potts_model params;
   potts_model learning_rates;
   potts_model gradient;
+  int N;
+  int Q;
 
   Model(MSAStats, double, double);
-  Model(); // holy fuck is this risky
-           // Model(MCMCStats mcmc_stats);
+
+  void writeParams(std::string);
+  void writeLearningRates(std::string);
+  void writeGradient(std::string);
 };
 
 class Sim
 {
 public:
-  // Sim(void);
   Sim(MSAStats msa_stats);
   ~Sim(void);
   void initializeParameters(void);
   void initializeRun(void);
   void computeAutocorrelation(void);
   void checkCurrentStep(void);
-  // void computeErrorReparametrization(void);
   bool computeErrorReparametrization(void);
   void updateLearningRate(void);
   void updateReparameterization(void);
   void run(void);
-  void writeData(int);
-  void writeData(void);
+  void writeData(std::string);
   MSA runMCMC(MSAStats msaStats);
 
 private:
-  // MCMC *current;
-  // MCMC *previous;
+  void readInitialSample(int, int);
 
   // BM settings
-  double lambda_reg1; // L2 regularization strength for 1p statistics
-  double lambda_reg2; // L2 regularization strength for 2p statistics
-  // double lambda_h;     // field regularization strength
-  // double lambda_j;     // couplings regularization strength
+  double lambda_reg1; // L2 regularization strength for 1p statistics (fields)
+  double lambda_reg2; // L2 regularization strength for 2p statistics (cpling)
   bool use_sca_weight; // whether or not to use rel. entropy for position-
                        // specific regularization
   int step_max;        // max number of BM steps
@@ -83,21 +81,20 @@ private:
   double coherence_min;    // coherence importance sampling
 
   // MCMC settings
-  int M;         // number of samples for each MCMC run
-  int count_max; // number of independent MCMC runs
-
-  //
-  // Generated settings
-  //
-  int t_wait;  // t_wait_0
-  int delta_t; // delta_t_0
-  int M_new;   // M * count_max
+  int M;                        // number of samples for each MCMC run
+  int count_max;                // number of independent MCMC runs
+  bool init_sample=false;       // flag for loading the first positions when
+                                // initializing the mcmc from a file
+  std::string init_sample_file; // name of file with mcmc initial sample
 
   // Check routine settings
   int t_wait_check;  // t_wait
   int delta_t_check; // delta_t
   int M_check;       // M
   int count_check;   // count_max
+
+  arma::field<arma::Mat<int>> samples;
+  arma::Col<int> initial_sample;
 
   MSAStats msa_stats;
 

@@ -6,7 +6,7 @@
 #include <string>
 
 #include "mvector.hpp"
-#include "utils.h"
+#include "utils.hpp"
 
 class Graph
 {
@@ -23,15 +23,11 @@ public:
   xstd::mvector<4, double> J;
   xstd::mvector<2, double> h;
 
-  // void randomize(double beta = 1.);
-
-  // void randomize_gauss(double beta = 1.);
-
-  void read(std::istream& is);
-
   std::ostream& print_distribution(std::ostream& os);
 
-  std::ostream& sample_distribution(std::ostream& os, size_t m);
+  std::ostream& print_parameters(std::ostream& os);
+
+  // std::ostream& sample_distribution(std::ostream& os, size_t m);
 
   void sample_mcmc(arma::Mat<int>* ptr,
                    size_t m,
@@ -39,25 +35,13 @@ public:
                    size_t mc_iters,
                    long int seed);
 
-  std::ostream& sample_mcmc(std::ostream& os,
-                            size_t m,
-                            size_t mc_iters0,
-                            size_t mc_iters,
-                            std::string const& out_energies_name,
-                            long int seed);
-
-  std::ostream& initialize_mcmc(std::ostream& os,
-                                size_t m,
-                                size_t mc_iters0,
-                                size_t mc_iters,
-                                std::string const& out_energies_name,
-                                int* initial_conf,
-                                double* tot_de_record,
-                                double* tot_de_record2);
-
-  std::ostream& print_parameters(std::ostream& os);
+  void sample_mcmc_init(arma::Mat<int>* ptr,
+                   size_t m,
+                   size_t mc_iters0,
+                   size_t mc_iters,
+                   arma::Col<int>* init_ptr);
 
   void print_parameters(FILE* of);
 };
 
-#endif // GRAPH_HPP
+#endif

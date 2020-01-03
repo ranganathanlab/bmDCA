@@ -1,5 +1,4 @@
-SUBDIRS = src \
-          scripts
+SUBDIRS = src
 
 EXTRA_DIST = LICENSE \
              autogen.sh \

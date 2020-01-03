@@ -1,7 +1,8 @@
-#include "run.h"
+#include "run.hpp"
 
 #include <armadillo>
 #include <cstdlib>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -9,20 +10,17 @@
 #include <unistd.h>
 #include <vector>
 
-#include "msa.h"
-#include "msa_stats.h"
-#include "utils.h"
+#include "msa.hpp"
+#include "msa_stats.hpp"
+#include "utils.hpp"
 
 #define EPSILON 0.00000001
 
-Model::Model(void){};
-
 Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
 {
-  int N = msa_stats.GetL();
-  int Q = msa_stats.GetQ();
-  double pseudocount = 1. / msa_stats.GetEffectiveM();
-  arma::Mat<double> frequency_1p = msa_stats.GetFrequency1p();
+  N = msa_stats.getN();
+  Q = msa_stats.getQ();
+  double pseudocount = 1. / msa_stats.getEffectiveM();
 
   params.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
@@ -33,10 +31,10 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
 
   params.h = arma::Mat<double>(Q, N, arma::fill::zeros);
   double avg;
-  double* freq_ptr = NULL;
+  double* freq_ptr = nullptr;
   for (int i = 0; i < N; i++) {
     avg = 0;
-    freq_ptr = frequency_1p.colptr(i);
+    freq_ptr = msa_stats.frequency_1p.colptr(i);
     for (int aa = 0; aa < Q; aa++) {
       avg +=
         log((1. - pseudocount) * (*(freq_ptr + aa)) + pseudocount * (1. / Q));
@@ -67,6 +65,87 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
   gradient.h = arma::Mat<double>(Q, N, arma::fill::zeros);
 };
 
+void Model::writeParams(std::string output_file) {
+  std::ofstream output_stream(output_file);
+
+  int N = params.h.n_cols;
+  int Q = params.h.n_rows;
+
+  // Write J
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
+          output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
+                        << " " << params.J.at(i, j)(aa1, aa2) << std::endl;
+        }
+      }
+    }
+  }
+
+  // Write h
+  for (int i = 0; i < N; i++) {
+    for (int aa = 0; aa < Q; aa++) {
+      output_stream << "h " << i << " " << aa << " " << params.h(aa, i)
+                    << std::endl;
+    }
+  }
+}
+
+void Model::writeLearningRates(std::string output_file) {
+  std::ofstream output_stream(output_file);
+
+  int N = learning_rates.h.n_cols;
+  int Q = learning_rates.h.n_rows;
+
+  // Write J
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
+          output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
+                        << " " << learning_rates.J.at(i, j)(aa1, aa2) << std::endl;
+        }
+      }
+    }
+  }
+
+  // Write h
+  for (int i = 0; i < N; i++) {
+    for (int aa = 0; aa < Q; aa++) {
+      output_stream << "h " << i << " " << aa << " " << learning_rates.h(aa, i)
+                    << std::endl;
+    }
+  }
+}
+
+void Model::writeGradient(std::string output_file) {
+  std::ofstream output_stream(output_file);
+
+  int N = gradient.h.n_cols;
+  int Q = gradient.h.n_rows;
+
+  // Write J
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
+          output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
+                        << " " << gradient.J.at(i, j)(aa1, aa2) << std::endl;
+        }
+      }
+    }
+  }
+
+  // Write h
+  for (int i = 0; i < N; i++) {
+    for (int aa = 0; aa < Q; aa++) {
+      output_stream << "h " << i << " " << aa << " " << gradient.h(aa, i)
+                    << std::endl;
+    }
+  }
+}
+
 void
 Sim::initializeParameters(void)
 {
@@ -75,7 +154,8 @@ Sim::initializeParameters(void)
   lambda_reg2 = 0.01;
   step_max = 2000;
   error_max = 0.00001;
-  save_parameters = 20;
+  // save_parameters = 20;
+  save_parameters = 50;
   step_check = step_max;
 
   // Learning rate settings
@@ -102,17 +182,13 @@ Sim::initializeParameters(void)
   coherence_min = 0.9999;
 
   // mcmc settings
-  M = 1000;       // importance sampling max iterations
-  count_max = 10; // number of independent MCMC runs
-
-  // fresh settings
-  t_wait = t_wait_0;
-  delta_t = delta_t_0;
-  M_new = M * count_max;
+  M = 1000;            // importance sampling max iterations
+  count_max = 10;      // number of independent MCMC runs
+  init_sample = false; // flag to load first position for mcmc seqs
 
   // check routine settings
-  t_wait_check = t_wait;
-  delta_t_check = delta_t;
+  t_wait_check = t_wait_0;
+  delta_t_check = delta_t_0;
   M_check = M;
   count_check = count_max;
 }
@@ -123,7 +199,7 @@ Sim::Sim(MSAStats msa_stats)
   initializeParameters();
   current_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
   previous_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
-  mcmc = new MCMC(msa_stats.GetL(), msa_stats.GetQ());
+  mcmc = new MCMC(msa_stats.getN(), msa_stats.getQ());
 }
 
 Sim::~Sim(void)
@@ -135,24 +211,50 @@ Sim::~Sim(void)
 }
 
 void
+Sim::readInitialSample(int N, int Q) {
+    std::ifstream input_stream(init_sample_file);
+
+  if (!input_stream) {
+    std::cerr << "ERROR: cannot read '"<< init_sample_file << "'." << std::endl;
+    exit(2);
+  }
+
+  std::string line;
+  int aa;
+  std::getline(input_stream, line);
+  for (int n = 0; n < N; n++) {
+    std::istringstream iss(line);
+    iss >> aa;
+    assert(aa < Q);
+    initial_sample(n) = aa;
+  }
+  input_stream.close();
+};
+
+void
 Sim::run(void)
 {
 
   std::cout<<"initialing run"<<std::endl<<std::endl;
 
-  int N = current_model->params.h.n_cols;
-  int Q = current_model->params.h.n_rows;
+  int N = current_model->N;
+  int Q = current_model->Q;
 
   // Initialize sample data structure
-  arma::field<arma::Mat<int>> samples = arma::field<arma::Mat<int>>(count_max);
+  samples = arma::field<arma::Mat<int>>(count_max);
   for (int i = 0; i < count_max; i++) {
-    samples(i) = arma::Mat<int>(M, N, arma::fill::zeros);
+    samples.at(i) = arma::Mat<int>(M, N, arma::fill::zeros);
   }
   mcmc_stats = new MCMCStats(samples, current_model->params);
 
+  if (init_sample) {
+    initial_sample = arma::Col<int>(N, arma::fill::zeros);
+    readInitialSample(N, Q);
+  }
+
   /// BM sampling loop
-  t_wait = t_wait_0;
-  delta_t = delta_t_0;
+  int t_wait = t_wait_0;
+  int delta_t = delta_t_0;
   for (int step = 0; step <= step_max; step++) {
     std::cout << "Step: " << step << std::endl;
 
@@ -165,7 +267,11 @@ Sim::run(void)
       mcmc->load(current_model->params);
 
       std::cout<<"sampling model with mcmc"<<std::endl;
-      mcmc->sample(&samples, count_max, M, N, t_wait, delta_t, step);
+      if (init_sample) {
+        mcmc->sample_init(&samples, count_max, M, N, t_wait, delta_t, &initial_sample);
+      } else {
+        mcmc->sample(&samples, count_max, M, N, t_wait, delta_t, step);
+      }
 
       std::cout<<"computing mcmc stats"<<std::endl;
       mcmc_stats->updateData(samples, current_model->params);
@@ -204,20 +310,26 @@ Sim::run(void)
         }
 
         if (flag_deltat_up) {
-          delta_t = delta_t * adapt_up_time;
+          delta_t = delta_t * adapt_up_time; // truncation: int = double * int;
+          std::cout << "increasing wait time to " << delta_t << std::endl;
         } else if (flag_deltat_down) {
-          delta_t = delta_t * adapt_down_time;
+          delta_t = delta_t * adapt_down_time; // truncation: int = double * int;
+          std::cout << "decreasing wait time to " << delta_t << std::endl;
         }
 
         if (flag_twaiting_up) {
-          t_wait = t_wait * adapt_up_time;
+          t_wait = t_wait * adapt_up_time; // truncation: int = double * int;
+          std::cout << "increasing burn-in time to " << t_wait << std::endl;
         }
         if (flag_twaiting_down) {
-          t_wait = t_wait * adapt_down_time;
+          t_wait = t_wait * adapt_down_time; // truncation: int = double * int;
+          std::cout << "decreasing burn-in time to " << t_wait << std::endl;
         }
 
         if (not flag_deltat_up and not flag_twaiting_up) {
           flag_mc = false;
+        } else {
+          std::cout << "resampling..." << std::endl;
         }
       } else {
         flag_mc = false;
@@ -230,9 +342,10 @@ Sim::run(void)
     while (step_importance < step_importance_max and flag_coherence == true) {
       step_importance++;
       if (step_importance > 1) {
-        std::cout << "imporance sampling" << std::endl;
+        std::cout << "imporance sampling not implemented..." << std::endl;
+        exit(1);
       } else {
-        std::cout<<"computing mcmc corr and energy"<<std::endl;
+        std::cout << "computing sequence correlations and energies" << std::endl;
         mcmc_stats->computeSampleStats();
       }
 
@@ -243,7 +356,7 @@ Sim::run(void)
       bool converged = computeErrorReparametrization();
       if (converged) {
         std::cout << "writing results" << std::endl;
-        writeData();
+        writeData("final");
         return;
       }
 
@@ -260,7 +373,7 @@ Sim::run(void)
       // Save parameters
       if (step % save_parameters == 0) {
         std::cout << "writing step " << step << std::endl;
-        writeData(step);
+        writeData(std::to_string(step));
       }
 
       // Update parameters
@@ -272,9 +385,8 @@ Sim::run(void)
     }
     std::cout<<std::endl;
   }
-  std::cout << "writing results" << std::endl;
-  writeData();
-  // WriteMCMCSamplesCompat(samples, "MC_samples_final.txt");
+  std::cout << "writing final results" << std::endl;
+  writeData("final");
   return;
 }
 
@@ -282,10 +394,10 @@ Sim::run(void)
 bool
 Sim::computeErrorReparametrization(void)
 {
-  double M_eff = msa_stats.GetEffectiveM();
-  int N = msa_stats.GetL();
-  int M = msa_stats.GetM();
-  int Q = msa_stats.GetQ();
+  double M_eff = msa_stats.getEffectiveM();
+  int N = msa_stats.getN();
+  int M = msa_stats.getM();
+  int Q = msa_stats.getQ();
 
   double error_stat_1p = 0;
   double error_stat_2p = 0;
@@ -389,16 +501,6 @@ Sim::computeErrorReparametrization(void)
           }
           if (sqrt(pow(delta_stat, 2)) > error_min_update) {
             current_model->gradient.J.at(i, j).at(aa1, aa2) = -delta;
-            // current_model->gradient.J.at(i, j).at(aa1, aa2) =
-            //   msa_stats.frequency_2p.at(i, j).at(aa1, aa2) -
-            //   mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) +
-            //   (mcmc_stats->frequency_1p.at(aa1, i) -
-            //   msa_stats.frequency_1p.at(aa1, i)) *
-            //   msa_stats.frequency_1p.at(aa2, j) +
-            //   (mcmc_stats->frequency_1p.at(aa2, j) -
-            //   msa_stats.frequency_1p.at(aa2, j)) *
-            //   msa_stats.frequency_1p.at(aa1, i) - lambda_j *
-            //   current_model->params.J.at(i, j).at(aa1, aa2));
             count2++;
           }
         }
@@ -493,10 +595,10 @@ Sim::computeErrorReparametrization(void)
 void
 Sim::updateLearningRate(void)
 {
-  double M_eff = msa_stats.GetEffectiveM();
-  int N = msa_stats.GetL();
-  int M = msa_stats.GetM();
-  int Q = msa_stats.GetQ();
+  double M_eff = msa_stats.getEffectiveM();
+  int N = msa_stats.getN();
+  int M = msa_stats.getM();
+  int Q = msa_stats.getQ();
   double max_step_J = max_step_J_N / N;
 
   double alfa = 0;
@@ -557,10 +659,10 @@ Sim::updateLearningRate(void)
 void
 Sim::updateReparameterization(void)
 {
-  double M_eff = msa_stats.GetEffectiveM();
-  int N = msa_stats.GetL();
-  int M = msa_stats.GetM();
-  int Q = msa_stats.GetQ();
+  double M_eff = msa_stats.getEffectiveM();
+  int N = msa_stats.getN();
+  int M = msa_stats.getM();
+  int Q = msa_stats.getQ();
 
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
@@ -624,25 +726,13 @@ Sim::updateReparameterization(void)
 };
 
 void
-Sim::writeData(int step)
+Sim::writeData(std::string id)
 {
-  std::string params_file = "parameters_" + std::to_string(step) + ".txt";
-  WritePottsModelCompat(current_model->params, params_file);
-
-  mcmc_stats->writeFrequency1pCompat("stat_MC_1p.txt", "stat_MC_1p_sigma.txt");
-  mcmc_stats->writeFrequency2pCompat("stat_MC_2p.txt", "stat_MC_2p_sigma.txt");
-  mcmc_stats->writeSamplesCompat("MC_samples_" + std::to_string(step) + ".txt");
-  mcmc_stats->writeSampleEnergiesCompat("MC_emergies_" + std::to_string(step) +
-                                        ".txt");
-}
-
-void
-Sim::writeData(void)
-{
-  WritePottsModelCompat(current_model->gradient, "gradient_final.txt");
-  WritePottsModelCompat(current_model->params, "parameters_final.txt");
-  WritePottsModelCompat(current_model->learning_rates,
-                        "learning_rate_final.txt");
-  mcmc_stats->writeSamplesCompat("MC_samples_final.txt");
-  mcmc_stats->writeSampleEnergiesCompat("MC_emergies_final.txt");
+  current_model->writeParams("parameters_" + id + ".txt");
+  mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".txt",
+      "stat_MC_1p_sigma_" + id + ".txt");
+  mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".txt",
+      "stat_MC_2p_sigma_" + id + ".txt");
+  mcmc_stats->writeSamples("MC_samples_" + id + ".txt");
+  mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
 }
