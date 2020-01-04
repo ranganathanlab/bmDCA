@@ -1,6 +1,8 @@
 # Boltzmann-machine Direct Coupling Analysis (bmDCA)
 
-**Dependencies:** armadillo, openmp (optional)
+Dependencies:
+ * [Armadillo](http://arma.sourceforge.net/)
+ * [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
 
 ## Usage
 
