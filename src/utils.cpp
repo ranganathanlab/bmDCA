@@ -1,8 +1,8 @@
 
 #include "utils.hpp"
 
-#include <string>
 #include <cassert>
+#include <string>
 
 SeqRecord::SeqRecord(std::string h, std::string s)
   : header(h)

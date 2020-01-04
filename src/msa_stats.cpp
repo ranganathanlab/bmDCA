@@ -108,8 +108,9 @@ MSAStats::MSAStats(MSA msa)
       pos_freq = tmp.at(aa, i);
       background_freq = aa_background_frequencies(aa);
       if (pos_freq < 1. && pos_freq > 0.) {
-        rel_entropy_grad_1p.at(aa, i) = log((pos_freq * (1. - background_freq)) /
-                                         ((1. - pos_freq) * background_freq));
+        rel_entropy_grad_1p.at(aa, i) =
+          log((pos_freq * (1. - background_freq)) /
+              ((1. - pos_freq) * background_freq));
       }
     }
   }
@@ -138,18 +139,6 @@ MSAStats::getEffectiveM(void)
 {
   return M_effective;
 }
-
-// arma::Mat<double>
-// MSAStats::getFrequency1p(void)
-// {
-//   return frequency_1p;
-// }
-// 
-// arma::Mat<double>
-// MSAStats::getRelEntropyGradient(void)
-// {
-//   return rel_entropy_grad_1p;
-// }
 
 void
 MSAStats::writeRelEntropyGradient(std::string output_file)

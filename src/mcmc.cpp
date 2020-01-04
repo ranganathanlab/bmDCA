@@ -34,31 +34,31 @@ MCMC::sample(arma::field<arma::Mat<int>>* ptr,
              int N,
              int t_wait,
              int delta_t,
-             int seed)
-{
+             int seed){
 #pragma omp parallel
-{
+  {
 #pragma omp for
-  for (int rep = 0; rep < reps; rep++) {
-    graph.sample_mcmc(&((*ptr).at(rep)), M, t_wait, delta_t, seed + rep);
-  }
+    for (int rep = 0; rep < reps; rep++){
+      graph.sample_mcmc(&((*ptr).at(rep)), M, t_wait, delta_t, seed + rep);
 }
-};
+}
+}
+;
 
 void
 MCMC::sample_init(arma::field<arma::Mat<int>>* ptr,
-             int reps,
-             int M,
-             int N,
-             int t_wait,
-             int delta_t,
-             arma::Col<int>* init_ptr)
-{
+                  int reps,
+                  int M,
+                  int N,
+                  int t_wait,
+                  int delta_t,
+                  arma::Col<int>* init_ptr){
 #pragma omp parallel
-{
+  {
 #pragma omp for
-  for (int rep = 0; rep < reps; rep++) {
-    graph.sample_mcmc_init(&((*ptr).at(rep)), M, t_wait, delta_t, init_ptr);
-  }
+    for (int rep = 0; rep < reps; rep++){
+      graph.sample_mcmc_init(&((*ptr).at(rep)), M, t_wait, delta_t, init_ptr);
 }
-};
+}
+}
+;

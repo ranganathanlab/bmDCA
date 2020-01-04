@@ -21,10 +21,7 @@ public:
   std::vector<double> getEnergiesStats(void);
   std::vector<double> getCorrelationsStats(void);
 
-  void writeEnergyStats(std::string,
-                              std::string,
-                              std::string,
-                              std::string);
+  void writeEnergyStats(std::string, std::string, std::string, std::string);
   void writeAutocorrelationStats(std::string, std::string, std::string);
   void writeFrequency1p(std::string, std::string);
   void writeFrequency2p(std::string, std::string);

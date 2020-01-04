@@ -1,8 +1,8 @@
 #include "run.hpp"
 
 #include <armadillo>
-#include <cstdlib>
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -65,7 +65,9 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
   gradient.h = arma::Mat<double>(Q, N, arma::fill::zeros);
 };
 
-void Model::writeParams(std::string output_file) {
+void
+Model::writeParams(std::string output_file)
+{
   std::ofstream output_stream(output_file);
 
   int N = params.h.n_cols;
@@ -92,7 +94,9 @@ void Model::writeParams(std::string output_file) {
   }
 }
 
-void Model::writeLearningRates(std::string output_file) {
+void
+Model::writeLearningRates(std::string output_file)
+{
   std::ofstream output_stream(output_file);
 
   int N = learning_rates.h.n_cols;
@@ -104,7 +108,8 @@ void Model::writeLearningRates(std::string output_file) {
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << learning_rates.J.at(i, j)(aa1, aa2) << std::endl;
+                        << " " << learning_rates.J.at(i, j)(aa1, aa2)
+                        << std::endl;
         }
       }
     }
@@ -119,7 +124,9 @@ void Model::writeLearningRates(std::string output_file) {
   }
 }
 
-void Model::writeGradient(std::string output_file) {
+void
+Model::writeGradient(std::string output_file)
+{
   std::ofstream output_stream(output_file);
 
   int N = gradient.h.n_cols;
@@ -211,11 +218,13 @@ Sim::~Sim(void)
 }
 
 void
-Sim::readInitialSample(int N, int Q) {
-    std::ifstream input_stream(init_sample_file);
+Sim::readInitialSample(int N, int Q)
+{
+  std::ifstream input_stream(init_sample_file);
 
   if (!input_stream) {
-    std::cerr << "ERROR: cannot read '"<< init_sample_file << "'." << std::endl;
+    std::cerr << "ERROR: cannot read '" << init_sample_file << "'."
+              << std::endl;
     exit(2);
   }
 
@@ -235,7 +244,7 @@ void
 Sim::run(void)
 {
 
-  std::cout<<"initialing run"<<std::endl<<std::endl;
+  std::cout << "initialing run" << std::endl << std::endl;
 
   int N = current_model->N;
   int Q = current_model->Q;
@@ -263,17 +272,18 @@ Sim::run(void)
     while (flag_mc) {
 
       // Draw from MCMC
-      std::cout<<"loading params to mcmc"<<std::endl;
+      std::cout << "loading params to mcmc" << std::endl;
       mcmc->load(current_model->params);
 
-      std::cout<<"sampling model with mcmc"<<std::endl;
+      std::cout << "sampling model with mcmc" << std::endl;
       if (init_sample) {
-        mcmc->sample_init(&samples, count_max, M, N, t_wait, delta_t, &initial_sample);
+        mcmc->sample_init(
+          &samples, count_max, M, N, t_wait, delta_t, &initial_sample);
       } else {
         mcmc->sample(&samples, count_max, M, N, t_wait, delta_t, step);
       }
 
-      std::cout<<"computing mcmc stats"<<std::endl;
+      std::cout << "computing mcmc stats" << std::endl;
       mcmc_stats->updateData(samples, current_model->params);
 
       // run checks
@@ -313,7 +323,8 @@ Sim::run(void)
           delta_t = delta_t * adapt_up_time; // truncation: int = double * int;
           std::cout << "increasing wait time to " << delta_t << std::endl;
         } else if (flag_deltat_down) {
-          delta_t = delta_t * adapt_down_time; // truncation: int = double * int;
+          delta_t =
+            delta_t * adapt_down_time; // truncation: int = double * int;
           std::cout << "decreasing wait time to " << delta_t << std::endl;
         }
 
@@ -345,7 +356,8 @@ Sim::run(void)
         std::cout << "imporance sampling not implemented..." << std::endl;
         exit(1);
       } else {
-        std::cout << "computing sequence correlations and energies" << std::endl;
+        std::cout << "computing sequence correlations and energies"
+                  << std::endl;
         mcmc_stats->computeSampleStats();
       }
 
@@ -383,14 +395,13 @@ Sim::run(void)
 
       updateReparameterization();
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
   }
   std::cout << "writing final results" << std::endl;
   writeData("final");
   return;
 }
 
-// void Sim::computeErrorReparametrization(void) {
 bool
 Sim::computeErrorReparametrization(void)
 {
@@ -730,9 +741,9 @@ Sim::writeData(std::string id)
 {
   current_model->writeParams("parameters_" + id + ".txt");
   mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".txt",
-      "stat_MC_1p_sigma_" + id + ".txt");
+                               "stat_MC_1p_sigma_" + id + ".txt");
   mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".txt",
-      "stat_MC_2p_sigma_" + id + ".txt");
+                               "stat_MC_2p_sigma_" + id + ".txt");
   mcmc_stats->writeSamples("MC_samples_" + id + ".txt");
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
 }

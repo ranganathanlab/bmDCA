@@ -26,7 +26,7 @@ MSA::readInputMSA(std::string msa_file)
   std::ifstream input_stream(msa_file);
 
   if (!input_stream) {
-    std::cerr << "ERROR: cannot write to '"<< msa_file << "'." << std::endl;
+    std::cerr << "ERROR: cannot write to '" << msa_file << "'." << std::endl;
     exit(2);
   }
 
@@ -166,8 +166,7 @@ void
 MSA::writeMatrix(std::string output_file)
 {
   std::ofstream output_stream(output_file);
-  // output_stream << seq_records.size() << " " << N << " " << 21
-  //               << std::endl;
+  output_stream << seq_records.size() << " " << N << " " << 21 << std::endl;
   for (int i = 0; i < M; i++) {
     for (int j = 0; j < N; j++) {
       if (j + 1 == N) {

@@ -5,7 +5,6 @@
 
 #include "utils.hpp"
 
-
 MCMCStats::MCMCStats(arma::field<arma::Mat<int>> s, potts_model p)
 {
   reps = s.n_rows;
@@ -77,9 +76,9 @@ MCMCStats::computeEnergiesStats(void)
 
 void
 MCMCStats::writeEnergyStats(std::string output_file_start,
-                                  std::string output_file_end,
-                                  std::string output_file_cfr,
-                                  std::string output_file_cfr_err)
+                            std::string output_file_end,
+                            std::string output_file_cfr,
+                            std::string output_file_cfr_err)
 {
 
   std::ofstream output_stream_start(output_file_start);
@@ -179,8 +178,8 @@ MCMCStats::computeAutocorrelation(void)
 
 void
 MCMCStats::writeAutocorrelationStats(std::string overlap_file,
-                                           std::string overlap_inf_file,
-                                           std::string ergo_file)
+                                     std::string overlap_inf_file,
+                                     std::string ergo_file)
 {
   std::ofstream output_stream_overlap(overlap_file);
 
@@ -250,9 +249,9 @@ MCMCStats::computeSampleStats(void)
   arma::Col<int> n1squared = arma::Col<int>(Q, arma::fill::zeros);
   arma::Mat<int> n2squared = arma::Mat<int>(Q, Q, arma::fill::zeros);
 
-// #pragma omp parallel
-// {
-// #pragma omp for
+  // #pragma omp parallel
+  // {
+  // #pragma omp for
   for (int i = 0; i < N; i++) {
     n1.zeros();
     n1av.zeros();
@@ -270,16 +269,16 @@ MCMCStats::computeSampleStats(void)
       frequency_1p.at(aa, i) = (double)n1av.at(aa) / M / reps;
       frequency_1p_sigma.at(aa, i) =
         Max(sqrt(((double)n1squared.at(aa) / (M * M * reps) -
-                      pow((double)n1av.at(aa) / (M * reps), 2)) /
-                     sqrt(reps)),
-                0);
+                  pow((double)n1av.at(aa) / (M * reps), 2)) /
+                 sqrt(reps)),
+            0);
     }
   }
-// }
+  // }
 
-// #pragma omp parallel
-// {
-// #pragma omp for
+  // #pragma omp parallel
+  // {
+  // #pragma omp for
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
       for (int rep = 0; rep < reps; rep++) {
@@ -302,19 +301,19 @@ MCMCStats::computeSampleStats(void)
             (double)n2av.at(aa1, aa2) / (M * reps);
           frequency_2p_sigma.at(i, j).at(aa1, aa2) =
             Max(sqrt(((double)n2squared.at(aa1, aa2) / (M * M * reps) -
-                          pow((double)n2av.at(aa1, aa2) / (M * reps), 2)) /
-                         sqrt(reps)),
-                    0);
+                      pow((double)n2av.at(aa1, aa2) / (M * reps), 2)) /
+                     sqrt(reps)),
+                0);
         }
       }
     }
   }
-// }
+  // }
 }
 
 void
 MCMCStats::writeFrequency1p(std::string output_file,
-                                  std::string output_file_sigma)
+                            std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
   std::ofstream output_stream_sigma(output_file_sigma);
@@ -333,7 +332,7 @@ MCMCStats::writeFrequency1p(std::string output_file,
 
 void
 MCMCStats::writeFrequency2p(std::string output_file,
-                                  std::string output_file_sigma)
+                            std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
   std::ofstream output_stream_sigma(output_file_sigma);

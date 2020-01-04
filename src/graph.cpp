@@ -94,12 +94,12 @@ Graph::print_distribution(ostream& os)
 // Graph::sample_distribution(ostream& os, size_t m)
 // {
 //   vector<size_t> conf(n);
-// 
+//
 //   size_t num = size_t(round(pow(double(q), double(n))));
-// 
+//
 //   vector<double> cumulative(num + 1);
 //   std::cout << "flag 1" << std::endl;
-// 
+//
 //   size_t c = 1;
 //   while (true) {
 //     double x = 0;
@@ -114,7 +114,7 @@ Graph::print_distribution(ostream& os)
 //     double nnp = exp(x);
 //     cumulative[c] = cumulative[c - 1];
 //     cumulative[c++] += nnp;
-// 
+//
 //     size_t j = 0;
 //     while (j < n && ++conf[j] == q) {
 //       conf[j] = 0;
@@ -126,13 +126,13 @@ Graph::print_distribution(ostream& os)
 //     }
 //   }
 //   assert(c == num + 1);
-// 
+//
 //   double norm = cumulative[num];
-// 
+//
 //   size_t s = 0;
 //   while (s < m) {
 //     double x = norm * drand48();
-// 
+//
 //     size_t i0 = 0;
 //     size_t i1 = num;
 //     while (i1 != i0 + 1) {
@@ -236,18 +236,18 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
       (*ptr).at(s, i) = conf[i];
     }
   }
-  std::string output_string = "sampled " + std::to_string(m) + " [de=" +
-    std::to_string(tot_de) + "]\n";
+  std::string output_string =
+    "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
   log_out << output_string;
   return;
 }
 
 void
 Graph::sample_mcmc_init(arma::Mat<int>* ptr,
-                   size_t m,
-                   size_t mc_iters0,
-                   size_t mc_iters,
-                   arma::Col<int>* init_ptr)
+                        size_t m,
+                        size_t mc_iters0,
+                        size_t mc_iters,
+                        arma::Col<int>* init_ptr)
 {
   size_t ts = 0;
   vector<size_t> conf(n);
@@ -318,8 +318,8 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
       (*ptr)(s, i) = conf[i];
     }
   }
-  std::string output_string = "sampled " + std::to_string(m) + " [de=" +
-    std::to_string(tot_de) + "]\n";
+  std::string output_string =
+    "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
   log_out << output_string;
   return;
 }

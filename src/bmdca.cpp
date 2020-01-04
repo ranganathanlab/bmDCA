@@ -26,7 +26,7 @@ main(int argc, char* argv[])
       case 'd':
         dest_dir = optarg;
         {
-          struct stat st = {0};
+          struct stat st = { 0 };
           if (stat(dest_dir.c_str(), &st) == -1) {
             mkdir(dest_dir.c_str(), 0700);
           }

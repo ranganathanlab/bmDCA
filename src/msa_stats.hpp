@@ -9,8 +9,6 @@ class MSAStats
 {
 public:
   MSAStats(MSA);
-  // arma::Mat<double> GetRelEntropyGradient();
-  // arma::Mat<double> GetFrequency1p();
   double getEffectiveM();
   double getN();
   double getM();
@@ -33,9 +31,6 @@ private:
   double M_effective; // effect number of sequences
 
   arma::Col<double> aa_background_frequencies;
-  // arma::Mat<double> frequency_1p;
-  // arma::field<arma::Mat<double>> frequency_2p;
-  // arma::Mat<double> rel_entropy_grad_1p;
 };
 
 #endif

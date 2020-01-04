@@ -43,8 +43,8 @@ private:
   void readInitialSample(int, int);
 
   // BM settings
-  double lambda_reg1; // L2 regularization strength for 1p statistics (fields)
-  double lambda_reg2; // L2 regularization strength for 2p statistics (cpling)
+  double lambda_reg1;  // L2 regularization strength for 1p statistics (fields)
+  double lambda_reg2;  // L2 regularization strength for 2p statistics (cpling)
   bool use_sca_weight; // whether or not to use rel. entropy for position-
                        // specific regularization
   int step_max;        // max number of BM steps
@@ -83,7 +83,7 @@ private:
   // MCMC settings
   int M;                        // number of samples for each MCMC run
   int count_max;                // number of independent MCMC runs
-  bool init_sample=false;       // flag for loading the first positions when
+  bool init_sample = false;     // flag for loading the first positions when
                                 // initializing the mcmc from a file
   std::string init_sample_file; // name of file with mcmc initial sample
 

@@ -36,10 +36,10 @@ public:
                    long int seed);
 
   void sample_mcmc_init(arma::Mat<int>* ptr,
-                   size_t m,
-                   size_t mc_iters0,
-                   size_t mc_iters,
-                   arma::Col<int>* init_ptr);
+                        size_t m,
+                        size_t mc_iters0,
+                        size_t mc_iters,
+                        arma::Col<int>* init_ptr);
 
   void print_parameters(FILE* of);
 };

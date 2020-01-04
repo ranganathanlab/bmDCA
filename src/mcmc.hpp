@@ -1,8 +1,8 @@
 #ifndef MCMC_HPP
 #define MCMC_HPP
 
-#include <unistd.h>
 #include <string>
+#include <unistd.h>
 
 #include "graph.hpp"
 #include "utils.hpp"
@@ -16,12 +16,18 @@ public:
   void load(potts_model);
   void run(int, int);
   void sample(arma::field<arma::Mat<int>>*, int, int, int, int, int, int);
-  void sample_init(arma::field<arma::Mat<int>>*, int, int, int, int, int, arma::Col<int>*);
+  void sample_init(arma::field<arma::Mat<int>>*,
+                   int,
+                   int,
+                   int,
+                   int,
+                   int,
+                   arma::Col<int>*);
 
 private:
   size_t n;
   size_t q;
-  
+
   long int seed = 1;
 
   Graph graph;
