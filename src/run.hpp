@@ -26,7 +26,7 @@ public:
 class Sim
 {
 public:
-  Sim(MSAStats msa_stats);
+  Sim(MSAStats);
   ~Sim(void);
   void initializeParameters(void);
   void initializeRun(void);
@@ -45,8 +45,6 @@ private:
   // BM settings
   double lambda_reg1;  // L2 regularization strength for 1p statistics (fields)
   double lambda_reg2;  // L2 regularization strength for 2p statistics (cpling)
-  bool use_sca_weight; // whether or not to use rel. entropy for position-
-                       // specific regularization
   int step_max;        // max number of BM steps
   double error_max;    // exit error
   int save_parameters; // multiple of iterations at which to save parameters

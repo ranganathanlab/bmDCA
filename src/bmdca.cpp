@@ -53,7 +53,6 @@ main(int argc, char* argv[])
   MSAStats msa_stats = MSAStats(msa);
   msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.txt");
   msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.txt");
-  msa_stats.writeRelEntropyGradient(dest_dir + "/rel_ent_grad_align_1p.txt");
 
   // Initialize the MCMC using the statistics of the MSA
   Sim sim = Sim(msa_stats);
