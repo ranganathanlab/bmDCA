@@ -312,6 +312,135 @@ MCMCStats::computeSampleStats(void)
 }
 
 void
+MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
+{
+  // double *dE;
+  // double *p;
+  // double* dE_av;
+  // double *Z, *Z_inv;
+  // double Z_tot, Z_inv_tot;
+
+  // arma::Mat<double> p = arma::Mat<double>(M, reps, arma::fill::zeros);
+  // arma::Mat<double> dE = arma::Mat<double>(M, reps, arma::fill::zeros);
+  arma::Mat<double> p = arma::Mat<double>(reps, M, arma::fill::zeros);
+  arma::Mat<double> dE = arma::Mat<double>(reps, M, arma::fill::zeros);
+  arma::Col<double> dE_av = arma::Col<double>(reps, arma::fill::zeros);
+  arma::Col<double> Z = arma::Col<double>(reps, arma::fill::zeros);
+  arma::Col<double> Z_inv = arma::Col<double>(reps, arma::fill::zeros);
+  arma::Col<double> sum = arma::Col<double>(reps, arma::fill::zeros);
+  arma::Col<double> w = arma::Col<double>(reps, arma::fill::zeros);
+  double Z_tot = 0;
+  double Z_inv_tot = 0;
+  double W = 0;
+  double sumw = 0;
+  double dE_av_tot = 0;
+
+  for (int rep = 0; rep < reps; rep++) {
+    for (int m = 0; m < M; m++) {
+      for (int i = 0; i < N; i++) {
+        dE.at(rep, m) += cur->h.at(samples.at(rep).at(m, i)) -
+                         prev->h.at(samples.at(rep).at(m, i));
+        for (int j = i + 1; j < N; j++) {
+          dE.at(rep, m) += cur->J.at(i, j).at(samples.at(rep).at(m, i),
+                                              samples.at(rep).at(m, j)) -
+                           prev->J.at(i, j).at(samples.at(rep).at(m, i),
+                                               samples.at(rep).at(m, j));
+        }
+      }
+      dE_av.at(rep) += dE.at(rep, m);
+    }
+    dE_av.at(rep) = dE_av.at(rep) / M;
+    dE_av_tot += dE_av.at(rep);
+  }
+
+  for (int rep = 0; rep < reps; rep++) {
+    for (int m = 0; m < M; m++) {
+      p.at(rep, m) = exp(dE.at(rep, m) - dE_av.at(rep));
+      Z.at(rep) += p.at(rep, m);
+      Z_inv.at(rep) += 1. / p.at(rep, m);
+    }
+    for (int m = 0; m < M; m++) {
+      p.at(rep, m) = p.at(rep, m) / Z.at(rep);
+      sum.at(rep) += pow(p.at(rep, m), 2);
+    }
+    Z_tot += Z.at(rep);
+    Z_inv_tot += Z_inv.at(rep);
+    w.at(rep) = 1. / sum.at(rep);
+    W += w.at(rep);
+  }
+
+  for (int rep = 0; rep < reps; rep++) {
+    w.at(rep) = w.at(rep) / W;
+    sumw += pow(w.at(rep), 2);
+  }
+
+  arma::Mat<int> n1 = arma::Mat<int>(Q, reps, arma::fill::zeros);
+  arma::field<arma::Mat<int>> n2 = arma::field<arma::Mat<int>>(reps);
+  for (int rep = 0; rep < reps; rep++) {
+    n2.at(rep) = arma::Mat<int>(Q, Q, arma::fill::zeros);
+  }
+
+  arma::Col<int> n1av = arma::Col<int>(Q, arma::fill::zeros);
+  arma::Mat<int> n2av = arma::Mat<int>(Q, Q, arma::fill::zeros);
+
+  arma::Col<int> n1squared = arma::Col<int>(Q, arma::fill::zeros);
+  arma::Mat<int> n2squared = arma::Mat<int>(Q, Q, arma::fill::zeros);
+
+  for (int i = 0; i < N; i++) {
+    n1.zeros();
+    n1av.zeros();
+    n1squared.zeros();
+    for (int rep = 0; rep < reps; rep++) {
+      for (int m = 0; m < M; m++) {
+        n1.at(samples.at(rep).at(m, i), rep) += p.at(rep, m);
+      }
+    }
+    for (int aa = 0; aa < Q; aa++) {
+      for (int rep = 0; rep < reps; rep++) {
+        n1av.at(aa) += w.at(rep) * n1.at(aa, rep);
+        n1squared.at(aa) += w.at(rep) * pow(n1.at(aa, rep), 2);
+      }
+      frequency_1p.at(aa, i) = (double)n1av.at(aa);
+      frequency_1p_sigma.at(aa, i) =
+        Max(sqrt(((double)n1squared.at(aa) - pow((double)n1av.at(aa), 2)) *
+                 sqrt(sumw)),
+            0);
+    }
+  }
+
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      for (int rep = 0; rep < reps; rep++) {
+        n2.at(rep).zeros();
+      }
+      n2av.zeros();
+      n2squared.zeros();
+      for (int rep = 0; rep < reps; rep++)
+        for (int m = 0; m < M; m++) {
+          n2.at(rep).at(samples.at(rep).at(m, i), samples.at(rep)(m, j)) +=
+            p.at(rep, m);
+        }
+
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
+          for (int rep = 0; rep < reps; rep++) {
+            n2av.at(aa1, aa2) += w.at(rep) * n2.at(rep).at(aa1, aa2);
+            n2squared.at(aa1, aa2) +=
+              w.at(rep) * pow(n2.at(rep).at(aa1, aa2), 2);
+          }
+          frequency_2p.at(i, j).at(aa1, aa2) = (double)n2av.at(aa1, aa2);
+          frequency_2p_sigma.at(i, j).at(aa1, aa2) =
+            Max(sqrt(((double)n2squared.at(aa1, aa2) -
+                      pow((double)n2av.at(aa1, aa2), 2)) *
+                     sqrt(sumw)),
+                0);
+        }
+      }
+    }
+  }
+}
+
+void
 MCMCStats::writeFrequency1p(std::string output_file,
                             std::string output_file_sigma)
 {

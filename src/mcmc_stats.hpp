@@ -16,7 +16,7 @@ public:
   void computeAutocorrelation(void);
   void computeCorrelationStats(void);
   void computeSampleStats(void);
-  // void computeSampleStatsImportance(void);
+  void computeSampleStatsImportance(potts_model* cur, potts_model* prev);
 
   std::vector<double> getEnergiesStats(void);
   std::vector<double> getCorrelationsStats(void);

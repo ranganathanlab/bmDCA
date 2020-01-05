@@ -353,8 +353,10 @@ Sim::run(void)
     while (step_importance < step_importance_max and flag_coherence == true) {
       step_importance++;
       if (step_importance > 1) {
-        std::cout << "imporance sampling not implemented..." << std::endl;
-        exit(1);
+        std::cout << "importance sampling step " << step_importance
+                  << std::endl;
+        mcmc_stats->computeSampleStatsImportance(&(current_model->params),
+                                                 &(previous_model->params));
       } else {
         std::cout << "computing sequence correlations and energies"
                   << std::endl;
@@ -383,7 +385,8 @@ Sim::run(void)
       // Check analysis
 
       // Save parameters
-      if (step % save_parameters == 0) {
+      if (step % save_parameters == 0 &&
+          step_importance == step_importance_max) {
         std::cout << "writing step " << step << std::endl;
         writeData(std::to_string(step));
       }
