@@ -3,6 +3,7 @@
 Dependencies:
  * [Armadillo](http://arma.sourceforge.net/)
  * [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
+ * [Autotools]
 
 ## Usage
 
@@ -89,32 +90,30 @@ The fields in the config file:
 11. `min_step_h` - minimum learning rate for h (default 0.001)
 12. `max_step_h` - maximum learning rate for h (default 2.5)
 13. `min_step_J` - minimum learning rate for J (default 1e-05)
-15. `max_step_J_N` - maximum learning rate for J, scaled by effective number of
+14. `max_step_J_N` - maximum learning rate for J, scaled by effective number of
     sequences (default 2.5)
-16. `error_min_update` - threshold for differences in MSA and MCMC frequencies
+15. `error_min_update` - threshold for differences in MSA and MCMC frequencies
     above which parameters (J and h) are updated (default -1)
-17. `t_wait_0` - initial burn-in time (default 10000)
-18. `delta_t_0` - initial wait time between sampling sequences (default 100)
-19. `check_ergo` - flag to check MCMC sample energies and autocorrelations,
+16. `t_wait_0` - initial burn-in time (default 10000)
+17. `delta_t_0` - initial wait time between sampling sequences (default 100)
+18. `check_ergo` - flag to check MCMC sample energies and autocorrelations,
     without which wait and burn-in times are not updated (default true)
-20. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default 1.5)
-21. `adapt_down_time` - multiple to decrease MCMC wait/burn-in time (default
+19. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default 1.5)
+20. `adapt_down_time` - multiple to decrease MCMC wait/burn-in time (default
     0.6)
-22. `M` - number of sequences to sample for each MCMC replicate (default 1000)
-23. `count_max` - number of independent MCMC replicates (default 10)
-24. `init_sample` - flag for whether of not to use seed sequence for
+21. `M` - number of sequences to sample for each MCMC replicate (default 1000)
+22. `count_max` - number of independent MCMC replicates (default 10)
+23. `init_sample` - flag for whether of not to use seed sequence for
     initializing the MCMC (default false)
-25. `init_sample_file` - file containing the MCMC seed sequences (default )
-26. `temperature` - temperature at which to sample sequences (default 1)
-27. `t_wait_check` - _unused_ burn-in time for when running check MCMC (default
+24. `init_sample_file` - file containing the MCMC seed sequences (default )
+25. `temperature` - temperature at which to sample sequences (default 1)
+26. `t_wait_check` - _unused_ burn-in time for when running check MCMC (default
     10000)
-28. `delta_t_check` - _unused_ wait time between sampled sequences when running
+27. `delta_t_check` - _unused_ wait time between sampled sequences when running
     MCMC check (default 100)
-29. `M_check` - number of sequences to sample for each MCMC check replicate
+28. `M_check` - number of sequences to sample for each MCMC check replicate
     (default 1000)
-20. `count_check` - number of replicates for the MCMC check (default 10)
-
-
+29. `count_check` - number of replicates for the MCMC check (default 10)
 
 ### 3. Examine the output
 
@@ -199,7 +198,6 @@ h [positoin index i] [amino acid index a]
 ```
 
 Indices of sites in the sequence go from 0 to L-1 in the output format.
-
 
 ## Example
 
