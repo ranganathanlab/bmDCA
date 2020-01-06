@@ -248,6 +248,113 @@ Sim::writeParameters(std::string output_file)
   stream << "count_check=" << count_check << std::endl;
 };
 
+void
+Sim::loadParameters(std::string file_name) {
+  std::ifstream file(file_name);
+  if (file.is_open()) {
+    std::string line;
+    while(std::getline(file, line)) {
+      if(line[0] == '#' || line.empty() || line[0] == '[') continue;
+      auto delim_pos = line.find("=");
+      auto key = line.substr(0, delim_pos);
+      auto value = line.substr(delim_pos +1);
+      setParameter(key, value);
+    }
+  }
+};
+
+void
+Sim::setParameter(std::string key, std::string value) {
+  // It's not possible to use switch blocks on strings because they are char*
+  // arrays, not actual types.
+  if (key == "lambda_reg1") {
+    lambda_reg1 = std::stod(value);
+  } else if (key == "lambda_reg2") {
+    lambda_reg2 = std::stod(value);
+  } else if (key == "step_max") {
+    step_max = std::stoi(value);
+  } else if (key == "error_max") {
+    error_max = std::stod(value);
+  } else if (key == "save_parameters") {
+    save_parameters = std::stoi(value);
+  } else if (key == "step_check") {
+    step_check = std::stoi(value);
+  } else if (key == "epsilon_0_h") {
+    epsilon_0_h = std::stod(value);
+  } else if (key == "epsilon_0_J") {
+    epsilon_0_J = std::stod(value);
+  } else if (key == "adapt_up") {
+    adapt_up = std::stod(value);
+  } else if (key == "adapt_down") {
+    adapt_down = std::stod(value);
+  } else if (key == "min_step_h") {
+    min_step_h = std::stod(value);
+  } else if (key == "max_step_h") {
+    max_step_h = std::stod(value);
+  } else if (key == "min_step_J") {
+    min_step_J = std::stod(value);
+  } else if (key == "max_step_J_N") {
+    max_step_J_N = std::stod(value);
+  } else if (key == "error_min_update") {
+    error_min_update = std::stod(value);
+  } else if (key == "t_wait_0") {
+    t_wait_0 = std::stoi(value);
+  } else if (key == "delta_t_0") {
+    delta_t_0 = std::stoi(value);
+  } else if (key == "check_ergo") {
+    if (value.size() == 1) {
+      check_ergo = (std::stoi(value) == 1);
+    } else {
+      check_ergo = (value == "true");
+    }
+  } else if (key == "adapt_up_time") {
+    adapt_up_time = std::stod(value);
+  } else if (key == "adapt_down_time") {
+    adapt_down_time = std::stod(value);
+  } else if (key == "step_importance_max") {
+    step_importance_max = std::stoi(value);
+  } else if (key == "coherence_min") {
+    coherence_min = std::stod(value);
+  } else if (key == "M") {
+    M = std::stoi(value);
+  } else if (key == "count_max") {
+    count_max = std::stoi(value);
+  } else if (key == "init_sample") {
+    if (value.size() == 1) {
+      init_sample = (std::stoi(value) == 1);
+    } else {
+      init_sample = (value == "true");
+    }
+  } else if (key == "init_sample_file") {
+    init_sample_file = value;
+  } else if (key == "temperature") {
+    temperature = std::stod(value);
+  } else if (key == "t_wait_check") {
+    t_wait_check = std::stoi(value);
+  } else if (key == "delta_t_check") {
+    delta_t_check = std::stoi(value);
+  } else if (key == "M_check") {
+    M_check = std::stoi(value);
+  } else if (key == "count_check") {
+    count_check = std::stoi(value);
+  } else {
+    std::cerr << "ERROR: unknown parameter '" << key << "'" << std::endl;
+    exit(1);
+  }
+};
+
+Sim::Sim(MSAStats msa_stats, std::string config_file)
+  : msa_stats(msa_stats)
+{
+  if (config_file.empty()) {
+    initializeParameters();
+  } else {
+    loadParameters(config_file);
+  }
+  current_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
+  previous_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
+  mcmc = new MCMC(msa_stats.getN(), msa_stats.getQ());
+};
 
 Sim::Sim(MSAStats msa_stats)
   : msa_stats(msa_stats)

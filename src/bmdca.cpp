@@ -54,13 +54,13 @@ main(int argc, char* argv[])
   msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.txt");
 
   // Initialize the MCMC using the statistics of the MSA
-  Sim sim = Sim(msa_stats);
-  // sim.load(params);
+  Sim sim = Sim(msa_stats, config_file);
 
   if (dest_dir_given == true) {
     chdir(dest_dir.c_str());
   }
 
+  sim.writeParameters("bmdca_params.conf");
   sim.run();
 
   return 0;

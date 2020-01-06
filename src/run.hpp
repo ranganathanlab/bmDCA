@@ -27,8 +27,10 @@ class Sim
 {
 public:
   Sim(MSAStats);
+  Sim(MSAStats, std::string);
   ~Sim(void);
   void run(void);
+  void loadParameters(std::string);
   void writeParameters(std::string);
 
 private:
@@ -91,6 +93,8 @@ private:
   int delta_t_check; // delta_t
   int M_check;       // M
   int count_check;   // count_max
+
+  void setParameter(std::string, std::string);
 
   // Sample data
   arma::field<arma::Mat<int>> samples;
