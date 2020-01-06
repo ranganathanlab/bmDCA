@@ -28,19 +28,19 @@ class Sim
 public:
   Sim(MSAStats);
   ~Sim(void);
+  void run(void);
+  MSA runMCMC(MSAStats msaStats);
+
+private:
   void initializeParameters(void);
   void initializeRun(void);
+  void readInitialSample(int, int);
   void computeAutocorrelation(void);
   void checkCurrentStep(void);
   bool computeErrorReparametrization(void);
   void updateLearningRate(void);
   void updateReparameterization(void);
-  void run(void);
   void writeData(std::string);
-  MSA runMCMC(MSAStats msaStats);
-
-private:
-  void readInitialSample(int, int);
 
   // BM settings
   double lambda_reg1;  // L2 regularization strength for 1p statistics (fields)
@@ -91,17 +91,21 @@ private:
   int M_check;       // M
   int count_check;   // count_max
 
+  // Sample data
   arma::field<arma::Mat<int>> samples;
   arma::Col<int> initial_sample;
 
+  // Stats from original MSA
   MSAStats msa_stats;
 
   // Model model;
   Model* current_model;
   Model* previous_model;
 
-  // MCMC mcmc;
+  // MCMC
   MCMC* mcmc;
+
+  // Stats from MCMC samples
   MCMCStats* mcmc_stats;
 };
 

@@ -161,7 +161,6 @@ Sim::initializeParameters(void)
   lambda_reg2 = 0.01;
   step_max = 2000;
   error_max = 0.00001;
-  // save_parameters = 20;
   save_parameters = 50;
   step_check = step_max;
 
@@ -179,12 +178,11 @@ Sim::initializeParameters(void)
   // sampling time settings
   t_wait_0 = 10000;
   delta_t_0 = 100;
-  // check_ergo = 1;
   check_ergo = true;
   adapt_up_time = 1.5;
   adapt_down_time = 0.600;
 
-  // importance samplig settings
+  // importance sampling settings
   step_importance_max = 1;
   coherence_min = 0.9999;
 
@@ -244,7 +242,7 @@ void
 Sim::run(void)
 {
 
-  std::cout << "initialing run" << std::endl << std::endl;
+  std::cout << "initializing run" << std::endl << std::endl;
 
   int N = current_model->N;
   int Q = current_model->Q;
@@ -261,7 +259,7 @@ Sim::run(void)
     readInitialSample(N, Q);
   }
 
-  /// BM sampling loop
+  // BM sampling loop
   int t_wait = t_wait_0;
   int delta_t = delta_t_0;
   for (int step = 0; step <= step_max; step++) {
@@ -272,10 +270,11 @@ Sim::run(void)
     while (flag_mc) {
 
       // Draw from MCMC
-      std::cout << "loading params to mcmc" << std::endl;
+      std::cout << "loading params to mcmc... ";
       mcmc->load(current_model->params);
+      std::cout << "done" << std::endl;
 
-      std::cout << "sampling model with mcmc" << std::endl;
+      std::cout << "sampling model with mcmc... " << std::endl;
       if (init_sample) {
         mcmc->sample_init(
           &samples, count_max, M, N, t_wait, delta_t, &initial_sample);
@@ -283,10 +282,11 @@ Sim::run(void)
         mcmc->sample(&samples, count_max, M, N, t_wait, delta_t, step);
       }
 
-      std::cout << "computing mcmc stats" << std::endl;
+      std::cout << "computing mcmc stats... ";
       mcmc_stats->updateData(samples, current_model->params);
+      std::cout << "done" << std::endl;
 
-      // run checks
+      // Run checks and alter burn-in and wait times
       if (check_ergo) {
         std::vector<double> energy_stats = mcmc_stats->getEnergiesStats();
         std::vector<double> corr_stats = mcmc_stats->getCorrelationsStats();
@@ -353,21 +353,29 @@ Sim::run(void)
     while (step_importance < step_importance_max and flag_coherence == true) {
       step_importance++;
       if (step_importance > 1) {
-        std::cout << "importance sampling step " << step_importance
-                  << std::endl;
+        std::cout << "importance sampling step " << step_importance << "... ";
         mcmc_stats->computeSampleStatsImportance(&(current_model->params),
                                                  &(previous_model->params));
+        std::cout << "done" << std::endl;
+
+        double coherence = mcmc_stats->Z_ratio;
+        if (coherence > coherence_min && 1.0 / coherence > coherence_min) {
+          flag_coherence = true;
+        } else {
+          flag_coherence = false;
+        }
       } else {
-        std::cout << "computing sequence correlations and energies"
-                  << std::endl;
+        std::cout << "computing sequence correlations and energies... ";
         mcmc_stats->computeSampleStats();
+        std::cout << "done" << std::endl;
       }
 
       // Compute error reparametrization
       previous_model->gradient.h = current_model->gradient.h;
       previous_model->gradient.J = current_model->gradient.J;
-      std::cout << "computing error and update gradient" << std::endl;
+      std::cout << "computing error and updating gradient... ";
       bool converged = computeErrorReparametrization();
+      std::cout << "done" << std::endl;
       if (converged) {
         std::cout << "writing results" << std::endl;
         writeData("final");
@@ -377,31 +385,32 @@ Sim::run(void)
       // Update learning rate
       previous_model->learning_rates.h = current_model->learning_rates.h;
       previous_model->learning_rates.J = current_model->learning_rates.J;
-      std::cout << "update learning rate" << std::endl;
+      std::cout << "update learning rate... ";
       updateLearningRate();
-
-      // Compare error and save
+      std::cout << "done" << std::endl;
 
       // Check analysis
 
       // Save parameters
       if (step % save_parameters == 0 &&
-          step_importance == step_importance_max) {
-        std::cout << "writing step " << step << std::endl;
+          (step_importance == step_importance_max || flag_coherence == false)) {
+        std::cout << "writing step " << step << "... ";
         writeData(std::to_string(step));
+        std::cout << "done" << std::endl;
       }
 
       // Update parameters
       previous_model->params.h = current_model->params.h;
       previous_model->params.J = current_model->params.J;
-      std::cout << "updating parameters" << std::endl;
-
+      std::cout << "updating parameters.. ";
       updateReparameterization();
+      std::cout << "done" << std::endl;
     }
     std::cout << std::endl;
   }
-  std::cout << "writing final results" << std::endl;
+  std::cout << "writing final results... ";
   writeData("final");
+  std::cout << "done" << std::endl;
   return;
 }
 
@@ -454,21 +463,6 @@ Sim::computeErrorReparametrization(void)
         current_model->gradient.h.at(aa, i) = -delta;
         count1++;
       }
-      /* Used for plot_stat_reg.sh and plot_stat.sh...
-       * dont delete yet...
-       */
-      // fprintf(fperror,
-      //         "%d %d %lf %lf %lf %lf %lf\n",
-      //         i,
-      //         a,
-      //         n1[a + q * i],
-      //         n1mc[a + q * i],
-      //         gradh[a + i * q],
-      //         (n1[a + q * i] - n1mc[a + q * i]) /
-      //           (pow(n1[a + q * i] * (1 - n1[a + q * i]) / MEFF +
-      //                  pow(n1mcsigma[a + q * i], 2) + EPSILON,
-      //                0.5)),
-      //         error_1p);
     }
   }
 
@@ -525,12 +519,6 @@ Sim::computeErrorReparametrization(void)
   c_stat_av /= ((N * (N - 1) * Q * Q) / 2);
   c_mc_av /= ((N * (N - 1) * Q * Q) / 2);
 
-  /* plot_stat_reg.sh
-   * plot_stat.sh
-   */
-  // FILE* fp_corr;
-  // fp_corr = fopen("my_corr.dat", "w");
-
   num_rho = num_beta = den_stat = den_mc = den_beta = 0;
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
@@ -547,8 +535,6 @@ Sim::computeErrorReparametrization(void)
           den_stat += pow(c_stat - c_stat_av, 2);
           den_mc += pow(c_mc - c_mc_av, 2);
           den_beta += pow(c_stat, 2);
-
-          // fprintf(fp_corr, "%lf %lf\n", c_stat, c_mc);
         }
       }
     }
@@ -585,25 +571,6 @@ Sim::computeErrorReparametrization(void)
     converged = true;
   }
   return converged;
-
-  // FILE* fp_error;
-  // fp_error = fopen("error.txt", "a");
-  // fprintf(fp_error,
-  //         "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
-  //         error_1p,
-  //         error_2p,
-  //         error_tot,
-  //         deltamax_1,
-  //         deltamax_2,
-  //         error_stat_1p,
-  //         error_stat_2p,
-  //         error_stat_tot,
-  //         100.0 * count1 / (double)(N * q),
-  //         200.0 * count2 / (double)(N * (N - 1) * q * q),
-  //         error_c,
-  //         rho,
-  //         beta,
-  //         rho_1p);
 };
 
 void
@@ -633,16 +600,6 @@ Sim::updateLearningRate(void)
             Min(max_step_J,
                 Max(min_step_J,
                     alfa * current_model->learning_rates.J.at(i, j).at(a, b)));
-          // fprintf(
-          //   fpl,
-          //   "J %d %d %d %d %lf\n",
-          //   i,
-          //   j,
-          //   a,
-          //   b,
-          //   Min(MAX_STEPj,
-          //       Max(MIN_STEPj,
-          //           alfa * eps_J[b + a * q + q * q * j + i * N * q * q])));
         }
       }
     }
@@ -661,11 +618,6 @@ Sim::updateLearningRate(void)
       current_model->learning_rates.h.at(a, i) =
         Min(max_step_h,
             Max(min_step_h, alfa * current_model->learning_rates.h.at(a, i)));
-      // fprintf(fpl,
-      //         "h %d %d %lf\n",
-      //         i,
-      //         a,
-      //         Min(MAX_STEPh, Max(MIN_STEPh, alfa * eps_h[a + i * q])));
     }
   }
 };
@@ -685,20 +637,10 @@ Sim::updateReparameterization(void)
           current_model->params.J.at(i, j).at(a, b) +=
             current_model->learning_rates.J.at(i, j).at(a, b) *
             current_model->gradient.J.at(i, j).at(a, b);
-
-          // fprintf(fpw,
-          //         "J %d %d %d %d %lf\n",
-          //         i,
-          //         j,
-          //         a,
-          //         b,
-          //         J[b + a * q + q * q * j + i * N * q * q] +
-          //           eps_J[b + a * q + q * q * j + i * N * q * q] *
-          //             gradJ[b + a * q + q * q * j + i * N * q * q]);
         }
       }
     }
-  }
+  };
 
   arma::Mat<double> Dh = arma::Mat<double>(Q, N, arma::fill::zeros);
   for (int i = 0; i < N; i++) {
@@ -706,35 +648,28 @@ Sim::updateReparameterization(void)
       for (int j = 0; j < N; j++) {
         if (i < j) {
           for (int b = 0; b < Q; b++) {
-            Dh(a, i) += -msa_stats.frequency_1p.at(b, j) *
-                        current_model->learning_rates.J.at(i, j).at(a, b) *
-                        current_model->gradient.J.at(i, j).at(a, b);
+            Dh.at(a, i) += -msa_stats.frequency_1p.at(b, j) *
+                           current_model->learning_rates.J.at(i, j).at(a, b) *
+                           current_model->gradient.J.at(i, j).at(a, b);
           }
         }
         if (i > j) {
           for (int b = 0; b < Q; b++) {
-            Dh(a, i) += -msa_stats.frequency_1p.at(b, j) *
-                        current_model->learning_rates.J.at(j, i).at(b, a) *
-                        current_model->gradient.J.at(j, i).at(b, a);
+            Dh.at(a, i) += -msa_stats.frequency_1p.at(b, j) *
+                           current_model->learning_rates.J.at(j, i).at(b, a) *
+                           current_model->gradient.J.at(j, i).at(b, a);
           }
         }
       }
     }
-  }
+  };
 
   for (int i = 0; i < N; i++) {
     for (int a = 0; a < Q; a++) {
       current_model->params.h.at(a, i) +=
         current_model->learning_rates.h.at(a, i) *
           current_model->gradient.h.at(a, i) +
-        Dh(a, i);
-
-      // fprintf(fpw,
-      //         "h %d %d %lf\n",
-      //         i,
-      //         a,
-      //         h[a + i * q] + eps_h[a + i * q] * gradh[a + i * q] +
-      //           Dh[a + i * q]);
+        Dh.at(a, i);
     }
   }
 };
@@ -749,4 +684,12 @@ Sim::writeData(std::string id)
                                "stat_MC_2p_sigma_" + id + ".txt");
   mcmc_stats->writeSamples("MC_samples_" + id + ".txt");
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
-}
+  mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat");
+  mcmc_stats->writeEnergyStats("my_energies_start_" + id + ".txt",
+                               "my_energies_end_" + id + ".txt",
+                               "my_energies_cfr_" + id + ".txt",
+                               "my_energies_cfr_err_" + id + ".txt");
+  mcmc_stats->writeAutocorrelationStats("overlap_" + id + ".txt",
+                                        "overlap_inf_" + id + ".txt",
+                                        "ergo_" + id + ".txt");
+};
