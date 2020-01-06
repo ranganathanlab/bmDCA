@@ -37,9 +37,11 @@ make
 make install
 ```
 
-Replace the `--prefix` value with any local path.
+Replace the `--prefix` value with any local path that is part of the system
+PATH.
 
-In the event you with to uninstall the code, simply run `make uninstall`.
+In the event you with to uninstall the code, simply run `sudo make uninstall`
+(or `make uninstall` if root permissions aren't needed).
 
 ### 2. Run
 
