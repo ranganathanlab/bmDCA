@@ -163,7 +163,8 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
                    size_t m,
                    size_t mc_iters0,
                    size_t mc_iters,
-                   long int seed)
+                   long int seed,
+                   size_t temp)
 {
   srand48(seed);
 
@@ -201,7 +202,7 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
         e1 -= J[i][j][q1][conf[j]];
       }
     double de = e1 - e0;
-    if ((de < 0) || (drand48() < exp(-de))) {
+    if ((de < 0) || (drand48() < exp(-de / temp))) {
       conf[i] = q1;
       tot_de += de;
     }
@@ -227,7 +228,7 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
           e1 -= J[i][j][q1][conf[j]];
         }
       double de = e1 - e0;
-      if ((de < 0) || (drand48() < exp(-de))) {
+      if ((de < 0) || (drand48() < exp(-de / temp))) {
         conf[i] = q1;
         tot_de += de;
       }
@@ -247,7 +248,8 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
                         size_t m,
                         size_t mc_iters0,
                         size_t mc_iters,
-                        arma::Col<int>* init_ptr)
+                        arma::Col<int>* init_ptr,
+                        size_t temp)
 {
   size_t ts = 0;
   vector<size_t> conf(n);
@@ -283,7 +285,7 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
         e1 -= J[i][j][q1][conf[j]];
       }
     double de = e1 - e0;
-    if ((de < 0) || (drand48() < exp(-de))) {
+    if ((de < 0) || (drand48() < exp(-de / temp))) {
       conf[i] = q1;
       tot_de += de;
     }
@@ -309,7 +311,7 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
           e1 -= J[i][j][q1][conf[j]];
         }
       double de = e1 - e0;
-      if ((de < 0) || (drand48() < exp(-de))) {
+      if ((de < 0) || (drand48() < exp(-de / temp))) {
         conf[i] = q1;
         tot_de += de;
       }

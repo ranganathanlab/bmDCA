@@ -190,6 +190,7 @@ Sim::initializeParameters(void)
   M = 1000;            // importance sampling max iterations
   count_max = 10;      // number of independent MCMC runs
   init_sample = false; // flag to load first position for mcmc seqs
+  temperature = 1.0;   // temperature at which to sample mcmc
 
   // check routine settings
   t_wait_check = t_wait_0;
@@ -276,10 +277,17 @@ Sim::run(void)
 
       std::cout << "sampling model with mcmc... " << std::endl;
       if (init_sample) {
-        mcmc->sample_init(
-          &samples, count_max, M, N, t_wait, delta_t, &initial_sample);
+        mcmc->sample_init(&samples,
+                          count_max,
+                          M,
+                          N,
+                          t_wait,
+                          delta_t,
+                          &initial_sample,
+                          temperature);
       } else {
-        mcmc->sample(&samples, count_max, M, N, t_wait, delta_t, step);
+        mcmc->sample(
+          &samples, count_max, M, N, t_wait, delta_t, step, temperature);
       }
 
       std::cout << "computing mcmc stats... ";

@@ -84,6 +84,7 @@ private:
   bool init_sample = false;     // flag for loading the first positions when
                                 // initializing the mcmc from a file
   std::string init_sample_file; // name of file with mcmc initial sample
+  double temperature;           // temperature at which to sample potts model
 
   // Check routine settings
   int t_wait_check;  // t_wait

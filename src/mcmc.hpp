@@ -15,18 +15,20 @@ public:
   MCMC(potts_model, size_t N, size_t Q);
   void load(potts_model);
   void run(int, int);
-  void sample(arma::field<arma::Mat<int>>*, int, int, int, int, int, int);
+  void
+  sample(arma::field<arma::Mat<int>>*, int, int, int, int, int, int, double);
   void sample_init(arma::field<arma::Mat<int>>*,
                    int,
                    int,
                    int,
                    int,
                    int,
-                   arma::Col<int>*);
+                   arma::Col<int>*,
+                   double);
 
 private:
-  size_t n;
-  size_t q;
+  size_t n; // number of positions
+  size_t q; // number of amino acids (inc. gaps)
 
   long int seed = 1;
 
