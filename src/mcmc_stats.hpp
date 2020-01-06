@@ -28,6 +28,7 @@ public:
 
   void writeSamples(std::string);
   void writeSampleEnergies(std::string);
+  void writeSampleEnergiesRelaxation(std::string, int=1);
 
   arma::Mat<double> frequency_1p;
   arma::Mat<double> frequency_1p_sigma;
@@ -37,13 +38,15 @@ public:
 private:
   potts_model params;
   arma::field<arma::Mat<int>> samples;
-  arma::Col<double> energies;
+  arma::Mat<double> energies;
 
   double energies_start_avg;
   double energies_start_sigma;
   double energies_end_avg;
   double energies_end_sigma;
   double energies_err;
+  arma::Row<double> energies_relax;
+  arma::Row<double> energies_relax_sigma;
 
   arma::Col<double> overlaps;
   arma::Col<double> overlaps_sigma;

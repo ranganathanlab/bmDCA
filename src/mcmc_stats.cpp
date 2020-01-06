@@ -38,19 +38,19 @@ MCMCStats::updateData(arma::field<arma::Mat<int>> s, potts_model p)
 void
 MCMCStats::computeEnergies(void)
 {
-  energies = arma::Col<double>(reps * M, arma::fill::zeros);
+  energies = arma::Mat<double>(reps, M, arma::fill::zeros);
   double E;
   for (int rep = 0; rep < reps; rep++) {
     for (int seq = 0; seq < M; seq++) {
       E = 0;
       for (int i = 0; i < N; i++) {
-        E -= params.h(samples.at(rep)(seq, i), i);
+        E -= params.h.at(samples.at(rep).at(seq, i), i);
         for (int j = i + 1; j < N; j++) {
           E -=
-            params.J.at(i, j)(samples.at(rep)(seq, i), samples.at(rep)(seq, j));
+            params.J.at(i, j).at(samples.at(rep).at(seq, i), samples.at(rep).at(seq, j));
         }
       }
-      energies(rep * M + seq) = E;
+      energies.at(rep, seq) = E;
     }
   }
 }
@@ -58,20 +58,18 @@ MCMCStats::computeEnergies(void)
 void
 MCMCStats::computeEnergiesStats(void)
 {
-  arma::Col<double> energies_start = arma::Col<double>(reps, arma::fill::zeros);
-  arma::Col<double> energies_end = arma::Col<double>(reps, arma::fill::zeros);
+  energies_relax = arma::Row<double>(M);
+  energies_relax_sigma = arma::Row<double>(M);
 
-  for (int rep = 0; rep < reps; rep++) {
-    energies_start.at(rep) = energies(M * rep);
-    energies_end.at(rep) = energies(M * rep + M - 1);
-  }
-
-  energies_start_avg = arma::mean(energies_start);
-  energies_start_sigma = arma::stddev(energies_start, 1); // std dev over reps
-  energies_end_avg = arma::mean(energies_end);
-  energies_end_sigma = arma::stddev(energies_end, 1); // std dev over reps
+  energies_start_avg = arma::mean(energies.col(0));
+  energies_start_sigma = arma::stddev(energies.col(0), 1);
+  energies_end_avg = arma::mean(energies.col(M-1));
+  energies_end_sigma = arma::stddev(energies.col(M-1), 1);
   energies_err =
     sqrt((pow(energies_start_sigma, 2) + pow(energies_end_sigma, 2)) / reps);
+
+  energies_relax = arma::mean(energies, 0);
+  energies_relax_sigma = arma::stddev(energies, 1, 0);
 }
 
 void
@@ -87,8 +85,8 @@ MCMCStats::writeEnergyStats(std::string output_file_start,
   std::ofstream output_stream_cfr_err(output_file_cfr_err);
 
   for (int rep = 0; rep < reps; rep++) {
-    output_stream_start << energies(M * rep) << std::endl;
-    output_stream_end << energies(M * rep + M - 1) << std::endl;
+    output_stream_start << energies.at(rep, 0) << std::endl;
+    output_stream_end << energies.at(rep, M - 1) << std::endl;
   }
 
   output_stream_cfr << reps << " " << energies_start_avg << " "
@@ -509,9 +507,18 @@ void
 MCMCStats::writeSampleEnergies(std::string output_file)
 {
   std::ofstream output_stream(output_file);
-  int M = energies.n_rows;
 
+  for (int rep = 0; rep < reps; rep++) {
+    for (int i = 0; i < M; i++) {
+      output_stream << energies.at(rep, i) << std::endl;
+    }
+  }
+};
+
+void
+MCMCStats::writeSampleEnergiesRelaxation(std::string output_file, int t_wait) {
+  std::ofstream output_stream(output_file);
   for (int i = 0; i < M; i++) {
-    output_stream << energies(i) << std::endl;
+    output_stream << i*t_wait << " " << energies_relax.at(i) << " " << energies_relax_sigma.at(i) << std::endl;
   }
 };
