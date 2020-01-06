@@ -199,6 +199,55 @@ Sim::initializeParameters(void)
   count_check = count_max;
 }
 
+void
+Sim::writeParameters(std::string output_file)
+{
+  std::ofstream stream(output_file);
+
+  // BM settings
+  stream << "lambda_reg1=" << lambda_reg1 << std::endl;
+  stream << "lambda_reg2=" << lambda_reg2 << std::endl;
+  stream << "step_max=" << step_max << std::endl;
+  stream << "error_max=" << error_max << std::endl;
+  stream << "save_parameters=" << save_parameters << std::endl;
+  stream << "step_check=" << step_check << std::endl;
+
+  // Learning rate settings
+  stream << "epsilon_0_h=" << epsilon_0_h << std::endl;
+  stream << "epsilon_0_J=" << epsilon_0_J << std::endl;
+  stream << "adapt_up=" << adapt_up << std::endl;
+  stream << "adapt_down=" << adapt_down << std::endl;
+  stream << "min_step_h=" << min_step_h << std::endl;
+  stream << "max_step_h=" << max_step_h << std::endl;
+  stream << "min_step_J=" << min_step_J << std::endl;
+  stream << "max_step_J_N=" << max_step_J_N << std::endl;
+  stream << "error_min_update=" << error_min_update << std::endl;
+
+  // sampling time settings
+  stream << "t_wait_0=" << t_wait_0 << std::endl;
+  stream << "delta_t_0=" << delta_t_0 << std::endl;
+  stream << "check_ergo=" << check_ergo << std::endl;
+  stream << "adapt_up_time=" << adapt_up_time << std::endl;
+  stream << "adapt_down_time=" << adapt_down_time << std::endl;
+
+  // importance sampling settings
+  step_importance_max = 1;
+  coherence_min = 0.9999;
+
+  // mcmc settings
+  stream << "M=" << M << std::endl;
+  stream << "count_max=" << count_max << std::endl;
+  stream << "init_sample=" << init_sample << std::endl;
+  stream << "temperature=" << temperature << std::endl;
+
+  // check routine settings
+  stream << "t_wait_check=" << t_wait_check << std::endl;
+  stream << "delta_t_check=" << delta_t_check << std::endl;
+  stream << "M_check=" << M_check << std::endl;
+  stream << "count_check=" << count_check << std::endl;
+};
+
+
 Sim::Sim(MSAStats msa_stats)
   : msa_stats(msa_stats)
 {
