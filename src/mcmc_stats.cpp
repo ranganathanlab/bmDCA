@@ -16,12 +16,7 @@ MCMCStats::MCMCStats(arma::field<arma::Mat<int>> s, potts_model p)
 
   computeEnergies();
   computeEnergiesStats();
-  // writeEnergyStats("my_energies_start.txt",
-  //                  "my_energies_end.txt",
-  //                  "my_energies_cfr.txt",
-  //                  "my_energies_cfr_err.txt");
   computeAutocorrelation();
-  // writeAutocorrelationStats("overlap.txt", "overlap_inf.txt", "ergo.txt");
 }
 
 void
@@ -129,7 +124,7 @@ MCMCStats::computeAutocorrelation(void)
       for (int rep2 = rep1 + 1; rep2 < reps; rep2++) {
         id = 0;
         for (int i = 0; i < N; i++) {
-          if (samples(rep1)(seq1, i) == samples(rep2)(seq1, i)) {
+          if (samples.at(rep1).at(seq1, i) == samples.at(rep2).at(seq1, i)) {
             id++;
           }
         }
@@ -180,9 +175,7 @@ MCMCStats::writeAutocorrelationStats(std::string overlap_file,
                                      std::string ergo_file)
 {
   std::ofstream output_stream_overlap(overlap_file);
-
   std::ofstream output_stream_overlap_inf(overlap_inf_file);
-
   std::ofstream output_stream_ergo(ergo_file);
 
   for (int i = 0; i < M - 2; i++) {
@@ -286,7 +279,7 @@ MCMCStats::computeSampleStats(void)
       n2squared.zeros();
       for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2.at(rep)(samples.at(rep).at(m, i), samples.at(rep)(m, j))++;
+          n2.at(rep).at(samples.at(rep).at(m, i), samples.at(rep)(m, j))++;
         }
 
       for (int aa1 = 0; aa1 < Q; aa1++) {
@@ -312,14 +305,6 @@ MCMCStats::computeSampleStats(void)
 void
 MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
 {
-  // double *dE;
-  // double *p;
-  // double* dE_av;
-  // double *Z, *Z_inv;
-  // double Z_tot, Z_inv_tot;
-
-  // arma::Mat<double> p = arma::Mat<double>(M, reps, arma::fill::zeros);
-  // arma::Mat<double> dE = arma::Mat<double>(M, reps, arma::fill::zeros);
   arma::Mat<double> p = arma::Mat<double>(reps, M, arma::fill::zeros);
   arma::Mat<double> dE = arma::Mat<double>(reps, M, arma::fill::zeros);
   arma::Col<double> dE_av = arma::Col<double>(reps, arma::fill::zeros);
@@ -487,16 +472,16 @@ MCMCStats::writeSamples(std::string output_file)
   std::ofstream output_stream(output_file);
 
   int reps = samples.n_rows;
-  int N = samples(0).n_cols;
-  int M = samples(0).n_rows;
+  int N = samples.at(0).n_cols;
+  int M = samples.at(0).n_rows;
 
   output_stream << reps * M << " " << N << " " << 21 << std::endl;
 
   for (int rep = 0; rep < reps; rep++) {
     for (int i = 0; i < M; i++) {
-      output_stream << samples(rep)(i, 0);
+      output_stream << samples.at(rep).at(i, 0);
       for (int j = 1; j < N; j++) {
-        output_stream << " " << samples(rep)(i, j);
+        output_stream << " " << samples.at(rep).at(i, j);
       }
       output_stream << std::endl;
     }
