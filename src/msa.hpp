@@ -14,8 +14,10 @@ public:
   arma::Col<double> sequence_weights; // weights for each sequence
   int M;                              // number of sequences
   int N;                              // number of positions
+  int Q;                              // number of amino acids
 
   MSA(std::string, bool = true, double = 0.8);
+  MSA(std::string, std::string);
   void printAlignment();
   void writeMatrix(std::string);
   void writeSequenceWeights(std::string);
@@ -24,6 +26,8 @@ private:
   std::vector<SeqRecord> seq_records;
   int getSequenceLength(std::string);
   void readInputMSA(std::string);
+  void readInputNumericMSA(std::string);
+  void readSequenceWeights(std::string);
   void makeNumericalMatrix(void);
   void computeSequenceWeights(double);
 };

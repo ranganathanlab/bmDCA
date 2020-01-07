@@ -12,6 +12,7 @@ MSA::MSA(std::string msa_file, bool reweight, double threshold)
   readInputMSA(msa_file);
   M = seq_records.size();
   N = getSequenceLength(seq_records.begin()->getSequence());
+  Q = 21;
   makeNumericalMatrix();
   if (reweight) {
     computeSequenceWeights(threshold);
@@ -19,6 +20,70 @@ MSA::MSA(std::string msa_file, bool reweight, double threshold)
     sequence_weights = arma::vec(M, arma::fill::ones);
   }
 };
+
+MSA::MSA(std::string numeric_msa_file, std::string weights_file)
+{
+  readInputNumericMSA(numeric_msa_file);
+  readSequenceWeights(weights_file);
+};
+
+void
+MSA::readInputNumericMSA(std::string numeric_msa_file)
+{
+  std::ifstream input_stream(numeric_msa_file);
+
+  if (!input_stream) {
+    std::cerr << "ERROR: couldn't open '" << numeric_msa_file
+              << "' for reading." << std::endl;
+    exit(2);
+  }
+
+  input_stream >> M >> N >> Q;
+  alignment = arma::Mat<int>(M, N);
+
+  int counter = 0;
+  int i = 0;
+  std::string line;
+  std::getline(input_stream, line);
+  while (std::getline(input_stream, line)) {
+    std::istringstream iss(line);
+    int n;
+    i = 0;
+
+    while (iss >> n) {
+      alignment.at(counter, i) = n;
+      i++;
+    }
+    counter++;
+  }
+}
+
+void
+MSA::readSequenceWeights(std::string weights_file)
+{
+  std::ifstream input_stream(weights_file);
+
+  if (!input_stream) {
+    std::cerr << "ERROR: couldn't open '" << weights_file << "' for reading."
+              << std::endl;
+    exit(2);
+  }
+
+  sequence_weights = arma::Col<double>(M, arma::fill::zeros);
+
+  std::string line;
+  std::getline(input_stream, line);
+  int counter = 0;
+  while (std::getline(input_stream, line)) {
+    std::istringstream iss(line);
+    double n;
+
+    while (iss >> n) {
+      sequence_weights.at(counter) = n;
+    }
+    counter++;
+  }
+}
 
 void
 MSA::readInputMSA(std::string msa_file)
@@ -166,7 +231,7 @@ void
 MSA::writeMatrix(std::string output_file)
 {
   std::ofstream output_stream(output_file);
-  output_stream << seq_records.size() << " " << N << " " << 21 << std::endl;
+  output_stream << M << " " << N << " " << Q << std::endl;
   for (int i = 0; i < M; i++) {
     for (int j = 0; j < N; j++) {
       if (j + 1 == N) {

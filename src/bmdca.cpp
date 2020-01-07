@@ -11,13 +11,18 @@ main(int argc, char* argv[])
 {
   std::string input_file;
   std::string config_file;
+  std::string numeric_file;
+  std::string weight_file;
   std::string dest_dir;
+
   bool reweight = false;
   bool dest_dir_given = false;
+  bool numeric_msa_given = false;
+  bool weight_given = false;
 
   // Read command-line parameters
   char c;
-  while ((c = getopt(argc, argv, "i:d:c:r")) != -1) {
+  while ((c = getopt(argc, argv, "i:d:c:rn:w:")) != -1) {
     switch (c) {
       case 'i':
         input_file = optarg;
@@ -38,30 +43,63 @@ main(int argc, char* argv[])
       case 'r':
         reweight = true;
         break;
+      case 'n':
+        numeric_file = optarg;
+        numeric_msa_given = true;
+        break;
+      case 'w':
+        weight_file = optarg;
+        weight_given = true;
+        break;
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
     }
   }
 
-  // Parse the multiple sequence alignment. Reweight sequences if desired.
-  MSA msa = MSA(input_file, reweight);
-  msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
-  msa.writeMatrix(dest_dir + "/msa_numerical.txt");
+  // If both the numeric matrix and sequence weights are given, don't bother
+  // converting the FASTA file.
+  if (numeric_msa_given && weight_given) {
+    // Parse the multiple sequence alignment. Reweight sequences if desired.
+    MSA msa = MSA(numeric_file, weight_file);
+    msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
+    msa.writeMatrix(dest_dir + "/msa_numerical.txt");
 
-  // Compute the statistics of the MSA
-  MSAStats msa_stats = MSAStats(msa);
-  msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.txt");
-  msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.txt");
+    // Compute the statistics of the MSA
+    MSAStats msa_stats = MSAStats(msa);
+    msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.txt");
+    msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.txt");
 
-  // Initialize the MCMC using the statistics of the MSA
-  Sim sim = Sim(msa_stats, config_file);
+    // Initialize the MCMC using the statistics of the MSA
+    Sim sim = Sim(msa_stats, config_file);
 
-  if (dest_dir_given == true) {
-    chdir(dest_dir.c_str());
+    if (dest_dir_given == true) {
+      chdir(dest_dir.c_str());
+    }
+
+    sim.writeParameters("bmdca_params.conf");
+    sim.run();
+  } else if (input_file.size() > 0) {
+    // Parse the multiple sequence alignment. Reweight sequences if desired.
+    MSA msa = MSA(input_file, reweight);
+    msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
+    msa.writeMatrix(dest_dir + "/msa_numerical.txt");
+
+    // Compute the statistics of the MSA
+    MSAStats msa_stats = MSAStats(msa);
+    msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.txt");
+    msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.txt");
+    msa_stats.writeRelEntropyGradient(dest_dir + "/rel_ent_grad_align_1p.txt");
+
+    // Initialize the MCMC using the statistics of the MSA
+    Sim sim = Sim(msa_stats, config_file);
+
+    if (dest_dir_given == true) {
+      chdir(dest_dir.c_str());
+    }
+
+    sim.writeParameters("bmdca_params.conf");
+    sim.run();
   }
-
-  sim.writeParameters("bmdca_params.conf");
-  sim.run();
 
   return 0;
 };
