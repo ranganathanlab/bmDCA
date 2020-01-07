@@ -312,7 +312,7 @@ operator<<(std::ostream& os, xstd::mvector<d, T> const& mv)
   }
   os << "]";
   return os;
-}
+};
 
 template<typename T>
 std::ostream&
@@ -320,6 +320,6 @@ operator<<(std::ostream& os, xstd::mvector<0, T> const& mv)
 {
   os << dynamic_cast<T const&>(mv);
   return os;
-}
+};
 
 #endif // MVECTOR_HPP

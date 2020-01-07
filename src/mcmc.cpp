@@ -8,7 +8,7 @@ void
 MCMC::load(potts_model model)
 {
   graph.load(model);
-}
+};
 
 MCMC::MCMC(size_t N, size_t Q)
   : graph(N, Q)
@@ -36,16 +36,14 @@ MCMC::sample(arma::field<arma::Mat<int>>* ptr,
              int delta_t,
              int seed,
              double temp){
-#pragma omp parallel
+  #pragma omp parallel
   {
-#pragma omp for
-    for (int rep = 0; rep < reps; rep++){
-      graph
-        .sample_mcmc(&((*ptr).at(rep)), M, t_wait, delta_t, seed + rep, temp);
-}
-}
-}
-;
+    #pragma omp for
+    for (int rep = 0; rep < reps; rep++) {
+      graph.sample_mcmc(&((*ptr).at(rep)), M, t_wait, delta_t, seed + rep, temp);
+    }
+  }
+};
 
 void
 MCMC::sample_init(arma::field<arma::Mat<int>>* ptr,
@@ -56,17 +54,11 @@ MCMC::sample_init(arma::field<arma::Mat<int>>* ptr,
                   int delta_t,
                   arma::Col<int>* init_ptr,
                   double temp){
-#pragma omp parallel
+  #pragma omp parallel
   {
-#pragma omp for
-    for (int rep = 0; rep < reps;
-         rep++){ graph.sample_mcmc_init(&((*ptr).at(rep)),
-                                        M,
-                                        t_wait,
-                                        delta_t,
-                                        init_ptr,
-                                        temp);
-}
-}
-}
-;
+    #pragma omp for
+    for (int rep = 0; rep < reps; rep++){
+      graph.sample_mcmc_init(&((*ptr).at(rep)), M, t_wait, delta_t, init_ptr, temp);
+    }
+  }
+};

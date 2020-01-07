@@ -120,25 +120,25 @@ double
 MSAStats::getQ(void)
 {
   return Q;
-}
+};
 
 double
 MSAStats::getM(void)
 {
   return M;
-}
+};
 
 double
 MSAStats::getN(void)
 {
   return N;
-}
+};
 
 double
 MSAStats::getEffectiveM(void)
 {
   return M_effective;
-}
+};
 
 void
 MSAStats::writeRelEntropyGradient(std::string output_file)
@@ -151,7 +151,7 @@ MSAStats::writeRelEntropyGradient(std::string output_file)
                     << std::endl;
     }
   }
-}
+};
 
 void
 MSAStats::writeFrequency1p(std::string output_file)
@@ -165,7 +165,7 @@ MSAStats::writeFrequency1p(std::string output_file)
     }
     output_stream << std::endl;
   }
-}
+};
 
 void
 MSAStats::writeFrequency2p(std::string output_file)
@@ -183,7 +183,7 @@ MSAStats::writeFrequency2p(std::string output_file)
       output_stream << std::endl;
     }
   }
-}
+};
 
 // void
 // MSAStats::writeFrequency3p(std::string output_file)

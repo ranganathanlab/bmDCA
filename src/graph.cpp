@@ -39,7 +39,7 @@ Graph::load(potts_model model)
       sumh += h[i][yi];
     }
   }
-}
+};
 
 ostream&
 Graph::print_distribution(ostream& os)
@@ -88,7 +88,7 @@ Graph::print_distribution(ostream& os)
     }
   }
   return os;
-}
+};
 
 // ostream&
 // Graph::sample_distribution(ostream& os, size_t m)
@@ -241,7 +241,7 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
     "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
   log_out << output_string;
   return;
-}
+};
 
 void
 Graph::sample_mcmc_init(arma::Mat<int>* ptr,
@@ -324,7 +324,7 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
     "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
   log_out << output_string;
   return;
-}
+};
 
 ostream&
 Graph::print_parameters(ostream& os)
@@ -348,7 +348,7 @@ Graph::print_parameters(ostream& os)
   }
   log_out << "done" << endl;
   return os;
-}
+};
 
 void
 Graph::print_parameters(FILE* of)
@@ -370,4 +370,4 @@ Graph::print_parameters(FILE* of)
     }
   }
   log_out << "done" << endl;
-}
+};

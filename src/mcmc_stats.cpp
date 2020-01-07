@@ -17,7 +17,7 @@ MCMCStats::MCMCStats(arma::field<arma::Mat<int>> s, potts_model p)
   computeEnergies();
   computeEnergiesStats();
   computeAutocorrelation();
-}
+};
 
 void
 MCMCStats::updateData(arma::field<arma::Mat<int>> s, potts_model p)
@@ -28,7 +28,7 @@ MCMCStats::updateData(arma::field<arma::Mat<int>> s, potts_model p)
   computeEnergies();
   computeEnergiesStats();
   computeAutocorrelation();
-}
+};
 
 void
 MCMCStats::computeEnergies(void)
@@ -48,7 +48,7 @@ MCMCStats::computeEnergies(void)
       energies.at(rep, seq) = E;
     }
   }
-}
+};
 
 void
 MCMCStats::computeEnergiesStats(void)
@@ -65,7 +65,7 @@ MCMCStats::computeEnergiesStats(void)
 
   energies_relax = arma::mean(energies, 0);
   energies_relax_sigma = arma::stddev(energies, 1, 0);
-}
+};
 
 void
 MCMCStats::writeEnergyStats(std::string output_file_start,
@@ -90,7 +90,7 @@ MCMCStats::writeEnergyStats(std::string output_file_start,
                     << std::endl;
   output_stream_cfr_err << energies_start_avg << " " << energies_end_avg << " "
                         << energies_err << std::endl;
-}
+};
 
 void
 MCMCStats::computeAutocorrelation(void)
@@ -167,7 +167,7 @@ MCMCStats::computeAutocorrelation(void)
   err_cross_check =
     sqrt(pow(sigma_cross, 2) + pow(sigma_check, 2)) / sqrt(reps);
   err_check_auto = sqrt(pow(sigma_check, 2) + pow(sigma_auto, 2)) / sqrt(reps);
-}
+};
 
 void
 MCMCStats::writeAutocorrelationStats(std::string overlap_file,
@@ -300,7 +300,7 @@ MCMCStats::computeSampleStats(void)
     }
   }
   // }
-}
+};
 
 void
 MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
@@ -426,7 +426,7 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
       }
     }
   }
-}
+};
 
 void
 MCMCStats::writeFrequency1p(std::string output_file,
@@ -445,7 +445,7 @@ MCMCStats::writeFrequency1p(std::string output_file,
     output_stream << std::endl;
     output_stream_sigma << std::endl;
   }
-}
+};
 
 void
 MCMCStats::writeFrequency2p(std::string output_file,
@@ -469,7 +469,7 @@ MCMCStats::writeFrequency2p(std::string output_file,
       output_stream_sigma << std::endl;
     }
   }
-}
+};
 
 void
 MCMCStats::writeSamples(std::string output_file)

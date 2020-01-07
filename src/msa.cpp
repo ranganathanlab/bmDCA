@@ -53,7 +53,7 @@ MSA::readInputMSA(std::string msa_file)
   };
   seq_records.push_back(SeqRecord(header, sequence));
   input_stream.close();
-}
+};
 
 void
 MSA::makeNumericalMatrix(void)
@@ -160,7 +160,7 @@ MSA::makeNumericalMatrix(void)
     }
     row_idx++;
   }
-}
+};
 
 void
 MSA::writeMatrix(std::string output_file)
@@ -177,7 +177,7 @@ MSA::writeMatrix(std::string output_file)
     }
   }
   output_stream << std::endl;
-}
+};
 
 void
 MSA::printAlignment(void)
@@ -187,7 +187,7 @@ MSA::printAlignment(void)
        ++it) {
     it->print();
   }
-}
+};
 
 int
 MSA::getSequenceLength(std::string sequence)
@@ -228,7 +228,7 @@ MSA::getSequenceLength(std::string sequence)
     }
   }
   return valid_aa_count;
-}
+};
 
 void
 MSA::computeSequenceWeights(double threshold)
@@ -260,7 +260,7 @@ MSA::computeSequenceWeights(double threshold)
   for (int m1 = 0; m1 < M; ++m1) {
     sequence_weights.at(m1) = 1. / sequence_weights.at(m1);
   }
-}
+};
 
 void
 MSA::writeSequenceWeights(std::string output_file)
@@ -269,4 +269,4 @@ MSA::writeSequenceWeights(std::string output_file)
   for (int i = 0; i < M; i++) {
     output_stream << sequence_weights.at(i) << std::endl;
   }
-}
+};

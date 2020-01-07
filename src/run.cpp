@@ -92,7 +92,7 @@ Model::writeParams(std::string output_file)
                     << std::endl;
     }
   }
-}
+};
 
 void
 Model::writeLearningRates(std::string output_file)
@@ -122,7 +122,7 @@ Model::writeLearningRates(std::string output_file)
                     << std::endl;
     }
   }
-}
+};
 
 void
 Model::writeGradient(std::string output_file)
@@ -151,7 +151,7 @@ Model::writeGradient(std::string output_file)
                     << std::endl;
     }
   }
-}
+};
 
 void
 Sim::initializeParameters(void)
@@ -197,7 +197,7 @@ Sim::initializeParameters(void)
   delta_t_check = delta_t_0;
   M_check = M;
   count_check = count_max;
-}
+};
 
 void
 Sim::writeParameters(std::string output_file)
@@ -249,22 +249,25 @@ Sim::writeParameters(std::string output_file)
 };
 
 void
-Sim::loadParameters(std::string file_name) {
+Sim::loadParameters(std::string file_name)
+{
   std::ifstream file(file_name);
   if (file.is_open()) {
     std::string line;
-    while(std::getline(file, line)) {
-      if(line[0] == '#' || line.empty() || line[0] == '[') continue;
+    while (std::getline(file, line)) {
+      if (line[0] == '#' || line.empty() || line[0] == '[')
+        continue;
       auto delim_pos = line.find("=");
       auto key = line.substr(0, delim_pos);
-      auto value = line.substr(delim_pos +1);
+      auto value = line.substr(delim_pos + 1);
       setParameter(key, value);
     }
   }
 };
 
 void
-Sim::setParameter(std::string key, std::string value) {
+Sim::setParameter(std::string key, std::string value)
+{
   // It's not possible to use switch blocks on strings because they are char*
   // arrays, not actual types.
   if (key == "lambda_reg1") {
@@ -363,7 +366,7 @@ Sim::Sim(MSAStats msa_stats)
   current_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
   previous_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
   mcmc = new MCMC(msa_stats.getN(), msa_stats.getQ());
-}
+};
 
 Sim::~Sim(void)
 {
@@ -371,7 +374,7 @@ Sim::~Sim(void)
   delete previous_model;
   delete mcmc;
   delete mcmc_stats;
-}
+};
 
 void
 Sim::readInitialSample(int N, int Q)
@@ -567,7 +570,7 @@ Sim::run(void)
       // Update parameters
       previous_model->params.h = current_model->params.h;
       previous_model->params.J = current_model->params.J;
-      std::cout << "updating parameters.. ";
+      std::cout << "updating parameters... ";
       updateReparameterization();
       std::cout << "done" << std::endl;
     }
@@ -577,7 +580,7 @@ Sim::run(void)
   writeData("final");
   std::cout << "done" << std::endl;
   return;
-}
+};
 
 bool
 Sim::computeErrorReparametrization(void)
