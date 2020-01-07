@@ -316,7 +316,9 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
   double Z_inv_tot = 0;
   double W = 0;
   double sumw = 0;
-  double dE_av_tot = 0;
+  Z_ratio = 0;
+  sumw_inv = 0;
+  dE_av_tot = 0;
 
   for (int rep = 0; rep < reps; rep++) {
     for (int m = 0; m < M; m++) {
@@ -362,6 +364,9 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
   for (int rep = 0; rep < reps; rep++) {
     n2.at(rep) = arma::Mat<int>(Q, Q, arma::fill::zeros);
   }
+
+  Z_ratio = Z_tot / Z_inv_tot;
+  sumw_inv = 1.0 / sumw;
 
   arma::Col<int> n1av = arma::Col<int>(Q, arma::fill::zeros);
   arma::Mat<int> n2av = arma::Mat<int>(Q, Q, arma::fill::zeros);

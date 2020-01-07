@@ -28,12 +28,16 @@ public:
 
   void writeSamples(std::string);
   void writeSampleEnergies(std::string);
-  void writeSampleEnergiesRelaxation(std::string, int=1);
+  void writeSampleEnergiesRelaxation(std::string, int = 1);
 
   arma::Mat<double> frequency_1p;
   arma::Mat<double> frequency_1p_sigma;
   arma::field<arma::Mat<double>> frequency_2p;
   arma::field<arma::Mat<double>> frequency_2p_sigma;
+
+  double Z_ratio;
+  double sumw_inv;
+  double dE_av_tot;
 
 private:
   potts_model params;
