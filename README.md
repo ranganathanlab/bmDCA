@@ -180,6 +180,8 @@ data generated can be substantial ( > 1 Gb). At present, the only way to
 disable writing of a particular log file is to comment out the code in the
 `Sim::run()` function defined in `src/run.cpp`.
 
+Output file formats will probably be changed at a later date.
+
 #### Learned parameters
 
 The output directory contains learned parameters saved in files called
@@ -197,7 +199,35 @@ h [positoin index i] [amino acid index a]
 .
 ```
 
-Indices of sites in the sequence go from 0 to L-1 in the output format.
+The position indices go from 0 to N-1 (N = # positions), and the amino acid
+indices go from 0 to 20 (21 amino acids total, including gaps). 0 corresponds
+to a gap.
+
+#### Sequence statistics
+
+The sequence statistics files (e.g. `stat_align_1p.txt` and
+`stat_align_2p.txt`) have a different format.
+
+For 1 position (1p) frequencies:
+```
+[position index] [amino acid frequencies (21)]
+.
+.
+.
+```
+where `[amino acid frequencies (21)]` is a row of frequencies for each of the
+21 positions.
+
+
+For 2 position (2p) frequencies:
+```
+[position index i] [position index j] [amino acid frequencies (21x21)]
+.
+.
+.
+```
+where `[amino acid frequencies (21x21)]` is a row that corresponds to the
+frequencies of the `21x21` pairs of amino acids at positions i and j.
 
 ## Example
 
