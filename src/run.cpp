@@ -22,10 +22,11 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
   Q = msa_stats.getQ();
   double pseudocount = 1. / msa_stats.getEffectiveM();
 
+  // Initialize the parameters J and h
   params.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
-      params.J.at(i, j) = arma::Mat<double>(Q, Q);
+      params.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
     }
   }
 
@@ -46,6 +47,7 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
     }
   }
 
+  // Initialize the learning rates (epsilon_0_h and epsilon_0_H)
   learning_rates.h = arma::Mat<double>(Q, N);
   learning_rates.h.fill(epsilon_h);
   learning_rates.J = arma::field<arma::Mat<double>>(N, N);
@@ -56,10 +58,11 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
     }
   }
 
+  // Initialize the gradient
   gradient.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
-      gradient.J.at(i, j) = arma::Mat<double>(Q, Q);
+      gradient.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
     }
   }
   gradient.h = arma::Mat<double>(Q, N, arma::fill::zeros);
