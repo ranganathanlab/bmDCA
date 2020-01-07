@@ -72,7 +72,6 @@ MSA::readSequenceWeights(std::string weights_file)
   sequence_weights = arma::Col<double>(M, arma::fill::zeros);
 
   std::string line;
-  std::getline(input_stream, line);
   int counter = 0;
   while (std::getline(input_stream, line)) {
     std::istringstream iss(line);
