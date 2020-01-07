@@ -106,7 +106,7 @@ MCMCStats::computeAutocorrelation(void)
       for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
         id = 0;
         for (int i = 0; i < N; i++) {
-          if (samples.at(rep)(seq1, i) == samples.at(rep)(seq2, i)) {
+          if (samples.at(rep).at(seq1, i) == samples.at(rep).at(seq2, i)) {
             id++;
           }
         }
@@ -279,7 +279,7 @@ MCMCStats::computeSampleStats(void)
       n2squared.zeros();
       for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2.at(rep).at(samples.at(rep).at(m, i), samples.at(rep)(m, j))++;
+          n2.at(rep).at(samples.at(rep).at(m, i), samples.at(rep).at(m, j))++;
         }
 
       for (int aa1 = 0; aa1 < Q; aa1++) {

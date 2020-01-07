@@ -177,7 +177,7 @@ MSAStats::writeFrequency2p(std::string output_file)
       output_stream << i << " " << j;
       for (int aa1 = 0; aa1 < AA_ALPHABET_SIZE; aa1++) {
         for (int aa2 = 0; aa2 < AA_ALPHABET_SIZE; aa2++) {
-          output_stream << " " << frequency_2p(i, j)(aa1, aa2);
+          output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
         }
       }
       output_stream << std::endl;
@@ -197,7 +197,7 @@ MSAStats::writeFrequency2p(std::string output_file)
 //         for (int aa1 = 0; aa1 < AA_ALPHABET_SIZE; aa1++) {
 //           for (int aa2 = 0; aa2 < AA_ALPHABET_SIZE; aa2++) {
 //             for (int aa3 = 0; aa3 < AA_ALPHABET_SIZE; aa3++) {
-//               output_stream << " " << frequency_3p(i, j, k)(aa1, aa2, aa3);
+//               output_stream << " " << frequency_3p.at(i, j, k).at(aa1, aa2, aa3);
 //             }
 //           }
 //         }
