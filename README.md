@@ -3,7 +3,8 @@
 Dependencies:
  * [Armadillo](http://arma.sourceforge.net/)
  * [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
- * [Autotools]
+ * Autotools (if not already installed, install from your package repository or
+   homebrew)
 
 ## Usage
 
@@ -157,8 +158,8 @@ The outputs of `bmdca` are:
  - `parameters_%d.txt`: learned Potts model parameters (J and h)
  - `rel_ent_grad_align_1p.txt`: relative entropy gradient for each amino acid
    at each position
- - `sequence_weights.txt`: weight for each position (the more similar sequences
-   are, the smaller the weight)
+ - `sequence_weights.txt`: weights for each sequence, either a number between 0
+   and 1 based on sequence similarity or 1 if re-weighting was not specified
  - `stat_align_1p`: table of frequencies for each amino acid at each position
    in the MSA
  - `stat_align_2p`: table of frequencies for pairs of amino acids at each pair
