@@ -240,7 +240,6 @@ MSA::writeMatrix(std::string output_file)
       }
     }
   }
-  output_stream << std::endl;
 };
 
 void
