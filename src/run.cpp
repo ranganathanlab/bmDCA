@@ -609,8 +609,9 @@ Sim::computeErrorReparametrization(void)
   double delta_stat = 0;
   double deltamax_1 = 0;
   double deltamax_2 = 0;
-  double rho, beta, den_beta, num_beta, num_rho, den_stat, den_mc, c_mc_av,
-    c_stat_av, rho_1p, num_rho_1p, den_stat_1p, den_mc_1p;
+  double rho = 0, beta = 0, den_beta = 0, num_beta = 0, num_rho = 0,
+         den_stat = 0, den_mc = 0, c_mc_av = 0, c_stat_av = 0, rho_1p = 0,
+         num_rho_1p = 0, den_stat_1p = 0, den_mc_1p = 0;
 
   double lambda_h = lambda_reg1;
   double lambda_j = lambda_reg2;
@@ -644,7 +645,7 @@ Sim::computeErrorReparametrization(void)
   }
 
   double error_c = 0;
-  double c_mc, c_stat = 0;
+  double c_mc = 0, c_stat = 0;
 
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
