@@ -15,7 +15,6 @@ MCMC::MCMC(size_t N, size_t Q)
 {
   n = N;
   q = Q;
-  srand48(seed);
 };
 
 MCMC::MCMC(potts_model params, size_t N, size_t Q)
@@ -23,7 +22,6 @@ MCMC::MCMC(potts_model params, size_t N, size_t Q)
 {
   n = N;
   q = Q;
-  srand48(seed);
   graph.load(params);
 };
 
@@ -38,7 +36,6 @@ MCMC::sample(arma::field<arma::Mat<int>>* ptr,
              double temperature){
   #pragma omp parallel
   {
-    srand48(seed);
     #pragma omp for
     for (int rep = 0; rep < reps; rep++){
       graph

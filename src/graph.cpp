@@ -6,9 +6,11 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <random>
 
 #include "graph.hpp"
 #include "mvector.hpp"
+#include "pcg_random.hpp"
 
 using namespace std;
 using namespace xstd;
@@ -166,12 +168,13 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
                    long int seed,
                    size_t temperature)
 {
-  srand48(seed);
+  pcg32 rng(seed);
+  std::uniform_real_distribution<> uniform(0, 1);
 
   size_t ts = 0;
   vector<size_t> conf(n);
   for (size_t i = 0; i < n; ++i) {
-    conf[i] = size_t(q * drand48());
+    conf[i] = size_t(q * uniform(rng));
     assert(conf[i] < q);
   }
 
@@ -185,8 +188,8 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
 
   double tot_de = 0;
   for (size_t k = 0; k < mc_iters0; ++k) {
-    size_t i = size_t(n * drand48());
-    size_t dq = 1 + size_t((q - 1) * drand48());
+    size_t i = size_t(n * uniform(rng));
+    size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
     size_t q0 = conf[i];
     size_t q1 = (q0 + dq) % q;
@@ -202,7 +205,7 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
         e1 -= J[i][j][q1][conf[j]];
       }
     double de = e1 - e0;
-    if ((de < 0) || (drand48() < exp(-de / temperature))) {
+    if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
       conf[i] = q1;
       tot_de += de;
     }
@@ -211,8 +214,8 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
   tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
-      size_t i = size_t(n * drand48());
-      size_t dq = 1 + size_t((q - 1) * drand48());
+      size_t i = size_t(n * uniform(rng));
+      size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
       size_t q0 = conf[i];
       size_t q1 = (q0 + dq) % q;
@@ -228,7 +231,7 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
           e1 -= J[i][j][q1][conf[j]];
         }
       double de = e1 - e0;
-      if ((de < 0) || (drand48() < exp(-de / temperature))) {
+      if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
         conf[i] = q1;
         tot_de += de;
       }
@@ -251,7 +254,8 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
                         arma::Col<int>* init_ptr,
                         size_t temperature)
 {
-  srand48(time(NULL));
+  pcg32 rng(time(NULL));
+  std::uniform_real_distribution<> uniform(0, 1);
 
   size_t ts = 0;
   vector<size_t> conf(n);
@@ -270,8 +274,8 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
 
   double tot_de = 0;
   for (size_t k = 0; k < mc_iters0; ++k) {
-    size_t i = size_t(n * drand48());
-    size_t dq = 1 + size_t((q - 1) * drand48());
+    size_t i = size_t(n * uniform(rng));
+    size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
     size_t q0 = conf[i];
     size_t q1 = (q0 + dq) % q;
@@ -287,7 +291,7 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
         e1 -= J[i][j][q1][conf[j]];
       }
     double de = e1 - e0;
-    if ((de < 0) || (drand48() < exp(-de / temperature))) {
+    if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
       conf[i] = q1;
       tot_de += de;
     }
@@ -296,8 +300,8 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
   tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
-      size_t i = size_t(n * drand48());
-      size_t dq = 1 + size_t((q - 1) * drand48());
+      size_t i = size_t(n * uniform(rng));
+      size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
       size_t q0 = conf[i];
       size_t q1 = (q0 + dq) % q;
@@ -313,7 +317,7 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
           e1 -= J[i][j][q1][conf[j]];
         }
       double de = e1 - e0;
-      if ((de < 0) || (drand48() < exp(-de / temperature))) {
+      if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
         conf[i] = q1;
         tot_de += de;
       }

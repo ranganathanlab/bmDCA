@@ -30,8 +30,6 @@ private:
   size_t n; // number of positions
   size_t q; // number of amino acids (inc. gaps)
 
-  long int seed = 1;
-
   Graph graph;
 };
 
