@@ -16,7 +16,7 @@ public:
   void load(potts_model);
   void run(int, int);
   void
-  sample(arma::field<arma::Mat<int>>*, int, int, int, int, int, int, double);
+  sample(arma::field<arma::Mat<int>>*, int, int, int, int, int, long int, double);
   void sample_init(arma::field<arma::Mat<int>>*,
                    int,
                    int,

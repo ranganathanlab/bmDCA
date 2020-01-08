@@ -34,13 +34,15 @@ MCMC::sample(arma::field<arma::Mat<int>>* ptr,
              int N,
              int t_wait,
              int delta_t,
-             int seed,
-             double temp){
+             long int seed,
+             double temperature){
   #pragma omp parallel
   {
+    srand48(seed);
     #pragma omp for
-    for (int rep = 0; rep < reps; rep++) {
-      graph.sample_mcmc(&((*ptr).at(rep)), M, t_wait, delta_t, seed + rep, temp);
+    for (int rep = 0; rep < reps; rep++){
+      graph
+        .sample_mcmc(&((*ptr).at(rep)), M, t_wait, delta_t, seed + rep, temperature);
     }
   }
 };
@@ -53,12 +55,17 @@ MCMC::sample_init(arma::field<arma::Mat<int>>* ptr,
                   int t_wait,
                   int delta_t,
                   arma::Col<int>* init_ptr,
-                  double temp){
+                  double temperature){
   #pragma omp parallel
   {
     #pragma omp for
-    for (int rep = 0; rep < reps; rep++){
-      graph.sample_mcmc_init(&((*ptr).at(rep)), M, t_wait, delta_t, init_ptr, temp);
+    for (int rep = 0; rep < reps;
+         rep++){ graph.sample_mcmc_init(&((*ptr).at(rep)),
+                                        M,
+                                        t_wait,
+                                        delta_t,
+                                        init_ptr,
+                                        temperature);
     }
   }
 };

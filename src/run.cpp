@@ -450,7 +450,7 @@ Sim::run(void)
                           temperature);
       } else {
         mcmc->sample(
-          &samples, count_max, M, N, t_wait, delta_t, step, temperature);
+          &samples, count_max, M, N, t_wait, delta_t, (long int)step, temperature);
       }
 
       std::cout << "computing mcmc stats... ";
