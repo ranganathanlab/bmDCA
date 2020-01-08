@@ -166,6 +166,7 @@ Sim::initializeParameters(void)
   error_max = 0.00001;
   save_parameters = 50;
   step_check = step_max;
+  random_seed = 1;
 
   // Learning rate settings
   epsilon_0_h = 0.01;
@@ -214,6 +215,7 @@ Sim::writeParameters(std::string output_file)
   stream << "error_max=" << error_max << std::endl;
   stream << "save_parameters=" << save_parameters << std::endl;
   stream << "step_check=" << step_check << std::endl;
+  stream << "random_seed=" << random_seed << std::endl;
 
   // Learning rate settings
   stream << "epsilon_0_h=" << epsilon_0_h << std::endl;
@@ -285,6 +287,8 @@ Sim::setParameter(std::string key, std::string value)
     save_parameters = std::stoi(value);
   } else if (key == "step_check") {
     step_check = std::stoi(value);
+  } else if (key == "random_seed") {
+    random_seed = std::stoi(value);
   } else if (key == "epsilon_0_h") {
     epsilon_0_h = std::stod(value);
   } else if (key == "epsilon_0_J") {
@@ -423,6 +427,8 @@ Sim::run(void)
     readInitialSample(N, Q);
   }
 
+  std::srand(random_seed);
+
   // BM sampling loop
   int t_wait = t_wait_0;
   int delta_t = delta_t_0;
@@ -450,7 +456,7 @@ Sim::run(void)
                           temperature);
       } else {
         mcmc->sample(
-          &samples, count_max, M, N, t_wait, delta_t, (long int)step, temperature);
+          &samples, count_max, M, N, t_wait, delta_t, (long int)std::rand(), temperature);
       }
 
       std::cout << "computing mcmc stats... ";

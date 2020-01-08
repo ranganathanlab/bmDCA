@@ -51,6 +51,7 @@ private:
   double error_max;    // exit error
   int save_parameters; // multiple of iterations at which to save parameters
   int step_check;      // ?
+  int random_seed;
 
   // Learning parameters
   double epsilon_0_h;      // starting learning rate for fields
