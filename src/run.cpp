@@ -6,12 +6,12 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <thread>
 #include <unistd.h>
-#include <vector>
+#include <random>
 
 #include "msa.hpp"
 #include "msa_stats.hpp"
+#include "pcg_random.hpp"
 #include "utils.hpp"
 
 #define EPSILON 0.00000001
@@ -427,7 +427,8 @@ Sim::run(void)
     readInitialSample(N, Q);
   }
 
-  std::srand(random_seed);
+  pcg32 rng(random_seed);
+  std::uniform_int_distribution<long int> dist(0, RAND_MAX);
 
   // BM sampling loop
   int t_wait = t_wait_0;
@@ -455,8 +456,14 @@ Sim::run(void)
                           &initial_sample,
                           temperature);
       } else {
-        mcmc->sample(
-          &samples, count_max, M, N, t_wait, delta_t, (long int)std::rand(), temperature);
+        mcmc->sample(&samples,
+                     count_max,
+                     M,
+                     N,
+                     t_wait,
+                     delta_t,
+                     dist(rng),
+                     temperature);
       }
 
       std::cout << "computing mcmc stats... ";
