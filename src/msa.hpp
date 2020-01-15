@@ -16,8 +16,8 @@ public:
   int N;                              // number of positions
   int Q;                              // number of amino acids
 
-  MSA(std::string, bool = true, double = 0.8);
-  MSA(std::string, std::string);
+  MSA(std::string, bool = true, bool = false, double = 0.8);
+  MSA(std::string, std::string, bool = false);
   void printAlignment();
   void writeMatrix(std::string);
   void writeSequenceWeights(std::string);

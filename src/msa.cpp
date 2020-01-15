@@ -7,13 +7,17 @@
 #include <string>
 #include <vector>
 
-MSA::MSA(std::string msa_file, bool reweight, double threshold)
+MSA::MSA(std::string msa_file, bool reweight, bool is_numeric_msa, double threshold)
 {
-  readInputMSA(msa_file);
-  M = seq_records.size();
-  N = getSequenceLength(seq_records.begin()->getSequence());
-  Q = 21;
-  makeNumericalMatrix();
+  if (is_numeric_msa) {
+    readInputNumericMSA(msa_file);
+  } else {
+    readInputMSA(msa_file);
+    M = seq_records.size();
+    N = getSequenceLength(seq_records.begin()->getSequence());
+    Q = 21;
+    makeNumericalMatrix();
+  }
   if (reweight) {
     computeSequenceWeights(threshold);
   } else {
@@ -21,9 +25,17 @@ MSA::MSA(std::string msa_file, bool reweight, double threshold)
   }
 };
 
-MSA::MSA(std::string numeric_msa_file, std::string weights_file)
+MSA::MSA(std::string msa_file, std::string weights_file, bool is_numeric_msa)
 {
-  readInputNumericMSA(numeric_msa_file);
+  if (is_numeric_msa) {
+    readInputNumericMSA(msa_file);
+  } else {
+    readInputMSA(msa_file);
+    M = seq_records.size();
+    N = getSequenceLength(seq_records.begin()->getSequence());
+    Q = 21;
+    makeNumericalMatrix();
+  }
   readSequenceWeights(weights_file);
 };
 
