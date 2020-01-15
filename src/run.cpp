@@ -428,7 +428,7 @@ Sim::run(void)
   }
 
   pcg32 rng(random_seed);
-  std::uniform_int_distribution<long int> dist(0, RAND_MAX);
+  std::uniform_int_distribution<long int> dist(0, RAND_MAX-count_max);
 
   // BM sampling loop
   int t_wait = t_wait_0;
