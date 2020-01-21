@@ -20,7 +20,7 @@ main(int argc, char* argv[])
   bool numeric_msa_given = false;
   bool input_file_given = true;
   bool weight_given = false;
-  int threshold = 0.8;
+  double threshold = 0.8;
 
   // Read command-line parameters.
   char c;
@@ -55,7 +55,7 @@ main(int argc, char* argv[])
         weight_given = true;
         break;
       case 't':
-        threshold = std::stoi(optarg);
+        threshold = std::stod(optarg);
         break;
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
