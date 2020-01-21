@@ -58,6 +58,9 @@ The command line flags are:
  - `-r`: flag to compute re-weighting coefficients for each sequence in the
          alignment (optional)
  - `-c`: config file for bmDCA run hyperparameters (optional)
+ - `-t`: threshold for computing default sequence weights (default: `0.8`)
+ - `-n`: numerical multiple sequence alignment
+ - `-w`: file containing sequence weights
 
 If `-r` is not specified, each sequence will be equally weighted, and if no
 config file is supplied, the run will default to hyperparameters hard-coded in
@@ -183,6 +186,20 @@ disable writing of a particular log file is to comment out the code in the
 
 Output file formats will probably be changed at a later date.
 
+#### Numerical sequence alignment
+
+This file is a space-delimited file, e.g.:
+```
+4914 53 21
+0 2 10 10 13 16 1 7 6 13 2 1 12 19 17 17 15 19 20 5 18 6 18 18 6 15 2 12 15 5 19 20 6 6 2 7 6 12 9 12 16 5 1 16 4 4 4 2 11 15 18 2 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 6 20 9 6 2 6 6 12 9 12 12 5 3 17 3 6 17 2 17 16 10 2 9
+```
+
+The first line is:
+1. Number of sequences (M)
+2. Number of positions (N)
+3. Size of amino acid alphabet (all AAs + 1 for gaps) (Q)
+
 #### Learned parameters
 
 The output directory contains learned parameters saved in files called
@@ -219,7 +236,6 @@ For 1 position (1p) frequencies:
 where `[amino acid frequencies (21)]` is a row of frequencies for each of the
 21 positions.
 
-
 For 2 position (2p) frequencies:
 ```
 [position index i] [position index j] [amino acid frequencies (21x21)]
@@ -232,9 +248,17 @@ frequencies of the `21x21` pairs of amino acids at positions i and j.
 
 ## Example
 
-An example file with processed output is provided in the examples directory. To
-use it, run:
+An example FASTA file with processed output is provided in the examples
+directory. To use it, run:
 
 ```
 bmdca -i example/PF00014_raw.fasta -d example/output -r -c example/bmdca.conf
+```
+
+A numerical representation and sequence weights of the aforementioned FASTA
+file is also available. To use run:
+
+```
+bmdca -n example/PF00014_numerical.txt -w example/PF00014_weights.txt \
+  -d example/output -c example/bmdca.conf
 ```
