@@ -863,6 +863,8 @@ void
 Sim::writeData(std::string id)
 {
   current_model->writeParams("parameters_" + id + ".txt");
+  current_model->writeGradient("gradients_" + id + ".txt");
+  current_model->writeLearningRates("learning_rates_" + id + ".txt");
   mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".txt",
                                "stat_MC_1p_sigma_" + id + ".txt");
   mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".txt",
