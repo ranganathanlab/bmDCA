@@ -466,12 +466,17 @@ Sim::run(void)
                      temperature);
       }
 
-      std::cout << "computing mcmc stats... ";
-      mcmc_stats->updateData(samples, current_model->params);
+      std::cout << "updating mcmc with samples... ";
+      mcmc_stats->updateData(&samples, &(current_model->params));
       std::cout << "done" << std::endl;
 
       // Run checks and alter burn-in and wait times
       if (check_ergo) {
+        std::cout << "computing sequence energies and correlations... ";
+        mcmc_stats->computeEnergiesStats();
+        mcmc_stats->computeAutocorrelation();
+        std::cout << "done" << std::endl;
+
         std::vector<double> energy_stats = mcmc_stats->getEnergiesStats();
         std::vector<double> corr_stats = mcmc_stats->getCorrelationsStats();
 
@@ -549,7 +554,7 @@ Sim::run(void)
           flag_coherence = false;
         }
       } else {
-        std::cout << "computing sequence correlations and energies... ";
+        std::cout << "computing mcmc 1p and 2p statistics... ";
         mcmc_stats->computeSampleStats();
         std::cout << "done" << std::endl;
       }
