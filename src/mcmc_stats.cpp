@@ -15,8 +15,6 @@ MCMCStats::MCMCStats(arma::field<arma::Mat<int>> *s, potts_model *p)
   params = p;
 
   computeEnergies();
-  computeEnergiesStats();
-  computeAutocorrelation();
 };
 
 void
@@ -26,8 +24,6 @@ MCMCStats::updateData(arma::field<arma::Mat<int>> *s, potts_model *p)
   params = p;
 
   computeEnergies();
-  computeEnergiesStats();
-  computeAutocorrelation();
 };
 
 void
