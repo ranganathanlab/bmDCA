@@ -8,8 +8,8 @@
 class MCMCStats
 {
 public:
-  MCMCStats(arma::field<arma::Mat<int>>*, potts_model*);
-  void updateData(arma::field<arma::Mat<int>>*, potts_model*);
+  MCMCStats(arma::Cube<int>*, potts_model*);
+  void updateData(arma::Cube<int>*, potts_model*);
 
   void computeEnergies(void);
   void computeEnergiesStats(void);
@@ -41,7 +41,7 @@ public:
 
 private:
   potts_model *params;
-  arma::field<arma::Mat<int>> *samples;
+  arma::Cube<int> *samples;
   arma::Mat<double> energies;
 
   double energies_start_avg;

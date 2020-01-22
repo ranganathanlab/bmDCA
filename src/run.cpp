@@ -277,10 +277,7 @@ Sim::run(void)
   int Q = current_model->Q;
 
   // Initialize sample data structure
-  samples = arma::field<arma::Mat<int>>(count_max);
-  for (int i = 0; i < count_max; i++) {
-    samples.at(i) = arma::Mat<int>(M, N, arma::fill::zeros);
-  }
+  samples = arma::Cube<int>(M, N, count_max, arma::fill::zeros);
   mcmc_stats = new MCMCStats(&samples, &(current_model->params));
 
   if (init_sample) {

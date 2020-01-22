@@ -26,7 +26,7 @@ MCMC::MCMC(potts_model params, size_t N, size_t Q)
 };
 
 void
-MCMC::sample(arma::field<arma::Mat<int>>* ptr,
+MCMC::sample(arma::Cube<int>* ptr,
              int reps,
              int M,
              int N,
@@ -38,14 +38,18 @@ MCMC::sample(arma::field<arma::Mat<int>>* ptr,
   {
     #pragma omp for
     for (int rep = 0; rep < reps; rep++){
-      graph
-        .sample_mcmc(&((*ptr).at(rep)), M, t_wait, delta_t, seed + rep, temperature);
+      graph.sample_mcmc((arma::Mat<int>*)&((*ptr).slice(rep)),
+                        M,
+                        t_wait,
+                        delta_t,
+                        seed + rep,
+                        temperature);
     }
   }
 };
 
 void
-MCMC::sample_init(arma::field<arma::Mat<int>>* ptr,
+MCMC::sample_init(arma::Cube<int>* ptr,
                   int reps,
                   int M,
                   int N,
@@ -56,13 +60,13 @@ MCMC::sample_init(arma::field<arma::Mat<int>>* ptr,
   #pragma omp parallel
   {
     #pragma omp for
-    for (int rep = 0; rep < reps;
-         rep++){ graph.sample_mcmc_init(&((*ptr).at(rep)),
-                                        M,
-                                        t_wait,
-                                        delta_t,
-                                        init_ptr,
-                                        temperature);
+    for (int rep = 0; rep < reps; rep++){
+      graph.sample_mcmc_init((arma::Mat<int>*)&((*ptr).slice(rep)),
+                             M,
+                             t_wait,
+                             delta_t,
+                             init_ptr,
+                             temperature);
     }
   }
 };

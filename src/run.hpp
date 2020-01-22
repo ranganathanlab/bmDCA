@@ -83,7 +83,7 @@ private:
   void setParameter(std::string, std::string);
 
   // Sample data
-  arma::field<arma::Mat<int>> samples;
+  arma::Cube<int> samples;
   arma::Col<int> initial_sample;
 
   // Stats from original MSA

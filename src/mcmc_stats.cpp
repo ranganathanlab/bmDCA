@@ -5,12 +5,13 @@
 
 #include "utils.hpp"
 
-MCMCStats::MCMCStats(arma::field<arma::Mat<int>> *s, potts_model *p)
+MCMCStats::MCMCStats(arma::Cube<int> *s, potts_model *p)
 {
-  reps = s->n_rows;
-  N = s->at(0).n_cols;
-  M = s->at(0).n_rows;
+  M = s->n_rows;
+  N = s->n_cols;
+  reps = s->n_slices;
   Q = 21;
+
   samples = s;
   params = p;
 
@@ -18,7 +19,7 @@ MCMCStats::MCMCStats(arma::field<arma::Mat<int>> *s, potts_model *p)
 };
 
 void
-MCMCStats::updateData(arma::field<arma::Mat<int>> *s, potts_model *p)
+MCMCStats::updateData(arma::Cube<int> *s, potts_model *p)
 {
   samples = s;
   params = p;
@@ -35,10 +36,10 @@ MCMCStats::computeEnergies(void)
     for (int seq = 0; seq < M; seq++) {
       E = 0;
       for (int i = 0; i < N; i++) {
-        E -= params->h.at(samples->at(rep).at(seq, i), i);
+        E -= params->h.at(samples->at(seq, i, rep), i);
         for (int j = i + 1; j < N; j++) {
-          E -= params->J.at(i, j).at(samples->at(rep).at(seq, i),
-                                    samples->at(rep).at(seq, j));
+          E -= params->J.at(i, j).at(samples->at(seq, i, rep),
+                                    samples->at(seq, j, rep));
         }
       }
       energies.at(rep, seq) = E;
@@ -102,7 +103,7 @@ MCMCStats::computeAutocorrelation(void)
       for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
         id = 0;
         for (int i = 0; i < N; i++) {
-          if (samples->at(rep).at(seq1, i) == samples->at(rep).at(seq2, i)) {
+          if (samples->at(seq1, i, rep) == samples->at(seq2, i, rep)) {
             id++;
           }
         }
@@ -120,7 +121,7 @@ MCMCStats::computeAutocorrelation(void)
       for (int rep2 = rep1 + 1; rep2 < reps; rep2++) {
         id = 0;
         for (int i = 0; i < N; i++) {
-          if (samples->at(rep1).at(seq1, i) == samples->at(rep2).at(seq1, i)) {
+          if (samples->at(seq1, i, rep1) == samples->at(seq1, i, rep2)) {
             id++;
           }
         }
@@ -224,78 +225,73 @@ MCMCStats::computeSampleStats(void)
     }
   }
 
-  arma::Mat<int> n1 = arma::Mat<int>(Q, reps, arma::fill::zeros);
-  arma::field<arma::Mat<int>> n2 = arma::field<arma::Mat<int>>(reps);
-  for (int rep = 0; rep < reps; rep++) {
-    n2.at(rep) = arma::Mat<int>(Q, Q, arma::fill::zeros);
-  }
+  {
+    arma::Mat<int> n1 = arma::Mat<int>(Q, reps, arma::fill::zeros);
+    arma::Col<int> n1squared = arma::Col<int>(Q, arma::fill::zeros);
+    arma::Col<int> n1av = arma::Col<int>(Q, arma::fill::zeros);
 
-  arma::Col<int> n1av = arma::Col<int>(Q, arma::fill::zeros);
-  arma::Mat<int> n2av = arma::Mat<int>(Q, Q, arma::fill::zeros);
-
-  arma::Col<int> n1squared = arma::Col<int>(Q, arma::fill::zeros);
-  arma::Mat<int> n2squared = arma::Mat<int>(Q, Q, arma::fill::zeros);
-
-  // #pragma omp parallel
-  // {
-  // #pragma omp for
-  for (int i = 0; i < N; i++) {
-    n1.zeros();
-    n1av.zeros();
-    n1squared.zeros();
-    for (int rep = 0; rep < reps; rep++) {
-      for (int m = 0; m < M; m++) {
-        n1.at(samples->at(rep).at(m, i), rep)++;
-      }
-    }
-    for (int aa = 0; aa < Q; aa++) {
+    for (int i = 0; i < N; i++) {
+      n1.zeros();
+      n1av.zeros();
+      n1squared.zeros();
       for (int rep = 0; rep < reps; rep++) {
-        n1av.at(aa) += n1.at(aa, rep);
-        n1squared.at(aa) += pow(n1.at(aa, rep), 2);
-      }
-      frequency_1p.at(aa, i) = (double)n1av.at(aa) / M / reps;
-      frequency_1p_sigma.at(aa, i) =
-        Max(sqrt(((double)n1squared.at(aa) / (M * M * reps) -
-                  pow((double)n1av.at(aa) / (M * reps), 2)) /
-                 sqrt(reps)),
-            0);
-    }
-  }
-  // }
-
-  // #pragma omp parallel
-  // {
-  // #pragma omp for
-  for (int i = 0; i < N; i++) {
-    for (int j = i + 1; j < N; j++) {
-      for (int rep = 0; rep < reps; rep++) {
-        n2.at(rep).zeros();
-      }
-      n2av.zeros();
-      n2squared.zeros();
-      for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2.at(rep).at(samples->at(rep).at(m, i), samples->at(rep).at(m, j))++;
+          n1.at(samples->at(m, i, rep), rep)++;
         }
+      }
+      for (int aa = 0; aa < Q; aa++) {
+        for (int rep = 0; rep < reps; rep++) {
+          n1av.at(aa) += n1.at(aa, rep);
+          n1squared.at(aa) += pow(n1.at(aa, rep), 2);
+        }
+        frequency_1p.at(aa, i) = (double)n1av.at(aa) / M / reps;
+        frequency_1p_sigma.at(aa, i) =
+          Max(sqrt(((double)n1squared.at(aa) / (M * M * reps) -
+                    pow((double)n1av.at(aa) / (M * reps), 2)) /
+                   sqrt(reps)),
+              0);
+      }
+    }
+  }
 
-      for (int aa1 = 0; aa1 < Q; aa1++) {
-        for (int aa2 = 0; aa2 < Q; aa2++) {
-          for (int rep = 0; rep < reps; rep++) {
-            n2av.at(aa1, aa2) += n2.at(rep).at(aa1, aa2);
-            n2squared.at(aa1, aa2) += pow(n2.at(rep).at(aa1, aa2), 2);
+  {
+    arma::field<arma::Mat<int>> n2 = arma::field<arma::Mat<int>>(reps);
+    for (int rep = 0; rep < reps; rep++) {
+      n2.at(rep) = arma::Mat<int>(Q, Q, arma::fill::zeros);
+    }
+    arma::Mat<int> n2squared = arma::Mat<int>(Q, Q, arma::fill::zeros);
+    arma::Mat<int> n2av = arma::Mat<int>(Q, Q, arma::fill::zeros);
+
+    for (int i = 0; i < N; i++) {
+      for (int j = i + 1; j < N; j++) {
+        for (int rep = 0; rep < reps; rep++) {
+          n2.at(rep).zeros();
+        }
+        n2av.zeros();
+        n2squared.zeros();
+        for (int rep = 0; rep < reps; rep++)
+          for (int m = 0; m < M; m++) {
+            n2.at(rep).at(samples->at(m, i, rep), samples->at(m, j, rep))++;
           }
-          frequency_2p.at(i, j).at(aa1, aa2) =
-            (double)n2av.at(aa1, aa2) / (M * reps);
-          frequency_2p_sigma.at(i, j).at(aa1, aa2) =
-            Max(sqrt(((double)n2squared.at(aa1, aa2) / (M * M * reps) -
-                      pow((double)n2av.at(aa1, aa2) / (M * reps), 2)) /
-                     sqrt(reps)),
-                0);
+
+        for (int aa1 = 0; aa1 < Q; aa1++) {
+          for (int aa2 = 0; aa2 < Q; aa2++) {
+            for (int rep = 0; rep < reps; rep++) {
+              n2av.at(aa1, aa2) += n2.at(rep).at(aa1, aa2);
+              n2squared.at(aa1, aa2) += pow(n2.at(rep).at(aa1, aa2), 2);
+            }
+            frequency_2p.at(i, j).at(aa1, aa2) =
+              (double)n2av.at(aa1, aa2) / (M * reps);
+            frequency_2p_sigma.at(i, j).at(aa1, aa2) =
+              Max(sqrt(((double)n2squared.at(aa1, aa2) / (M * M * reps) -
+                        pow((double)n2av.at(aa1, aa2) / (M * reps), 2)) /
+                       sqrt(reps)),
+                  0);
+          }
         }
       }
     }
   }
-  // }
 };
 
 void
@@ -319,13 +315,13 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
   for (int rep = 0; rep < reps; rep++) {
     for (int m = 0; m < M; m++) {
       for (int i = 0; i < N; i++) {
-        dE.at(rep, m) += cur->h.at(samples->at(rep).at(m, i)) -
-                         prev->h.at(samples->at(rep).at(m, i));
+        dE.at(rep, m) += cur->h.at(samples->at(m, i, rep)) -
+                         prev->h.at(samples->at(m, i, rep));
         for (int j = i + 1; j < N; j++) {
-          dE.at(rep, m) += cur->J.at(i, j).at(samples->at(rep).at(m, i),
-                                              samples->at(rep).at(m, j)) -
-                           prev->J.at(i, j).at(samples->at(rep).at(m, i),
-                                               samples->at(rep).at(m, j));
+          dE.at(rep, m) += cur->J.at(i, j).at(samples->at(m, i, rep),
+                                              samples->at(m, j, rep)) -
+                           prev->J.at(i, j).at(samples->at(m, i, rep),
+                                               samples->at(m, j, rep));
         }
       }
       dE_av.at(rep) += dE.at(rep, m);
@@ -376,7 +372,7 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
     n1squared.zeros();
     for (int rep = 0; rep < reps; rep++) {
       for (int m = 0; m < M; m++) {
-        n1.at(samples->at(rep).at(m, i), rep) += p.at(rep, m);
+        n1.at(samples->at(m, i, rep), rep) += p.at(rep, m);
       }
     }
     for (int aa = 0; aa < Q; aa++) {
@@ -401,8 +397,7 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
       n2squared.zeros();
       for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2.at(rep).at(samples->at(rep).at(m, i), samples->at(rep)(m, j)) +=
-            p.at(rep, m);
+          n2.at(rep).at(samples->at(m, i, rep), samples->at(m, j, rep)) += p.at(rep, m);
         }
 
       for (int aa1 = 0; aa1 < Q; aa1++) {
@@ -472,17 +467,13 @@ MCMCStats::writeSamples(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
-  int reps = samples->n_rows;
-  int N = samples->at(0).n_cols;
-  int M = samples->at(0).n_rows;
-
   output_stream << reps * M << " " << N << " " << 21 << std::endl;
 
   for (int rep = 0; rep < reps; rep++) {
-    for (int i = 0; i < M; i++) {
-      output_stream << samples->at(rep).at(i, 0);
-      for (int j = 1; j < N; j++) {
-        output_stream << " " << samples->at(rep).at(i, j);
+    for (int m = 0; m < M; m++) {
+      output_stream << samples->at(m, 0, rep);
+      for (int i = 1; i < N; i++) {
+        output_stream << " " << samples->at(m, i, rep);
       }
       output_stream << std::endl;
     }
@@ -495,8 +486,8 @@ MCMCStats::writeSampleEnergies(std::string output_file)
   std::ofstream output_stream(output_file);
 
   for (int rep = 0; rep < reps; rep++) {
-    for (int i = 0; i < M; i++) {
-      output_stream << energies.at(rep, i) << std::endl;
+    for (int m = 0; m < M; m++) {
+      output_stream << energies.at(rep, m) << std::endl;
     }
   }
 };
@@ -505,8 +496,8 @@ void
 MCMCStats::writeSampleEnergiesRelaxation(std::string output_file, int t_wait)
 {
   std::ofstream output_stream(output_file);
-  for (int i = 0; i < M; i++) {
-    output_stream << i * t_wait << " " << energies_relax.at(i) << " "
-                  << energies_relax_sigma.at(i) << std::endl;
+  for (int m = 0; m < M; m++) {
+    output_stream << m * t_wait << " " << energies_relax.at(m) << " "
+                  << energies_relax_sigma.at(m) << std::endl;
   }
 };
