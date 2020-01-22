@@ -16,11 +16,9 @@ public:
   void writeRelEntropyGradient(std::string);
   void writeFrequency1p(std::string);
   void writeFrequency2p(std::string);
-  // void writeFrequency3p(std::string);
 
   arma::Mat<double> frequency_1p;
   arma::field<arma::Mat<double>> frequency_2p;
-  // arma::field<arma::Cube<double>> frequency_3p;
   arma::Mat<double> rel_entropy_grad_1p;
 
 private:

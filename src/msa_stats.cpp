@@ -59,27 +59,6 @@ MSAStats::MSAStats(MSA msa)
     }
   }
 
-  // // Compute the 3p statistics
-  // for (int i = 0; i < N; i++) {
-  //   for (int j = i + 1; j < N; j++) {
-  //     for (int k = j + 1; k < N; k++) {
-  //       frequency_3p.at(i, j, k) = arma::Cube<double>(
-  //         AA_ALPHABET_SIZE, AA_ALPHABET_SIZE, AA_ALPHABET_SIZE,
-  //         arma::fill::zeros);
-  //
-  //       int* align_ptr1 = msa.alignment.colptr(i);
-  //       int* align_ptr2 = msa.alignment.colptr(j);
-  //       int* align_ptr3 = msa.alignment.colptr(k);
-  //       for (int m = 0; m < M; m++) {
-  //         frequency_3p.at(i, j, k)(*(align_ptr1 + m), *(align_ptr2 + m),
-  //         *(align_ptr3 + m)) +=
-  //           *(weight_ptr + m);
-  //       }
-  //       frequency_3p.at(i, j, k) = frequency_3p.at(i, j, k) / M_effective;
-  //     }
-  //   }
-  // }
-
   std::cout << M << " sequences" << std::endl;
   std::cout << N << " positions" << std::endl;
   std::cout << Q << " amino acids (including gaps)" << std::endl;
@@ -184,25 +163,3 @@ MSAStats::writeFrequency2p(std::string output_file)
     }
   }
 };
-
-// void
-// MSAStats::writeFrequency3p(std::string output_file)
-// {
-//   std::ofstream output_stream(output_file);
-//
-//   for (int i = 0; i < N; i++) {
-//     for (int j = i + 1; j < N; j++) {
-//       for (int k = j + 1; k < N; k++) {
-//         output_stream << i << " " << j << " " << k;
-//         for (int aa1 = 0; aa1 < AA_ALPHABET_SIZE; aa1++) {
-//           for (int aa2 = 0; aa2 < AA_ALPHABET_SIZE; aa2++) {
-//             for (int aa3 = 0; aa3 < AA_ALPHABET_SIZE; aa3++) {
-//               output_stream << " " << frequency_3p.at(i, j, k).at(aa1, aa2, aa3);
-//             }
-//           }
-//         }
-//         output_stream << std::endl;
-//       }
-//     }
-//   }
-// }
