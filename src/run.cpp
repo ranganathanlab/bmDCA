@@ -876,12 +876,15 @@ Sim::writeData(std::string id)
                                "stat_MC_2p_sigma_" + id + ".txt");
   mcmc_stats->writeSamples("MC_samples_" + id + ".txt");
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
-  mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat");
-  mcmc_stats->writeEnergyStats("my_energies_start_" + id + ".txt",
-                               "my_energies_end_" + id + ".txt",
-                               "my_energies_cfr_" + id + ".txt",
-                               "my_energies_cfr_err_" + id + ".txt");
-  mcmc_stats->writeAutocorrelationStats("overlap_" + id + ".txt",
-                                        "overlap_inf_" + id + ".txt",
-                                        "ergo_" + id + ".txt");
+
+  if (check_ergo) {
+    mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat");
+    mcmc_stats->writeEnergyStats("my_energies_start_" + id + ".txt",
+                                 "my_energies_end_" + id + ".txt",
+                                 "my_energies_cfr_" + id + ".txt",
+                                 "my_energies_cfr_err_" + id + ".txt");
+    mcmc_stats->writeAutocorrelationStats("overlap_" + id + ".txt",
+                                          "overlap_inf_" + id + ".txt",
+                                          "ergo_" + id + ".txt");
+  }
 };
