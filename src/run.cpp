@@ -420,7 +420,7 @@ Sim::run(void)
   for (int i = 0; i < count_max; i++) {
     samples.at(i) = arma::Mat<int>(M, N, arma::fill::zeros);
   }
-  mcmc_stats = new MCMCStats(samples, current_model->params);
+  mcmc_stats = new MCMCStats(&samples, &(current_model->params));
 
   if (init_sample) {
     initial_sample = arma::Col<int>(N, arma::fill::zeros);

@@ -5,11 +5,11 @@
 
 #include "utils.hpp"
 
-MCMCStats::MCMCStats(arma::field<arma::Mat<int>> s, potts_model p)
+MCMCStats::MCMCStats(arma::field<arma::Mat<int>> *s, potts_model *p)
 {
-  reps = s.n_rows;
-  N = s(0).n_cols;
-  M = s(0).n_rows;
+  reps = s->n_rows;
+  N = s->at(0).n_cols;
+  M = s->at(0).n_rows;
   Q = 21;
   samples = s;
   params = p;
@@ -20,7 +20,7 @@ MCMCStats::MCMCStats(arma::field<arma::Mat<int>> s, potts_model p)
 };
 
 void
-MCMCStats::updateData(arma::field<arma::Mat<int>> s, potts_model p)
+MCMCStats::updateData(arma::field<arma::Mat<int>> *s, potts_model *p)
 {
   samples = s;
   params = p;
@@ -39,10 +39,10 @@ MCMCStats::computeEnergies(void)
     for (int seq = 0; seq < M; seq++) {
       E = 0;
       for (int i = 0; i < N; i++) {
-        E -= params.h.at(samples.at(rep).at(seq, i), i);
+        E -= params->h.at(samples->at(rep).at(seq, i), i);
         for (int j = i + 1; j < N; j++) {
-          E -= params.J.at(i, j).at(samples.at(rep).at(seq, i),
-                                    samples.at(rep).at(seq, j));
+          E -= params->J.at(i, j).at(samples->at(rep).at(seq, i),
+                                    samples->at(rep).at(seq, j));
         }
       }
       energies.at(rep, seq) = E;
@@ -106,7 +106,7 @@ MCMCStats::computeAutocorrelation(void)
       for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
         id = 0;
         for (int i = 0; i < N; i++) {
-          if (samples.at(rep).at(seq1, i) == samples.at(rep).at(seq2, i)) {
+          if (samples->at(rep).at(seq1, i) == samples->at(rep).at(seq2, i)) {
             id++;
           }
         }
@@ -124,7 +124,7 @@ MCMCStats::computeAutocorrelation(void)
       for (int rep2 = rep1 + 1; rep2 < reps; rep2++) {
         id = 0;
         for (int i = 0; i < N; i++) {
-          if (samples.at(rep1).at(seq1, i) == samples.at(rep2).at(seq1, i)) {
+          if (samples->at(rep1).at(seq1, i) == samples->at(rep2).at(seq1, i)) {
             id++;
           }
         }
@@ -249,7 +249,7 @@ MCMCStats::computeSampleStats(void)
     n1squared.zeros();
     for (int rep = 0; rep < reps; rep++) {
       for (int m = 0; m < M; m++) {
-        n1.at(samples.at(rep).at(m, i), rep)++;
+        n1.at(samples->at(rep).at(m, i), rep)++;
       }
     }
     for (int aa = 0; aa < Q; aa++) {
@@ -279,7 +279,7 @@ MCMCStats::computeSampleStats(void)
       n2squared.zeros();
       for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2.at(rep).at(samples.at(rep).at(m, i), samples.at(rep).at(m, j))++;
+          n2.at(rep).at(samples->at(rep).at(m, i), samples->at(rep).at(m, j))++;
         }
 
       for (int aa1 = 0; aa1 < Q; aa1++) {
@@ -323,13 +323,13 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
   for (int rep = 0; rep < reps; rep++) {
     for (int m = 0; m < M; m++) {
       for (int i = 0; i < N; i++) {
-        dE.at(rep, m) += cur->h.at(samples.at(rep).at(m, i)) -
-                         prev->h.at(samples.at(rep).at(m, i));
+        dE.at(rep, m) += cur->h.at(samples->at(rep).at(m, i)) -
+                         prev->h.at(samples->at(rep).at(m, i));
         for (int j = i + 1; j < N; j++) {
-          dE.at(rep, m) += cur->J.at(i, j).at(samples.at(rep).at(m, i),
-                                              samples.at(rep).at(m, j)) -
-                           prev->J.at(i, j).at(samples.at(rep).at(m, i),
-                                               samples.at(rep).at(m, j));
+          dE.at(rep, m) += cur->J.at(i, j).at(samples->at(rep).at(m, i),
+                                              samples->at(rep).at(m, j)) -
+                           prev->J.at(i, j).at(samples->at(rep).at(m, i),
+                                               samples->at(rep).at(m, j));
         }
       }
       dE_av.at(rep) += dE.at(rep, m);
@@ -380,7 +380,7 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
     n1squared.zeros();
     for (int rep = 0; rep < reps; rep++) {
       for (int m = 0; m < M; m++) {
-        n1.at(samples.at(rep).at(m, i), rep) += p.at(rep, m);
+        n1.at(samples->at(rep).at(m, i), rep) += p.at(rep, m);
       }
     }
     for (int aa = 0; aa < Q; aa++) {
@@ -405,7 +405,7 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
       n2squared.zeros();
       for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2.at(rep).at(samples.at(rep).at(m, i), samples.at(rep)(m, j)) +=
+          n2.at(rep).at(samples->at(rep).at(m, i), samples->at(rep)(m, j)) +=
             p.at(rep, m);
         }
 
@@ -476,17 +476,17 @@ MCMCStats::writeSamples(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
-  int reps = samples.n_rows;
-  int N = samples.at(0).n_cols;
-  int M = samples.at(0).n_rows;
+  int reps = samples->n_rows;
+  int N = samples->at(0).n_cols;
+  int M = samples->at(0).n_rows;
 
   output_stream << reps * M << " " << N << " " << 21 << std::endl;
 
   for (int rep = 0; rep < reps; rep++) {
     for (int i = 0; i < M; i++) {
-      output_stream << samples.at(rep).at(i, 0);
+      output_stream << samples->at(rep).at(i, 0);
       for (int j = 1; j < N; j++) {
-        output_stream << " " << samples.at(rep).at(i, j);
+        output_stream << " " << samples->at(rep).at(i, j);
       }
       output_stream << std::endl;
     }
