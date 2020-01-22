@@ -5,6 +5,7 @@ CXXFLAGS = -larmadillo -lm -fopenmp -O2
 DISTCLEANFILES = Makefile.in
 
 bmdca_SOURCES = bmdca.cpp \
+                model.cpp \
                 msa.cpp \
                 msa_stats.cpp \
                 run.cpp \

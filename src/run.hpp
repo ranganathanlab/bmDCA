@@ -5,23 +5,8 @@
 #include "mcmc_stats.hpp"
 #include "msa.hpp"
 #include "msa_stats.hpp"
+#include "model.hpp"
 #include "utils.hpp"
-
-class Model
-{
-public:
-  potts_model params;
-  potts_model learning_rates;
-  potts_model gradient;
-  int N;
-  int Q;
-
-  Model(MSAStats, double, double);
-
-  void writeParams(std::string);
-  void writeLearningRates(std::string);
-  void writeGradient(std::string);
-};
 
 class Sim
 {
