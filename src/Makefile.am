@@ -1,6 +1,6 @@
 bin_PROGRAMS = bmdca
 
-CXXFLAGS = -larmadillo -lm -fopenmp -O2
+CXXFLAGS = -O2 -larmadillo -lm -std=c++11 -fopenmp
 
 DISTCLEANFILES = Makefile.in
 
