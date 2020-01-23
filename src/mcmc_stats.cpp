@@ -226,9 +226,9 @@ MCMCStats::computeSampleStats(void)
   }
 
   {
-    arma::Mat<int> n1 = arma::Mat<int>(Q, reps, arma::fill::zeros);
-    arma::Col<int> n1squared = arma::Col<int>(Q, arma::fill::zeros);
-    arma::Col<int> n1av = arma::Col<int>(Q, arma::fill::zeros);
+    arma::Mat<double> n1 = arma::Mat<double>(Q, reps, arma::fill::zeros);
+    arma::Col<double> n1squared = arma::Col<double>(Q, arma::fill::zeros);
+    arma::Col<double> n1av = arma::Col<double>(Q, arma::fill::zeros);
 
     for (int i = 0; i < N; i++) {
       n1.zeros();
@@ -244,10 +244,10 @@ MCMCStats::computeSampleStats(void)
           n1av.at(aa) += n1.at(aa, rep);
           n1squared.at(aa) += pow(n1.at(aa, rep), 2);
         }
-        frequency_1p.at(aa, i) = (double)n1av.at(aa) / M / reps;
+        frequency_1p.at(aa, i) = n1av.at(aa) / M / reps;
         frequency_1p_sigma.at(aa, i) =
-          Max(sqrt(((double)n1squared.at(aa) / (M * M * reps) -
-                    pow((double)n1av.at(aa) / (M * reps), 2)) /
+          Max(sqrt((n1squared.at(aa) / (M * M * reps) -
+                    pow(n1av.at(aa) / (M * reps), 2)) /
                    sqrt(reps)),
               0);
       }
@@ -255,40 +255,25 @@ MCMCStats::computeSampleStats(void)
   }
 
   {
-    arma::field<arma::Mat<int>> n2 = arma::field<arma::Mat<int>>(reps);
-    for (int rep = 0; rep < reps; rep++) {
-      n2.at(rep) = arma::Mat<int>(Q, Q, arma::fill::zeros);
-    }
-    arma::Mat<int> n2squared = arma::Mat<int>(Q, Q, arma::fill::zeros);
-    arma::Mat<int> n2av = arma::Mat<int>(Q, Q, arma::fill::zeros);
+    arma::Cube<double> n2 = arma::Cube<double>(reps, Q, Q, arma::fill::zeros);
+    arma::Mat<double> n2squared = arma::Mat<double>(Q, Q, arma::fill::zeros);
+    arma::Mat<double> n2av = arma::Mat<double>(Q, Q, arma::fill::zeros);
 
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
-        for (int rep = 0; rep < reps; rep++) {
-          n2.at(rep).zeros();
-        }
+        n2.zeros();
         n2av.zeros();
         n2squared.zeros();
         for (int rep = 0; rep < reps; rep++)
           for (int m = 0; m < M; m++) {
-            n2.at(rep).at(samples->at(m, i, rep), samples->at(m, j, rep))++;
+            n2.at(rep, samples->at(m, i, rep), samples->at(m, j, rep))++;
           }
 
-        for (int aa1 = 0; aa1 < Q; aa1++) {
-          for (int aa2 = 0; aa2 < Q; aa2++) {
-            for (int rep = 0; rep < reps; rep++) {
-              n2av.at(aa1, aa2) += n2.at(rep).at(aa1, aa2);
-              n2squared.at(aa1, aa2) += pow(n2.at(rep).at(aa1, aa2), 2);
-            }
-            frequency_2p.at(i, j).at(aa1, aa2) =
-              (double)n2av.at(aa1, aa2) / (M * reps);
-            frequency_2p_sigma.at(i, j).at(aa1, aa2) =
-              Max(sqrt(((double)n2squared.at(aa1, aa2) / (M * M * reps) -
-                        pow((double)n2av.at(aa1, aa2) / (M * reps), 2)) /
-                       sqrt(reps)),
-                  0);
-          }
-        }
+        n2av = arma::sum(n2, 0) / (M*reps);
+        n2squared = arma::sum(arma::pow(n2, 2), 0) / (M*reps);
+        frequency_2p.at(i, j) = n2av;
+        frequency_2p_sigma.at(i, j) =
+          arma::pow((n2squared/M - arma::pow((n2av), 2)) / sqrt(reps), .5);
       }
     }
   }
