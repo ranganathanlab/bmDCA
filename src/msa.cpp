@@ -113,7 +113,7 @@ MSA::readInputMSA(std::string msa_file)
    */
   std::string header, sequence, line;
   while (input_stream) {
-    input_stream >> line;
+    std::getline(input_stream, line);
     if (line[0] == '>') {
       if (sequence.length() > 0) {
         seq_records.push_back(SeqRecord(header, sequence));
