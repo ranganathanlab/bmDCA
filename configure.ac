@@ -1,7 +1,7 @@
 AC_PREREQ([2.68])
 
 AC_INIT([bmDCA],
-        [0.6.1],
+        [0.6.2],
         [https://github.com/sudorook/bmDCA/issues],
         [bmDCA])
 
