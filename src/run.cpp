@@ -97,8 +97,8 @@ Sim::writeParameters(std::string output_file)
   stream << "adapt_down_time=" << adapt_down_time << std::endl;
 
   // importance sampling settings
-  step_importance_max = 1;
-  coherence_min = 0.9999;
+  stream << "step_importance_max=" << step_importance_max << std::endl;
+  stream << "coherence_min=" << coherence_min << std::endl;
 
   // mcmc settings
   stream << "M=" << M << std::endl;
