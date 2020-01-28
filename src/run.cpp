@@ -25,7 +25,7 @@ Sim::initializeParameters(void)
   lambda_reg2 = 0.01;
   step_max = 2000;
   error_max = 0.00001;
-  save_parameters = 50;
+  save_parameters = 100;
   step_check = step_max;
   random_seed = 1;
 
