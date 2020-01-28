@@ -1,14 +1,12 @@
 # Boltzmann-machine Direct Coupling Analysis (bmDCA)
 
-Dependencies:
+Dependencies (installation instructions detailed below):
  * [Armadillo](http://arma.sourceforge.net/)
- * [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
- * Autotools (if not already installed, install from your package repository or
-   homebrew)
+ * [GCC] that supports the C++11 standard and
+   [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
+ * Autotools
 
-## Usage
-
-C++ reimplementation of bmDCA adapted from [the
+This repository contains a C++ reimplementation of bmDCA adapted from [the
 original](https://github.com/matteofigliuzzi/bmDCA) code. Method is described
 in:
 
@@ -16,11 +14,81 @@ in:
 >  Models Capture the Collective Residue Variability in Proteins? Molecular
 >  Biology and Evolution 35, 1018–1027 (2018).
 
-This code is optimized to eliminate the original's excessive file I/O and
-time-consuming printing to std err and parallelize the MCMC in the inference
-loop.
+This code is designed to eliminate the original's excessive file I/O and to
+parallelize the MCMC in the inference loop.
+
+## Usage
 
 Steps to use the code:
+
+### 0. Install dependencies
+
+#### Armadillo
+
+Armadillo is a C++ linear algebra library. It can be installed using the
+standard package repositories for most Linux distributions (check AUR for Arch
+Linux) and Homebrew on macOS (`brew install armadillo`).
+
+__Note for macOS users__: bmDCA depends on `pkg-config` for finding paths for
+source files and shared object libraries. The directories where the program
+expects to find pkgconfig \*.pc files are listed in the `$PKG_CONFIG_PATH`
+variable.  To ensure that pkg-config finds these files for Homebrew-installed
+programs, you can append to the variable manually, or you can add the
+`pkgconfig_add()` function provided the 'tools/rcparams' file provided in the
+repository. Simply append the contents of that file to your shell run
+command file (e.g. `.bashrc`), and be sure that it contains the line
+`pkgconfig_add /usr/local/Cellar`.
+
+Additionally, the linker can only link libraries found in directories specified
+in `LD_LIBRARY_PATH`. To add the armadillo `lib/` directory to this variable,
+append to the variable yourself, or you can use the `ld_path_add()` function,
+also defined in the 'tools/rcparams' file. Source the function in your shell
+run command file and then add `ld_lib_add armadillo`. _This needs to be run
+after `pkgconfig_add()`._
+
+__OR__
+
+If a compiled package is not available, you will need to install it
+manually. First, make sure that `cmake`, `openblas` (or `blas`), `lapack`,
+`arpack`, and `SuperLU` are installed. Then, to download and install armadillo
+system wide, run the following (Unix systems only):
+
+```
+wget http://sourceforge.net/projects/arma/files/armadillo-9.800.4.tar.xz
+tar xf armadillo-9.800.4.tar.xz
+cd armadillo-9.800.4
+cmake .
+make -j4
+sudo make install
+```
+
+The files will be installed to `/usr/local/include` and `/usr/local/lib` by
+default. Make sure that both directories are in your GCC path.
+
+#### GCC
+
+To compile the source code, GCC is recommended. At a minimum, you need a
+compiler that supports the C++11 standard. Though optional, one that supports
+OpenMP is also recommended. Any GCC later than version 4.2 will suffice.
+
+For Linux users, install a recent GCC from your distributions package
+repository.
+
+For Mac users, the default `gcc` is actually to `clang`, which will not allow
+compilation with the `-fopenmp` flag. To install a recent version of GCC, run:
+
+```
+brew install gcc
+```
+
+You have several options to get the `gcc` command to default to the
+Homebrew-installed GCC. One option is to alias `gcc` to the path to the new GCC
+binary. Code that does this is included in the 'tools/rcparams' file.
+
+#### Autotools
+
+These should already be installed. If not, install `automake` and `pkg-config`
+from your system repository.
 
 ### 1. Compile and install the code
 
@@ -105,19 +173,22 @@ The fields in the config file:
 19. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default 1.5)
 20. `adapt_down_time` - multiple to decrease MCMC wait/burn-in time (default
     0.6)
-21. `M` - number of sequences to sample for each MCMC replicate (default 1000)
-22. `count_max` - number of independent MCMC replicates (default 10)
-23. `init_sample` - flag for whether of not to use seed sequence for
+21. `step_important_max` - maximum number of importance sampling steps
+    (default=1 -> importance sampling disabled)
+22. `coherence_min` - (default=.9999)
+23. `M` - number of sequences to sample for each MCMC replicate (default 1000)
+24. `count_max` - number of independent MCMC replicates (default 10)
+25. `init_sample` - flag for whether of not to use seed sequence for
     initializing the MCMC (default false)
-24. `init_sample_file` - file containing the MCMC seed sequences (default )
-25. `temperature` - temperature at which to sample sequences (default 1)
-26. `t_wait_check` - _unused_ burn-in time for when running check MCMC (default
+26. `init_sample_file` - file containing the MCMC seed sequences (default )
+27. `temperature` - temperature at which to sample sequences (default 1)
+28. `t_wait_check` - _unused_ burn-in time for when running check MCMC (default
     10000)
-27. `delta_t_check` - _unused_ wait time between sampled sequences when running
+29. `delta_t_check` - _unused_ wait time between sampled sequences when running
     MCMC check (default 100)
-28. `M_check` - number of sequences to sample for each MCMC check replicate
+30. `M_check` - number of sequences to sample for each MCMC check replicate
     (default 1000)
-29. `count_check` - number of replicates for the MCMC check (default 10)
+31. `count_check` - number of replicates for the MCMC check (default 10)
 
 ### 3. Examine the output
 
