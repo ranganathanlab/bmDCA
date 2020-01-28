@@ -1,0 +1,56 @@
+#
+# Define functions for loading paths to environmental variables.
+#
+
+# Search for pkgconfig directories in a given path and load them to the
+# PKG_CONFIG_PATH environmental variable.
+#   $1 - abolute path of directory
+pkgconfig_add() {
+  if [ -d "${1}" ]; then
+    PKG_CONFIG_PATH_NEW=$(find "${1}" -type d -name "pkgconfig" -print | \
+                          tr '\n' ':')
+    if ! [[ ${PKG_CONFIG_PATH_NEW} == "" ]] && \
+       ! [[ ${PKG_CONFIG_PATH} =~ ${PKG_CONFIG_PATH_NEW} ]]; then
+      export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${PKG_CONFIG_PATH_NEW}
+    fi
+  fi
+}
+
+# Add directories in the `pkg-config --libs` output for a particular library to
+# the LD_LIBRARY_PATH envorinmental variable. Fixes linker issues when running
+# binaries compiled against libraries in stored in exotic directories.
+#   $1 - library name input to pkg-config
+ld_lib_add() {
+  LIB_PATH=$(pkg-config --libs "${1}" 2>/dev/null | \
+             sed -n "s,-L\(.*\)\ -l.*,\1,p")
+  if ! [[ ${LIB_PATH} == "" ]] && \
+     ! [[ ${LD_LIBRARY_PATH} =~ ${LIB_PATH} ]]; then
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${LIB_PATH}
+  fi
+}
+
+# Add specified paths to the LD_LIBRARY_PATH.
+#   $1 - abolute path of directory
+ld_path_add() {
+  if [ -d "$1" ]; then
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(readlink -f "$1")
+  fi
+}
+
+
+#
+# Set aliases and load paths
+#
+
+# Add alias for Homebrew gcc.
+if [ -f /usr/local/bin/gcc-9 ]; then
+  alias gcc=/usr/local/bin/gcc-9
+  alias g++=/usr/local/bin/g++-9
+elif [ -f /usr/local/bin/gcc-8 ]; then
+  alias gcc=/usr/local/bin/gcc-8
+  alias g++=/usr/local/bin/g++-8
+fi
+
+# Look for pkg-config directories
+pkgconfig_add /usr/local/Cellar  # from Homebrew
+ld_lib_add armadillo 
