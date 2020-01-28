@@ -1,7 +1,7 @@
 bin_PROGRAMS = bmdca
 
 CXX = g++
-CXXFLAGS = -O3 -std=c++11 -fopenmp $(ARMADILLO_CFLAGS)
+CXXFLAGS = -O3 -std=c++11 $(OPENMP_CXXFLAGS) $(ARMADILLO_CFLAGS)
 LDFLAGS = -lm $(ARMADILLO_LIBS)
 
 DISTCLEANFILES = Makefile.in
