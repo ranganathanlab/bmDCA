@@ -15,7 +15,7 @@
 using namespace std;
 using namespace xstd;
 
-std::ostream& log_out = std::cout;
+// std::ostream& log_out = std::cout;
 
 void
 Graph::load(potts_model model)
@@ -240,9 +240,9 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
       (*ptr).at(s, i) = conf[i];
     }
   }
-  std::string output_string =
-    "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
-  log_out << output_string;
+  // std::string output_string =
+  //   "sampled " + std::to_string(m) + " [de=" + std::to_string(en + tot_de) + "]\n";
+  // log_out << output_string;
   return;
 };
 
@@ -326,9 +326,9 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
       (*ptr)(s, i) = conf[i];
     }
   }
-  std::string output_string =
-    "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
-  log_out << output_string;
+  // std::string output_string =
+  //   "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
+  // log_out << output_string;
   return;
 };
 
