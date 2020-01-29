@@ -286,14 +286,25 @@ Sim::run(void)
     readInitialSample(N, Q);
   }
 
+  // Instantiate the PCG random number generator and unifrom random
+  // distribution.
   pcg32 rng(random_seed);
   std::uniform_int_distribution<long int> dist(0, RAND_MAX-count_max);
+
+  // Initialize the buffer.
+  run_buffer = arma::Mat<double>(save_parameters, 14, arma::fill::zeros);
+  initializeRunLog();
 
   // BM sampling loop
   int t_wait = t_wait_0;
   int delta_t = delta_t_0;
-  for (int step = 0; step <= step_max; step++) {
+  for (step = 1; step <= step_max; step++) {
     std::cout << "Step: " << step << std::endl;
+
+    run_buffer.at((step-1) % save_parameters, 0) = step;
+    run_buffer.at((step-1) % save_parameters, 1) = count_max;
+    run_buffer.at((step-1) % save_parameters, 2) = t_wait;
+    run_buffer.at((step-1) % save_parameters, 3) = delta_t;
 
     // Sampling from MCMC (keep trying until correct properties found)
     bool flag_mc = true;
@@ -346,25 +357,36 @@ Sim::run(void)
         double auto_cross_err = corr_stats.at(8);
 
         double e_start = energy_stats.at(0);
+        double e_start_sigma = energy_stats.at(1);
         double e_end = energy_stats.at(2);
+        double e_end_sigma = energy_stats.at(3);
         double e_err = energy_stats.at(4);
 
-        bool flag_deltat_up = false;
-        if (check_corr - cross_corr > cross_check_err) {
-          flag_deltat_up = true;
+        run_buffer.at((step-1) % save_parameters, 4) = auto_corr;
+        run_buffer.at((step-1) % save_parameters, 5) = cross_corr;
+        run_buffer.at((step-1) % save_parameters, 6) = e_start;
+        run_buffer.at((step-1) % save_parameters, 7) = e_start_sigma;
+        run_buffer.at((step-1) % save_parameters, 8) = e_end;
+        run_buffer.at((step-1) % save_parameters, 9) = e_end_sigma;
+        run_buffer.at((step-1) % save_parameters, 10) = e_err;
+
+        bool flag_deltat_up = true;
+        bool flag_deltat_down = true;
+        bool flag_twaiting_up = true;
+        bool flag_twaiting_down = true;
+
+        if (check_corr - cross_corr < cross_check_err) {
+          flag_deltat_up = false;
         }
-        bool flag_deltat_down = false;
-        if (auto_corr - cross_corr < auto_cross_err) {
-          flag_deltat_down = true;
+        if (auto_corr - cross_corr > auto_cross_err) {
+          flag_deltat_down = false;
         }
 
-        bool flag_twaiting_up = false;
-        if (e_start - e_end > 2 * e_err) {
-          flag_twaiting_up = true;
+        if (e_start - e_end < 2 * e_err) {
+          flag_twaiting_up = false;
         }
-        bool flag_twaiting_down = false;
-        if (e_start - e_end < -2 * e_err) {
-          flag_twaiting_down = true;
+        if (e_start - e_end > -2 * e_err) {
+          flag_twaiting_down = false;
         }
 
         if (flag_deltat_up) {
@@ -427,6 +449,7 @@ Sim::run(void)
       if (converged) {
         std::cout << "writing results" << std::endl;
         writeData("final");
+        writeRunLog(step % save_parameters);
         return;
       }
 
@@ -444,6 +467,7 @@ Sim::run(void)
           (step_importance == step_importance_max || flag_coherence == false)) {
         std::cout << "writing step " << step << "... ";
         writeData(std::to_string(step));
+        writeRunLog(step % save_parameters);
         std::cout << "done" << std::endl;
       }
 
@@ -614,6 +638,10 @@ Sim::computeErrorReparametrization(void)
   error_tot = error_1p + error_2p;
   error_stat_tot = error_stat_1p + error_stat_2p;
 
+  run_buffer.at((step-1) % save_parameters, 11) = error_1p;
+  run_buffer.at((step-1) % save_parameters, 12) = error_2p;
+  run_buffer.at((step-1) % save_parameters, 13) = error_tot;
+
   bool converged = false;
   if (error_tot < error_max) {
     std::cout << "converged" << std::endl;
@@ -737,13 +765,64 @@ Sim::writeData(std::string id)
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
 
   if (check_ergo) {
-    mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat");
-    mcmc_stats->writeEnergyStats("my_energies_start_" + id + ".txt",
-                                 "my_energies_end_" + id + ".txt",
-                                 "my_energies_cfr_" + id + ".txt",
-                                 "my_energies_cfr_err_" + id + ".txt");
-    mcmc_stats->writeAutocorrelationStats("overlap_" + id + ".txt",
+    // mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat");
+    // mcmc_stats->writeEnergyStats("my_energies_start_" + id + ".txt",
+    //                              "my_energies_end_" + id + ".txt",
+    //                              "my_energies_cfr_" + id + ".txt",
+    //                              "my_energies_cfr_err_" + id + ".txt");
+    mcmc_stats->writeCorrelationsStats("overlap_" + id + ".txt",
                                           "overlap_inf_" + id + ".txt",
                                           "ergo_" + id + ".txt");
   }
+};
+
+void Sim::initializeRunLog() {
+  std::ofstream stream {"bmdca_run.log", std::ios_base::out};
+  stream << "step" << "\t"
+         << "reps" << "\t"
+         << "burn-in" << "\t"
+         << "burn-between" << "\t"
+         << "auto-corr" << "\t"
+         << "cross-corr" << "\t"
+         << "energy-start-avg" << "\t"
+         << "sigma-energy-start-sigma" << "\t"
+         << "energy-end-avg" << "\t"
+         << "energy-end-sigma" << "\t"
+         << "energy-err" << "\t"
+         << "error-h" << "\t"
+         << "error-J" << "\t"
+         << "error-tot" << std::endl;
+  stream.close();
+};
+
+void Sim::writeRunLog(int current_step) {
+  std::ofstream stream {"bmdca_run.log", std::ios_base::app};
+
+  int n_entries;
+  if (current_step == 0) {
+    n_entries = save_parameters;
+  } else {
+    n_entries = current_step;
+  }
+  std::cout << n_entries << std::endl;
+  for (int i = 0; i < n_entries; i++) {
+    stream << (int)run_buffer.at(i, 0) << "\t";
+    stream << (int)run_buffer.at(i, 1) << "\t";
+    stream << (int)run_buffer.at(i, 2) << "\t";
+    stream << (int)run_buffer.at(i, 3) << "\t";
+    if (check_ergo) {
+      stream << run_buffer.at(i, 4) << "\t";
+      stream << run_buffer.at(i, 5) << "\t";
+      stream << run_buffer.at(i, 6) << "\t";
+      stream << run_buffer.at(i, 7) << "\t";
+      stream << run_buffer.at(i, 8) << "\t";
+      stream << run_buffer.at(i, 9) << "\t";
+      stream << run_buffer.at(i, 10) << "\t";
+    }
+    stream << run_buffer.at(i, 11) << "\t";
+    stream << run_buffer.at(i, 12) << "\t";
+    stream << run_buffer.at(i, 13) << std::endl;
+  }
+  run_buffer.zeros();
+  stream.close();
 };

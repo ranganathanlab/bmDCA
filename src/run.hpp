@@ -68,6 +68,7 @@ private:
   double coherence_min;    // coherence importance sampling
 
   // MCMC settings
+  int step;                     // current step number
   int M;                        // number of samples for each MCMC run
   int count_max;                // number of independent MCMC runs
   bool init_sample = false;     // flag for loading the first positions when
@@ -81,7 +82,13 @@ private:
   int M_check;       // M
   int count_check;   // count_max
 
+  // Key-value wrapper for loading parameters from a file.
   void setParameter(std::string, std::string);
+
+  // Buffers
+  arma::Mat<double> run_buffer;
+  void initializeRunLog();
+  void writeRunLog(int=-1);
 
   // Sample data
   arma::Cube<int> samples;
