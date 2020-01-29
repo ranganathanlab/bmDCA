@@ -39,7 +39,7 @@ MCMCStats::computeEnergies(void)
         E -= params->h.at(samples->at(seq, i, rep), i);
         for (int j = i + 1; j < N; j++) {
           E -= params->J.at(i, j).at(samples->at(seq, i, rep),
-                                    samples->at(seq, j, rep));
+                                     samples->at(seq, j, rep));
         }
       }
       energies.at(rep, seq) = E;
@@ -107,9 +107,9 @@ MCMCStats::computeCorrelations(void)
             id++;
           }
         }
-        d(seq2 - seq1) += (double)id / N;
-        d2(seq2 - seq1) += (double)id * id / (N * N);
-        count(seq2 - seq1)++;
+        d.at(seq2 - seq1) += (double)id / N;
+        d2.at(seq2 - seq1) += (double)id * id / (N * N);
+        count.at(seq2 - seq1)++;
       }
     }
   }
@@ -134,10 +134,10 @@ MCMCStats::computeCorrelations(void)
   overlaps = arma::Col<double>(M - 2, arma::fill::zeros);
   overlaps_sigma = arma::Col<double>(M - 2, arma::fill::zeros);
   for (int i = 1; i < M - 1; i++) {
-    overlaps(i - 1) = (double)d(i) / (double)count(i);
-    overlaps_sigma(i - 1) =
-      sqrt(1.0 / count(i)) *
-      sqrt(d2(i) / (double)(count(i)) - pow(d(i) / (double)(count(i)), 2));
+    overlaps.at(i - 1) = (double)d.at(i) / (double)count.at(i);
+    overlaps_sigma.at(i - 1) =
+      sqrt(1.0 / count.at(i)) *
+      sqrt(d2.at(i) / (double)(count.at(i)) - pow(d.at(i) / (double)(count.at(i)), 2));
   }
 
   overlap_inf = 2.0 * dinf / (double)(reps * (reps - 1) * M);
@@ -150,15 +150,15 @@ MCMCStats::computeCorrelations(void)
   int i_check = Max((double)M / 10.0, 1.0);
 
   overlap_cross = (double)2.0 * dinf / (double)(reps * (reps - 1) * M);
-  overlap_auto = d(i_auto) / (double)(count(i_auto));
-  overlap_check = d(i_check) / (double)(count(i_check));
+  overlap_auto = d.at(i_auto) / (double)(count.at(i_auto));
+  overlap_check = d.at(i_check) / (double)(count.at(i_check));
 
   sigma_cross = sqrt(2.0 * dinf2 / (double)(reps * (reps - 1) * M) -
                      pow(2.0 * dinf / (double)(reps * (reps - 1) * M), 2));
-  sigma_auto = sqrt(d2(i_auto) / (double)(count(i_auto)) -
-                    pow(d(i_auto) / (double)(count(i_auto)), 2));
-  sigma_check = sqrt(d2(i_check) / (double)(count(i_check)) -
-                     pow(d(i_check) / (double)(count(i_check)), 2));
+  sigma_auto = sqrt(d2.at(i_auto) / (double)(count.at(i_auto)) -
+                    pow(d.at(i_auto) / (double)(count.at(i_auto)), 2));
+  sigma_check = sqrt(d2.at(i_check) / (double)(count.at(i_check)) -
+                     pow(d.at(i_check) / (double)(count.at(i_check)), 2));
 
   err_cross_auto = sqrt(pow(sigma_cross, 2) + pow(sigma_auto, 2)) / sqrt(reps);
   err_cross_check =
@@ -258,8 +258,8 @@ MCMCStats::computeSampleStats(void)
 
   {
     arma::Cube<double> n2 = arma::Cube<double>(reps, Q, Q, arma::fill::zeros);
-    arma::Mat<double> n2squared = arma::Mat<double>(Q, Q, arma::fill::zeros);
     arma::Mat<double> n2av = arma::Mat<double>(Q, Q, arma::fill::zeros);
+    arma::Mat<double> n2squared = arma::Mat<double>(Q, Q, arma::fill::zeros);
 
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
@@ -275,7 +275,7 @@ MCMCStats::computeSampleStats(void)
         n2squared = arma::sum(arma::pow(n2, 2), 0) / (M*reps);
         frequency_2p.at(i, j) = n2av;
         frequency_2p_sigma.at(i, j) =
-          arma::pow((n2squared/M - arma::pow((n2av), 2)) / sqrt(reps), .5);
+          arma::pow((n2squared/M - arma::pow(n2av, 2)) / sqrt(reps), .5);
       }
     }
   }
