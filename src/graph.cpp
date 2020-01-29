@@ -15,7 +15,7 @@
 using namespace std;
 using namespace xstd;
 
-// std::ostream& log_out = std::cout;
+std::ostream& log_out = std::cout;
 
 void
 Graph::load(potts_model model)
