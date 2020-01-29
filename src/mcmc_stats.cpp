@@ -90,7 +90,7 @@ MCMCStats::writeEnergyStats(std::string output_file_start,
 };
 
 void
-MCMCStats::computeAutocorrelation(void)
+MCMCStats::computeCorrelations(void)
 {
   arma::Col<double> d = arma::Col<double>(M, arma::fill::zeros);
   arma::Col<double> d2 = arma::Col<double>(M, arma::fill::zeros);
@@ -167,20 +167,22 @@ MCMCStats::computeAutocorrelation(void)
 };
 
 void
-MCMCStats::writeAutocorrelationStats(std::string overlap_file,
-                                     std::string overlap_inf_file,
-                                     std::string ergo_file)
+MCMCStats::writeCorrelationsStats(std::string overlap_file,
+                                  std::string overlap_inf_file,
+                                  std::string ergo_file)
 {
   std::ofstream output_stream_overlap(overlap_file);
   std::ofstream output_stream_overlap_inf(overlap_inf_file);
   std::ofstream output_stream_ergo(ergo_file);
 
   for (int i = 0; i < M - 2; i++) {
-    output_stream_overlap << i << " " << overlaps(i) << " " << overlaps_sigma(i)
-                          << std::endl;
+    output_stream_overlap << i << " " << overlaps.at(i) << " "
+                          << overlaps_sigma.at(i) << std::endl;
   }
 
   output_stream_overlap_inf << "0 " << overlap_inf << " " << overlap_inf_sigma
+                            << std::endl;
+  output_stream_overlap_inf << M << " " << overlap_inf << " " << overlap_inf_sigma
                             << std::endl;
 
   output_stream_ergo << overlap_auto << " " << overlap_check << " "

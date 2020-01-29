@@ -323,7 +323,7 @@ Sim::run(void)
       if (check_ergo) {
         std::cout << "computing sequence energies and correlations... ";
         mcmc_stats->computeEnergiesStats();
-        mcmc_stats->computeAutocorrelation();
+        mcmc_stats->computeCorrelations();
         std::cout << "done" << std::endl;
 
         std::vector<double> energy_stats = mcmc_stats->getEnergiesStats();

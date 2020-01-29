@@ -13,8 +13,7 @@ public:
 
   void computeEnergies(void);
   void computeEnergiesStats(void);
-  void computeAutocorrelation(void);
-  void computeCorrelationStats(void);
+  void computeCorrelations(void);
   void computeSampleStats(void);
   void computeSampleStatsImportance(potts_model* cur, potts_model* prev);
 
@@ -22,7 +21,7 @@ public:
   std::vector<double> getCorrelationsStats(void);
 
   void writeEnergyStats(std::string, std::string, std::string, std::string);
-  void writeAutocorrelationStats(std::string, std::string, std::string);
+  void writeCorrelationsStats(std::string, std::string, std::string);
   void writeFrequency1p(std::string, std::string);
   void writeFrequency2p(std::string, std::string);
 
