@@ -311,11 +311,11 @@ Sim::run(void)
     while (flag_mc) {
 
       // Draw from MCMC
-      std::cout << "loading params to mcmc... ";
+      std::cout << "loading params to mcmc... " << std::flush;
       mcmc->load(current_model->params);
       std::cout << "done" << std::endl;
 
-      std::cout << "sampling model with mcmc... " << std::endl;
+      std::cout << "sampling model with mcmc... " << std::flush;
       if (init_sample) {
         mcmc->sample_init(&samples,
                           count_max,
@@ -335,14 +335,15 @@ Sim::run(void)
                      dist(rng),
                      temperature);
       }
+      std::cout << "done" << std::endl;
 
-      std::cout << "updating mcmc with samples... ";
+      std::cout << "updating mcmc with samples... " << std::flush;
       mcmc_stats->updateData(&samples, &(current_model->params));
       std::cout << "done" << std::endl;
 
       // Run checks and alter burn-in and wait times
       if (check_ergo) {
-        std::cout << "computing sequence energies and correlations... ";
+        std::cout << "computing sequence energies and correlations... " << std::flush;
         mcmc_stats->computeEnergiesStats();
         mcmc_stats->computeCorrelations();
         std::cout << "done" << std::endl;
@@ -423,7 +424,7 @@ Sim::run(void)
     while (step_importance < step_importance_max and flag_coherence == true) {
       step_importance++;
       if (step_importance > 1) {
-        std::cout << "importance sampling step " << step_importance << "... ";
+        std::cout << "importance sampling step " << step_importance << "... " << std::flush;
         mcmc_stats->computeSampleStatsImportance(&(current_model->params),
                                                  &(previous_model->params));
         std::cout << "done" << std::endl;
@@ -435,7 +436,7 @@ Sim::run(void)
           flag_coherence = false;
         }
       } else {
-        std::cout << "computing mcmc 1p and 2p statistics... ";
+        std::cout << "computing mcmc 1p and 2p statistics... " << std::flush;
         mcmc_stats->computeSampleStats();
         std::cout << "done" << std::endl;
       }
@@ -443,9 +444,11 @@ Sim::run(void)
       // Compute error reparametrization
       previous_model->gradient.h = current_model->gradient.h;
       previous_model->gradient.J = current_model->gradient.J;
-      std::cout << "computing error and updating gradient... ";
+
+      std::cout << "computing error and updating gradient... " << std::flush;
       bool converged = computeErrorReparametrization();
       std::cout << "done" << std::endl;
+
       if (converged) {
         std::cout << "writing results" << std::endl;
         writeData("final");
@@ -456,16 +459,17 @@ Sim::run(void)
       // Update learning rate
       previous_model->learning_rates.h = current_model->learning_rates.h;
       previous_model->learning_rates.J = current_model->learning_rates.J;
-      std::cout << "update learning rate... ";
+      std::cout << "update learning rate... " << std::flush;
       updateLearningRate();
       std::cout << "done" << std::endl;
 
       // Check analysis
 
       // Save parameters
+      // if ((step % save_parameters == 0 || step == 1) &&
       if (step % save_parameters == 0 &&
           (step_importance == step_importance_max || flag_coherence == false)) {
-        std::cout << "writing step " << step << "... ";
+        std::cout << "writing step " << step << "... " << std::flush;
         writeData(std::to_string(step));
         writeRunLog(step % save_parameters);
         std::cout << "done" << std::endl;
@@ -474,13 +478,13 @@ Sim::run(void)
       // Update parameters
       previous_model->params.h = current_model->params.h;
       previous_model->params.J = current_model->params.J;
-      std::cout << "updating parameters... ";
+      std::cout << "updating parameters... " << std::flush;
       updateReparameterization();
       std::cout << "done" << std::endl;
     }
     std::cout << std::endl;
   }
-  std::cout << "writing final results... ";
+  std::cout << "writing final results... " << std::flush;
   writeData("final");
   std::cout << "done" << std::endl;
   return;
