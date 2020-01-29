@@ -18,7 +18,9 @@ public:
   void writeParameters(std::string);
 
 private:
+  // Member functions
   void initializeParameters(void);
+  void checkParameters(void);
   void initializeRun(void);
   void readInitialSample(int, int);
   void computeAutocorrelation(void);

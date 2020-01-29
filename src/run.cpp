@@ -65,6 +65,15 @@ Sim::initializeParameters(void)
 };
 
 void
+Sim::checkParameters(void) {
+  // Ensure that the set of ergodiciy checks is disabled if M=1
+  if ((M == 1) && check_ergo) {
+    check_ergo = false;
+    std::cerr << "WARNING: disabling 'check_ergo' when M=1." << std::endl;
+  }
+}
+
+void
 Sim::writeParameters(std::string output_file)
 {
   std::ofstream stream(output_file);
@@ -222,6 +231,7 @@ Sim::Sim(MSAStats msa_stats, std::string config_file)
   } else {
     loadParameters(config_file);
   }
+  checkParameters();
   current_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
   previous_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
   mcmc = new MCMC(msa_stats.getN(), msa_stats.getQ());
