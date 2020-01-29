@@ -391,20 +391,18 @@ Sim::run(void)
         }
 
         if (flag_deltat_up) {
-          delta_t = delta_t * adapt_up_time; // truncation: int = double * int;
+          delta_t = (int)(round((double)delta_t * adapt_up_time));
           std::cout << "increasing wait time to " << delta_t << std::endl;
         } else if (flag_deltat_down) {
-          delta_t =
-            delta_t * adapt_down_time; // truncation: int = double * int;
+          delta_t = Max((int)(round((double)delta_t * adapt_down_time)), 1);
           std::cout << "decreasing wait time to " << delta_t << std::endl;
         }
 
         if (flag_twaiting_up) {
-          t_wait = t_wait * adapt_up_time; // truncation: int = double * int;
+          t_wait = (int)(round((double)t_wait * adapt_up_time));
           std::cout << "increasing burn-in time to " << t_wait << std::endl;
-        }
-        if (flag_twaiting_down) {
-          t_wait = t_wait * adapt_down_time; // truncation: int = double * int;
+        } else if (flag_twaiting_down) {
+          t_wait = Max((int)(round((double)t_wait * adapt_down_time)), 1);
           std::cout << "decreasing burn-in time to " << t_wait << std::endl;
         }
 
