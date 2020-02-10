@@ -47,7 +47,7 @@ MSA::readInputNumericMSA(std::string numeric_msa_file)
   if (!input_stream) {
     std::cerr << "ERROR: couldn't open '" << numeric_msa_file
               << "' for reading." << std::endl;
-    exit(2);
+    std::exit(EXIT_FAILURE);
   }
 
   input_stream >> M >> N >> Q;
@@ -78,7 +78,7 @@ MSA::readSequenceWeights(std::string weights_file)
   if (!input_stream) {
     std::cerr << "ERROR: couldn't open '" << weights_file << "' for reading."
               << std::endl;
-    exit(2);
+    std::exit(EXIT_FAILURE);
   }
 
   sequence_weights = arma::Col<double>(M, arma::fill::zeros);

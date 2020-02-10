@@ -137,6 +137,9 @@ Sim::loadParameters(std::string file_name)
       auto value = line.substr(delim_pos + 1);
       setParameter(key, value);
     }
+  } else {
+    std::cerr << "ERROR: " << file_name << " not found." << std::endl;
+    std::exit(EXIT_FAILURE);
   }
 };
 
@@ -219,7 +222,7 @@ Sim::setParameter(std::string key, std::string value)
     count_check = std::stoi(value);
   } else {
     std::cerr << "ERROR: unknown parameter '" << key << "'" << std::endl;
-    exit(1);
+    std::exit(EXIT_FAILURE);
   }
 };
 

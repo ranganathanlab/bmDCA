@@ -59,6 +59,7 @@ main(int argc, char* argv[])
         break;
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
+        std::exit(EXIT_FAILURE);
     }
   }
 
