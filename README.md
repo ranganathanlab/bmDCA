@@ -2,7 +2,7 @@
 
 Dependencies (installation instructions detailed below):
  * [Armadillo](http://arma.sourceforge.net/)
- * [GCC] that supports the C++11 standard and
+ * [GCC](https://gcc.gnu.org/) that supports the C++11 standard and
    [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
  * Autotools
 
