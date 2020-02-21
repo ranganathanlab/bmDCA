@@ -41,6 +41,7 @@ public:
                         size_t mc_iters0,
                         size_t mc_iters,
                         arma::Col<int>* init_ptr,
+                        long int seed,
                         double temperature = 1.0);
 
   void print_parameters(FILE* of);

@@ -34,16 +34,16 @@ MCMC::sample(arma::Cube<int>* ptr,
              int delta_t,
              long int seed,
              double temperature){
-  #pragma omp parallel
+#pragma omp parallel
   {
-    #pragma omp for
-    for (int rep = 0; rep < reps; rep++){
-      graph.sample_mcmc((arma::Mat<int>*)&((*ptr).slice(rep)),
-                        M,
-                        t_wait,
-                        delta_t,
-                        seed + rep,
-                        temperature);
+#pragma omp for
+    for (int rep = 0; rep < reps;
+         rep++){ graph.sample_mcmc((arma::Mat<int>*)&((*ptr).slice(rep)),
+                                   M,
+                                   t_wait,
+                                   delta_t,
+                                   seed + rep,
+                                   temperature);
     }
   }
 };
@@ -56,17 +56,19 @@ MCMC::sample_init(arma::Cube<int>* ptr,
                   int t_wait,
                   int delta_t,
                   arma::Col<int>* init_ptr,
+                  long int seed,
                   double temperature){
-  #pragma omp parallel
+#pragma omp parallel
   {
-    #pragma omp for
-    for (int rep = 0; rep < reps; rep++){
-      graph.sample_mcmc_init((arma::Mat<int>*)&((*ptr).slice(rep)),
-                             M,
-                             t_wait,
-                             delta_t,
-                             init_ptr,
-                             temperature);
+#pragma omp for
+    for (int rep = 0; rep < reps;
+         rep++){ graph.sample_mcmc_init((arma::Mat<int>*)&((*ptr).slice(rep)),
+                                        M,
+                                        t_wait,
+                                        delta_t,
+                                        init_ptr,
+                                        seed + rep,
+                                        temperature);
     }
   }
 };

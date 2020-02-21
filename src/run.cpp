@@ -327,6 +327,7 @@ Sim::run(void)
                           t_wait,
                           delta_t,
                           &initial_sample,
+                          dist(rng),
                           temperature);
       } else {
         mcmc->sample(&samples,

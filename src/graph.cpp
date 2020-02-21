@@ -252,9 +252,10 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
                         size_t mc_iters0,
                         size_t mc_iters,
                         arma::Col<int>* init_ptr,
+                        long int seed,
                         double temperature)
 {
-  pcg32 rng(time(NULL));
+  pcg32 rng(seed);
   std::uniform_real_distribution<> uniform(0, 1);
 
   size_t ts = 0;
