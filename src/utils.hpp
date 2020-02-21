@@ -24,6 +24,12 @@ typedef struct
   arma::Mat<double> h;
 } potts_model;
 
+potts_model
+loadPottsModel(std::string, std::string);
+
+potts_model
+loadPottsModelCompat(std::string);
+
 int
 Theta(double);
 
