@@ -275,7 +275,10 @@ void
 Sim::run(void)
 {
 
-  std::cout << "initializing run" << std::endl << std::endl;
+  std::cout << "initializing run... " << std::flush;
+
+  arma::wall_clock timer;
+  timer.tic();
 
   int N = current_model->N;
   int Q = current_model->Q;
@@ -298,6 +301,8 @@ Sim::run(void)
   run_buffer = arma::Mat<double>(save_parameters, 14, arma::fill::zeros);
   initializeRunLog();
 
+  std::cout << timer.toc() << " sec" << std::endl << std::endl;
+
   // BM sampling loop
   int t_wait = t_wait_0;
   int delta_t = delta_t_0;
@@ -309,15 +314,17 @@ Sim::run(void)
     run_buffer.at((step-1) % save_parameters, 2) = t_wait;
     run_buffer.at((step-1) % save_parameters, 3) = delta_t;
 
+    std::cout << "loading params to mcmc... " << std::flush;
+    timer.tic();
+    mcmc->load(current_model->params);
+    std::cout << timer.toc() << " sec" << std::endl;
+
     // Sampling from MCMC (keep trying until correct properties found)
     bool flag_mc = true;
     while (flag_mc) {
 
       // Draw from MCMC
-      std::cout << "loading params to mcmc... " << std::flush;
-      mcmc->load(current_model->params);
-      std::cout << "done" << std::endl;
-
+      timer.tic();
       std::cout << "sampling model with mcmc... " << std::flush;
       if (init_sample) {
         mcmc->sample_init(&samples,
@@ -339,18 +346,20 @@ Sim::run(void)
                      dist(rng),
                      temperature);
       }
-      std::cout << "done" << std::endl;
+      std::cout << timer.toc() << " sec" << std::endl;
 
       std::cout << "updating mcmc with samples... " << std::flush;
+      timer.tic();
       mcmc_stats->updateData(&samples, &(current_model->params));
-      std::cout << "done" << std::endl;
+      std::cout << timer.toc() << " sec" << std::endl;
 
       // Run checks and alter burn-in and wait times
       if (check_ergo) {
         std::cout << "computing sequence energies and correlations... " << std::flush;
+        timer.tic();
         mcmc_stats->computeEnergiesStats();
         mcmc_stats->computeCorrelations();
-        std::cout << "done" << std::endl;
+        std::cout << timer.toc() << " sec" << std::endl;
 
         std::vector<double> energy_stats = mcmc_stats->getEnergiesStats();
         std::vector<double> corr_stats = mcmc_stats->getCorrelationsStats();
@@ -427,9 +436,10 @@ Sim::run(void)
       step_importance++;
       if (step_importance > 1) {
         std::cout << "importance sampling step " << step_importance << "... " << std::flush;
+        timer.tic();
         mcmc_stats->computeSampleStatsImportance(&(current_model->params),
                                                  &(previous_model->params));
-        std::cout << "done" << std::endl;
+        std::cout << timer.toc() << " sec" << std::endl;
 
         double coherence = mcmc_stats->Z_ratio;
         if (coherence > coherence_min && 1.0 / coherence > coherence_min) {
@@ -439,8 +449,9 @@ Sim::run(void)
         }
       } else {
         std::cout << "computing mcmc 1p and 2p statistics... " << std::flush;
+        timer.tic();
         mcmc_stats->computeSampleStats();
-        std::cout << "done" << std::endl;
+        std::cout << timer.toc() << " sec" << std::endl;
       }
 
       // Compute error reparametrization
@@ -448,8 +459,9 @@ Sim::run(void)
       previous_model->gradient.J = current_model->gradient.J;
 
       std::cout << "computing error and updating gradient... " << std::flush;
+      timer.tic();
       bool converged = computeErrorReparametrization();
-      std::cout << "done" << std::endl;
+      std::cout << timer.toc() << " sec" << std::endl;
 
       if (converged) {
         std::cout << "writing results" << std::endl;
@@ -462,8 +474,9 @@ Sim::run(void)
       previous_model->learning_rates.h = current_model->learning_rates.h;
       previous_model->learning_rates.J = current_model->learning_rates.J;
       std::cout << "update learning rate... " << std::flush;
+      timer.tic();
       updateLearningRate();
-      std::cout << "done" << std::endl;
+      std::cout << timer.toc() << " sec" << std::endl;
 
       // Check analysis
 
@@ -472,17 +485,19 @@ Sim::run(void)
       if (step % save_parameters == 0 &&
           (step_importance == step_importance_max || flag_coherence == false)) {
         std::cout << "writing step " << step << "... " << std::flush;
+        timer.tic();
         writeData(std::to_string(step));
         writeRunLog(step % save_parameters);
-        std::cout << "done" << std::endl;
+        std::cout << timer.toc() << " sec" << std::endl;
       }
 
       // Update parameters
       previous_model->params.h = current_model->params.h;
       previous_model->params.J = current_model->params.J;
       std::cout << "updating parameters... " << std::flush;
+      timer.tic();
       updateReparameterization();
-      std::cout << "done" << std::endl;
+      std::cout << timer.toc() << " sec" << std::endl;
     }
     std::cout << std::endl;
   }
