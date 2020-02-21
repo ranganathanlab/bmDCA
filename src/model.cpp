@@ -57,7 +57,14 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
 };
 
 void
-Model::writeParams(std::string output_file)
+Model::writeParams(std::string output_file_h, std::string output_file_J)
+{
+  params.h.save(output_file_h, arma::arma_binary);
+  params.J.save(output_file_J, arma::arma_binary);
+};
+
+void
+Model::writeParamsCompat(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
@@ -86,7 +93,14 @@ Model::writeParams(std::string output_file)
 };
 
 void
-Model::writeLearningRates(std::string output_file)
+Model::writeLearningRates(std::string output_file_h, std::string output_file_J)
+{
+  learning_rates.h.save(output_file_h, arma::arma_binary);
+  learning_rates.J.save(output_file_J, arma::arma_binary);
+};
+
+void
+Model::writeLearningRatesCompat(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
@@ -116,7 +130,14 @@ Model::writeLearningRates(std::string output_file)
 };
 
 void
-Model::writeGradient(std::string output_file)
+Model::writeGradient(std::string output_file_h, std::string output_file_J)
+{
+  gradient.h.save(output_file_h, arma::arma_binary);
+  gradient.J.save(output_file_J, arma::arma_binary);
+};
+
+void
+Model::writeGradientCompat(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
@@ -143,4 +164,3 @@ Model::writeGradient(std::string output_file)
     }
   }
 };
-

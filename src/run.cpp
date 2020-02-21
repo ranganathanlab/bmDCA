@@ -760,13 +760,27 @@ Sim::updateReparameterization(void)
 void
 Sim::writeData(std::string id)
 {
-  current_model->writeParams("parameters_" + id + ".txt");
-  current_model->writeGradient("gradients_" + id + ".txt");
-  current_model->writeLearningRates("learning_rates_" + id + ".txt");
-  mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".txt",
-                               "stat_MC_1p_sigma_" + id + ".txt");
-  mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".txt",
-                               "stat_MC_2p_sigma_" + id + ".txt");
+  // current_model->writeParamsCompat("parameters_" + id + ".txt");
+  // current_model->writeGradientCompat("gradients_" + id + ".txt");
+  // current_model->writeLearningRatesCompat("learning_rates_" + id + ".txt");
+  //
+  // mcmc_stats->writeFrequency1pCompat("stat_MC_1p_" + id + ".txt",
+  //                                    "stat_MC_1p_sigma_" + id + ".txt");
+  // mcmc_stats->writeFrequency2pCompat("stat_MC_2p_" + id + ".txt",
+  //                                    "stat_MC_2p_sigma_" + id + ".txt");
+
+  current_model->writeParams("parameters_h_" + id + ".bin",
+                             "parameters_J_" + id + ".bin");
+  current_model->writeGradient("gradients_h_" + id + ".bin",
+                               "gradients_J_" + id + ".bin");
+  current_model->writeLearningRates("learning_rates_h_" + id + ".bin",
+                                    "learning_rate_J_" + id + ".bin");
+
+  mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".bin",
+                               "stat_MC_1p_sigma_" + id + ".bin");
+  mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".bin",
+                               "stat_MC_2p_sigma_" + id + ".bin");
+
   mcmc_stats->writeSamples("MC_samples_" + id + ".txt");
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
 

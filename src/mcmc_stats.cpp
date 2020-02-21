@@ -410,6 +410,14 @@ void
 MCMCStats::writeFrequency1p(std::string output_file,
                             std::string output_file_sigma)
 {
+  frequency_1p.save(output_file, arma::arma_binary);
+  frequency_1p_sigma.save(output_file_sigma, arma::arma_binary);
+};
+
+void
+MCMCStats::writeFrequency1pCompat(std::string output_file,
+                                  std::string output_file_sigma)
+{
   std::ofstream output_stream(output_file);
   std::ofstream output_stream_sigma(output_file_sigma);
 
@@ -428,6 +436,14 @@ MCMCStats::writeFrequency1p(std::string output_file,
 void
 MCMCStats::writeFrequency2p(std::string output_file,
                             std::string output_file_sigma)
+{
+  frequency_2p.save(output_file, arma::arma_binary);
+  frequency_2p_sigma.save(output_file_sigma, arma::arma_binary);
+};
+
+void
+MCMCStats::writeFrequency2pCompat(std::string output_file,
+                                  std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
   std::ofstream output_stream_sigma(output_file_sigma);

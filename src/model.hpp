@@ -15,9 +15,13 @@ public:
 
   Model(MSAStats, double, double);
 
-  void writeParams(std::string);
-  void writeLearningRates(std::string);
-  void writeGradient(std::string);
+  void writeParams(std::string, std::string);
+  void writeLearningRates(std::string, std::string);
+  void writeGradient(std::string, std::string);
+
+  void writeParamsCompat(std::string);
+  void writeLearningRatesCompat(std::string);
+  void writeGradientCompat(std::string);
 };
 
 #endif
