@@ -16,7 +16,6 @@ MSAStats::MSAStats(MSA msa)
 
   frequency_1p = arma::Mat<double>(AA_ALPHABET_SIZE, N, arma::fill::zeros);
   frequency_2p = arma::field<arma::Mat<double>>(N, N);
-  // frequency_3p = arma::field<arma::Cube<double>>(N, N, N);
   rel_entropy_grad_1p =
     arma::Mat<double>(AA_ALPHABET_SIZE, N, arma::fill::zeros);
   aa_background_frequencies =

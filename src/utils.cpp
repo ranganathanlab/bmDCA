@@ -1,7 +1,6 @@
 
 #include "utils.hpp"
 
-#include <cassert>
 #include <string>
 
 SeqRecord::SeqRecord(std::string h, std::string s)

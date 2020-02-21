@@ -777,8 +777,8 @@ Sim::writeData(std::string id)
     //                              "my_energies_cfr_" + id + ".txt",
     //                              "my_energies_cfr_err_" + id + ".txt");
     mcmc_stats->writeCorrelationsStats("overlap_" + id + ".txt",
-                                          "overlap_inf_" + id + ".txt",
-                                          "ergo_" + id + ".txt");
+                                       "overlap_inf_" + id + ".txt",
+                                       "ergo_" + id + ".txt");
   }
 };
 
@@ -810,7 +810,6 @@ void Sim::writeRunLog(int current_step) {
   } else {
     n_entries = current_step;
   }
-  std::cout << n_entries << std::endl;
   for (int i = 0; i < n_entries; i++) {
     stream << (int)run_buffer.at(i, 0) << "\t";
     stream << (int)run_buffer.at(i, 1) << "\t";
