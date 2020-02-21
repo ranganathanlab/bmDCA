@@ -26,7 +26,7 @@ Graph::load(potts_model model)
       vector<double> sumJj(q);
       for (size_t yi = 0; yi < q; yi++) {
         for (size_t yj = 0; yj < q; yj++) {
-          J[i][j][yi][yj] = model.J(i, j)(yi, yj);
+          J[i][j][yi][yj] = model.J.at(i, j).at(yi, yj);
           J[j][i][yj][yi] = J[i][j][yi][yj];
           sumJi[yi] += J[i][j][yi][yj];
           sumJi[yj] += J[i][j][yi][yj];
@@ -37,7 +37,7 @@ Graph::load(potts_model model)
   for (size_t i = 0; i < n; ++i) {
     double sumh = 0;
     for (size_t yi = 0; yi < q; ++yi) {
-      h[i][yi] = model.h(yi, i);
+      h[i][yi] = model.h.at(yi, i);
       sumh += h[i][yi];
     }
   }
