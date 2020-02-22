@@ -12,6 +12,7 @@ src/MCMC_rip
 src/reweighting
 src/preprocess
 src/bmdca
+src/bmdca_sample
 src/statMC_sigma
 src/statMC_sigma_importance
 src/statMSA
