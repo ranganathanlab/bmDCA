@@ -54,9 +54,9 @@ manually. First, make sure that `cmake`, `openblas` (or `blas`), `lapack`,
 system wide, run the following (Unix systems only):
 
 ```
-wget http://sourceforge.net/projects/arma/files/armadillo-9.800.4.tar.xz
-tar xf armadillo-9.800.4.tar.xz
-cd armadillo-9.800.4
+wget https://sourceforge.net/projects/arma/files/armadillo-9.850.1.tar.xz
+tar xf armadillo-9.850.1.tar.xz
+cd armadillo-9.850.1
 cmake .
 make -j4
 sudo make install
@@ -139,6 +139,20 @@ The mapping from amino acids to integers is defined in the following way. Amino
 acids are ordered as in the following string "-ACDEFGHIKLMNPQRSTVWY". They are
 then mapped to the integer corresponding to their position in the string, minus
 one. The gap symbol is mapped to 0, A is mapped to 1, etc...
+
+### 3. Sample sequences learned model
+
+After learning the parameters, you will be left with a file (or files)
+containing their values. To samples sequences from the trained Potts model,
+run:
+
+```
+bmdca_sample -i learned_parameters.txt -d output_directory \
+  -o output_file.txt -n number_of_sequences
+```
+
+The samples will be all independent, with a hard-coded burn-in time of 100000
+steps.
 
 #### Config file
 
@@ -317,7 +331,7 @@ For 2 position (2p) frequencies:
 where `[amino acid frequencies (21x21)]` is a row that corresponds to the
 frequencies of the `21x21` pairs of amino acids at positions i and j.
 
-## Example
+## Examples
 
 An example FASTA file with processed output is provided in the examples
 directory. To use it, run:
