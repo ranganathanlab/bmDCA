@@ -82,6 +82,8 @@ private:
   int M_check;       // M
   int count_check;   // count_max
 
+  bool output_binary = false;
+
   // Key-value wrapper for loading parameters from a file.
   void setParameter(std::string, std::string);
 

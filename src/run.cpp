@@ -47,6 +47,8 @@ Sim::initializeParameters(void)
   adapt_up_time = 1.5;
   adapt_down_time = 0.600;
 
+  output_binary = false;
+
   // importance sampling settings
   step_importance_max = 1;
   coherence_min = 0.9999;
@@ -121,6 +123,8 @@ Sim::writeParameters(std::string output_file)
   stream << "delta_t_check=" << delta_t_check << std::endl;
   stream << "M_check=" << M_check << std::endl;
   stream << "count_check=" << count_check << std::endl;
+
+  stream << "output_binary=" << output_binary << std::endl;
 };
 
 void
@@ -220,6 +224,12 @@ Sim::setParameter(std::string key, std::string value)
     M_check = std::stoi(value);
   } else if (key == "count_check") {
     count_check = std::stoi(value);
+  } else if (key == "output_binary") {
+    if (value.size() == 1) {
+      output_binary = (std::stoi(value) == 1);
+    } else {
+      output_binary = (value == "true");
+    }
   } else {
     std::cerr << "ERROR: unknown parameter '" << key << "'" << std::endl;
     std::exit(EXIT_FAILURE);
@@ -775,27 +785,28 @@ Sim::updateReparameterization(void)
 void
 Sim::writeData(std::string id)
 {
-  // current_model->writeParamsCompat("parameters_" + id + ".txt");
-  // current_model->writeGradientCompat("gradients_" + id + ".txt");
-  // current_model->writeLearningRatesCompat("learning_rates_" + id + ".txt");
-  //
-  // mcmc_stats->writeFrequency1pCompat("stat_MC_1p_" + id + ".txt",
-  //                                    "stat_MC_1p_sigma_" + id + ".txt");
-  // mcmc_stats->writeFrequency2pCompat("stat_MC_2p_" + id + ".txt",
-  //                                    "stat_MC_2p_sigma_" + id + ".txt");
+  if (output_binary) {
+    current_model->writeParams("parameters_h_" + id + ".bin",
+                               "parameters_J_" + id + ".bin");
+    current_model->writeGradient("gradients_h_" + id + ".bin",
+                                 "gradients_J_" + id + ".bin");
+    current_model->writeLearningRates("learning_rates_h_" + id + ".bin",
+                                      "learning_rate_J_" + id + ".bin");
 
-  current_model->writeParams("parameters_h_" + id + ".bin",
-                             "parameters_J_" + id + ".bin");
-  current_model->writeGradient("gradients_h_" + id + ".bin",
-                               "gradients_J_" + id + ".bin");
-  current_model->writeLearningRates("learning_rates_h_" + id + ".bin",
-                                    "learning_rate_J_" + id + ".bin");
+    mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".bin",
+                                 "stat_MC_1p_sigma_" + id + ".bin");
+    mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".bin",
+                                 "stat_MC_2p_sigma_" + id + ".bin");
+  } else {
+    current_model->writeParamsCompat("parameters_" + id + ".txt");
+    current_model->writeGradientCompat("gradients_" + id + ".txt");
+    current_model->writeLearningRatesCompat("learning_rates_" + id + ".txt");
 
-  mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".bin",
-                               "stat_MC_1p_sigma_" + id + ".bin");
-  mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".bin",
-                               "stat_MC_2p_sigma_" + id + ".bin");
-
+    mcmc_stats->writeFrequency1pCompat("stat_MC_1p_" + id + ".txt",
+                                       "stat_MC_1p_sigma_" + id + ".txt");
+    mcmc_stats->writeFrequency2pCompat("stat_MC_2p_" + id + ".txt",
+                                       "stat_MC_2p_sigma_" + id + ".txt");
+  }
   mcmc_stats->writeSamples("MC_samples_" + id + ".txt");
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
 
