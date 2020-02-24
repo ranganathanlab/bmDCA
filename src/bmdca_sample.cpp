@@ -72,7 +72,7 @@ main(int argc, char* argv[])
   } else {
     params = loadPottsModel(h_file, J_file);
   }
-  
+
   int N = params.h.n_cols;
   int Q = params.h.n_rows;
 
@@ -81,7 +81,8 @@ main(int argc, char* argv[])
   }
 
   Generator generator = Generator(params, N, Q, config_file);
-  arma::Cube<int> samples = arma::Cube<int>(num_sequences, N, reps, arma::fill::zeros);
+  arma::Cube<int> samples =
+    arma::Cube<int>(num_sequences, N, reps, arma::fill::zeros);
   generator.sample(&(samples));
 
   MCMCStats mcmc_stats = MCMCStats(&samples, &params);

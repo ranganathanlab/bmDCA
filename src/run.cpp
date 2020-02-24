@@ -26,7 +26,7 @@ Sim::initializeParameters(void)
   step_max = 2000;
   error_max = 0.00001;
   save_parameters = 100;
-  step_check = step_max;
+  // step_check = step_max;
   random_seed = 1;
 
   // Learning rate settings
@@ -59,11 +59,11 @@ Sim::initializeParameters(void)
   init_sample = false; // flag to load first position for mcmc seqs
   temperature = 1.0;   // temperature at which to sample mcmc
 
-  // check routine settings
-  t_wait_check = t_wait_0;
-  delta_t_check = delta_t_0;
-  M_check = M;
-  count_check = count_max;
+  // // check routine settings
+  // t_wait_check = t_wait_0;
+  // delta_t_check = delta_t_0;
+  // M_check = M;
+  // count_check = count_max;
 };
 
 void
@@ -80,13 +80,16 @@ Sim::writeParameters(std::string output_file)
 {
   std::ofstream stream(output_file);
 
+  // Header
+  stream << "[bmDCA]" << std::endl;
+
   // BM settings
   stream << "lambda_reg1=" << lambda_reg1 << std::endl;
   stream << "lambda_reg2=" << lambda_reg2 << std::endl;
   stream << "step_max=" << step_max << std::endl;
   stream << "error_max=" << error_max << std::endl;
   stream << "save_parameters=" << save_parameters << std::endl;
-  stream << "step_check=" << step_check << std::endl;
+  // stream << "step_check=" << step_check << std::endl;
   stream << "random_seed=" << random_seed << std::endl;
 
   // Learning rate settings
@@ -118,11 +121,11 @@ Sim::writeParameters(std::string output_file)
   stream << "init_sample_file=" << init_sample_file << std::endl;
   stream << "temperature=" << temperature << std::endl;
 
-  // check routine settings
-  stream << "t_wait_check=" << t_wait_check << std::endl;
-  stream << "delta_t_check=" << delta_t_check << std::endl;
-  stream << "M_check=" << M_check << std::endl;
-  stream << "count_check=" << count_check << std::endl;
+  // // check routine settings
+  // stream << "t_wait_check=" << t_wait_check << std::endl;
+  // stream << "delta_t_check=" << delta_t_check << std::endl;
+  // stream << "M_check=" << M_check << std::endl;
+  // stream << "count_check=" << count_check << std::endl;
 
   stream << "output_binary=" << output_binary << std::endl;
 };
@@ -131,15 +134,27 @@ void
 Sim::loadParameters(std::string file_name)
 {
   std::ifstream file(file_name);
+  bool reading_bmdca_section = false;
   if (file.is_open()) {
     std::string line;
     while (std::getline(file, line)) {
-      if (line[0] == '#' || line.empty() || line[0] == '[')
+      if (line[0] == '#' || line.empty()) {
         continue;
-      auto delim_pos = line.find("=");
-      auto key = line.substr(0, delim_pos);
-      auto value = line.substr(delim_pos + 1);
-      setParameter(key, value);
+      } else if (line[0] == '[') {
+        if (line == "[bmDCA]") {
+          reading_bmdca_section = true;
+          continue;
+        } else {
+          reading_bmdca_section = false;
+          continue;
+        }
+      }
+      if (reading_bmdca_section) {
+        auto delim_pos = line.find("=");
+        auto key = line.substr(0, delim_pos);
+        auto value = line.substr(delim_pos + 1);
+        setParameter(key, value);
+      }
     }
   } else {
     std::cerr << "ERROR: " << file_name << " not found." << std::endl;
@@ -162,8 +177,8 @@ Sim::setParameter(std::string key, std::string value)
     error_max = std::stod(value);
   } else if (key == "save_parameters") {
     save_parameters = std::stoi(value);
-  } else if (key == "step_check") {
-    step_check = std::stoi(value);
+  // } else if (key == "step_check") {
+  //   step_check = std::stoi(value);
   } else if (key == "random_seed") {
     random_seed = std::stoi(value);
   } else if (key == "epsilon_0_h") {
@@ -216,14 +231,14 @@ Sim::setParameter(std::string key, std::string value)
     init_sample_file = value;
   } else if (key == "temperature") {
     temperature = std::stod(value);
-  } else if (key == "t_wait_check") {
-    t_wait_check = std::stoi(value);
-  } else if (key == "delta_t_check") {
-    delta_t_check = std::stoi(value);
-  } else if (key == "M_check") {
-    M_check = std::stoi(value);
-  } else if (key == "count_check") {
-    count_check = std::stoi(value);
+  // } else if (key == "t_wait_check") {
+  //   t_wait_check = std::stoi(value);
+  // } else if (key == "delta_t_check") {
+  //   delta_t_check = std::stoi(value);
+  // } else if (key == "M_check") {
+  //   M_check = std::stoi(value);
+  // } else if (key == "count_check") {
+  //   count_check = std::stoi(value);
   } else if (key == "output_binary") {
     if (value.size() == 1) {
       output_binary = (std::stoi(value) == 1);
