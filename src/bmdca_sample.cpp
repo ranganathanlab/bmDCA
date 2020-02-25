@@ -68,11 +68,12 @@ main(int argc, char* argv[])
   int N = params.h.n_cols;
   int Q = params.h.n_rows;
 
+  Generator generator = Generator(params, N, Q, config_file);
+
   if (dest_dir_given == true) {
     chdir(dest_dir.c_str());
   }
 
-  Generator generator = Generator(params, N, Q, config_file);
   generator.run(num_sequences, 1);
   generator.writeAASequences(output_file);
 
