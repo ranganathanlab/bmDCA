@@ -2,7 +2,7 @@ AC_PREREQ([2.68])
 
 AC_INIT([bmDCA],
         [0.7.0],
-        [https://github.com/sudorook/bmDCA/issues],
+        [https://github.com/ranganathanlab/bmDCA/issues],
         [bmDCA])
 
 AM_INIT_AUTOMAKE([foreign])
