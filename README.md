@@ -172,16 +172,17 @@ bmdca_sample -i <parameters.txt> -d <output_directory> \
 ```
 
 The command line flags are:
- - `-i`: input parameters
- - `-h`: fields (h) parameters file
- - `-j`: couplings (J) parameters file
+ - `-i`: input parameters, text format
+ - `-h`: (_optional_) fields (h) parameters file, binary format
+ - `-j`: (_optional_) couplings (J) parameters file, binary format
  - `-d`: directory where output files are written
- - `-c`: (_optional_) config file for bmDCA run hyperparameters (optional)
+ - `-c`: (_optional_) config file for bmDCA run hyperparameters
  - `-o`: name of the output file for the sequences
  - `-n`: number of sequences to sample
 
-The samples will be all independent, with a hard-coded burn-in time of 100000
-steps.
+Note, use the `-i` parameter if the `bmdca` output is stored in text files. The
+`-j` and `-h` flags, which much be used in conjunction, correspond to `bmdca`
+output stored as binaries.
 
 ## Configuration File Options
 

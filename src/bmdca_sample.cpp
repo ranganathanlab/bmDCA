@@ -22,13 +22,16 @@ main(int argc, char* argv[])
 
   // Read command-line parameters.
   char c;
-  while ((c = getopt(argc, argv, "i:j:d:n:c:o:")) != -1) {
+  while ((c = getopt(argc, argv, "i:h:j:d:n:c:o:")) != -1) {
     switch (c) {
       case 'i':
         parameters_file = optarg;
         break;
+      case 'h':
+        h_file = optarg;
+        compat_mode = false;
+        break;
       case 'j':
-        h_file = parameters_file;
         J_file = optarg;
         compat_mode = false;
         break;
