@@ -4,8 +4,8 @@
 
 # Search for pkgconfig directories in a given path and load them to the
 # PKG_CONFIG_PATH environmental variable.
-#   $1 - abolute path of directory
-pkgconfig_add() {
+#   $1 - absolute path of directory
+pkgconfig_find() {
   if [ -d "${1}" ]; then
     PKG_CONFIG_PATH_NEW=$(find "${1}" -type d -name "pkgconfig" -print | \
                           tr '\n' ':')
@@ -17,7 +17,7 @@ pkgconfig_add() {
 }
 
 # Add directories in the `pkg-config --libs` output for a particular library to
-# the LD_LIBRARY_PATH envorinmental variable. Fixes linker issues when running
+# the LD_LIBRARY_PATH environmental variable. Fixes linker issues when running
 # binaries compiled against libraries in stored in exotic directories.
 #   $1 - library name input to pkg-config
 ld_lib_add() {
@@ -30,7 +30,7 @@ ld_lib_add() {
 }
 
 # Add specified paths to the LD_LIBRARY_PATH.
-#   $1 - abolute path of directory
+#   $1 - absolute path of directory
 ld_path_add() {
   if [ -d "$1" ]; then
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(readlink -f "$1")
@@ -46,11 +46,17 @@ ld_path_add() {
 if [ -f /usr/local/bin/gcc-9 ]; then
   alias gcc=/usr/local/bin/gcc-9
   alias g++=/usr/local/bin/g++-9
+elif [ -f /usr/local/Cellar/gcc/bin/gcc-9 ]; then
+  alias gcc=/usr/local/Cellar/gcc/bin/gcc-9
+  alias g++=/usr/local/Cellar/gcc/bin/g++-9
 elif [ -f /usr/local/bin/gcc-8 ]; then
   alias gcc=/usr/local/bin/gcc-8
   alias g++=/usr/local/bin/g++-8
+elif [ -f /usr/local/Cellar/gcc/bin/gcc-8 ]; then
+  alias gcc=/usr/local/Cellar/gcc/bin/gcc-8
+  alias g++=/usr/local/Cellar/gcc/bin/g++-8
 fi
 
 # Look for pkg-config directories
-pkgconfig_add /usr/local/Cellar  # from Homebrew
+pkgconfig_find /usr/local/Cellar  # from Homebrew
 ld_lib_add armadillo 

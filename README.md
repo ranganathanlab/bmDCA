@@ -10,9 +10,9 @@ This repository contains a C++ reimplementation of bmDCA adapted from [the
 original](https://github.com/matteofigliuzzi/bmDCA) code. Method is described
 in:
 
->  Figliuzzi, M., Barrat-Charlaix, P. & Weigt, M. How Pairwise Coevolutionary
->  Models Capture the Collective Residue Variability in Proteins? Molecular
->  Biology and Evolution 35, 1018–1027 (2018).
+> Figliuzzi, M., Barrat-Charlaix, P. & Weigt, M. How Pairwise Coevolutionary
+> Models Capture the Collective Residue Variability in Proteins? Molecular
+> Biology and Evolution 35, 1018–1027 (2018).
 
 This code is designed to eliminate the original's excessive file I/O and to
 parallelize the MCMC in the inference loop.
@@ -27,20 +27,17 @@ Linux) and Homebrew on macOS (`brew install armadillo`).
 
 __Note for macOS users__: bmDCA depends on `pkg-config` for finding paths for
 source files and shared object libraries. The directories where the program
-expects to find pkgconfig \*.pc files are listed in the `$PKG_CONFIG_PATH`
-variable.  To ensure that pkg-config finds these files for Homebrew-installed
-programs, you can append to the variable manually, or you can add the
-`pkgconfig_add()` function provided the 'tools/rcparams' file provided in the
-repository. Simply append the contents of that file to your shell run
-command file (e.g. `.bashrc`), and be sure that it contains the line
-`pkgconfig_add /usr/local/Cellar`.
+expects to find pkgconfig \*.pc files are listed in the `PKG_CONFIG_PATH`
+variable (run: `echo $PKG_CONFIG_PATH`). To ensure that `pkg-config` finds
+these files for Homebrew-installed programs, you can append to the variable
+manually, or you can use the `pkgconfig_find()` function provided the
+`tools/rcparams` file. Simply append the contents of that file to your shell
+run commands (e.g. `${HOME}/.bashrc`).
 
 Additionally, the linker can only link libraries found in directories specified
 in `LD_LIBRARY_PATH`. To add the armadillo `lib/` directory to this variable,
 append to the variable yourself, or you can use the `ld_path_add()` function,
-also defined in the 'tools/rcparams' file. Source the function in your shell
-run command file and then add `ld_lib_add armadillo`. _This needs to be run
-after `pkgconfig_add()`._
+also defined in the `tools/rcparams` file.
 
 __OR__
 
@@ -59,7 +56,8 @@ sudo make install
 ```
 
 The files will be installed to `/usr/local/include` and `/usr/local/lib` by
-default. Make sure that both directories are in your GCC path.
+default. Make sure that both directories are in your `PKG_CONFIG_PATH` and
+`LD_LIBRARY_PATH` environmental variables.
 
 ### GCC
 
