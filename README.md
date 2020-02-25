@@ -17,7 +17,7 @@ in:
 This code is designed to eliminate the original's excessive file I/O and to
 parallelize the MCMC in the inference loop.
 
-## Installing Dependencies
+## Installing dependencies
 
 ### Armadillo
 
@@ -87,7 +87,7 @@ If not already installed, install `automake` from your system repository. You
 may also need to do the same for `pkg-config`.
 
 
-## Compilation Instructions
+## Compilation and installation
 
 To install the program globally (default: `/usr/local`), run:
 
@@ -113,7 +113,7 @@ In the event you with to uninstall the code, simply run `sudo make uninstall`
 
 ## Usage
 
-### Learning Parameters
+### Inference (`bmdca`)
 
 This step will take an input multiple sequence alignment (MSA) and a config
 file specifying learning parameters and options and then run an inference loop
@@ -160,7 +160,7 @@ bmdca -i <numerical_alignment.txt> -w <sequence_weights.txt>
   -d <output_directory> -c <config_file.conf>
 ```
 
-### Sampling Synthetic Sequences
+### Sampling (`bmdca_sample`)
 
 One can use a Monte-Carlo based sampler to draw sequences from the model
 specified by the learned parameters.
@@ -184,9 +184,10 @@ Note, use the `-i` parameter if the `bmdca` output is stored in text files. The
 `-j` and `-h` flags, which much be used in conjunction, correspond to `bmdca`
 output stored as binaries.
 
-## Configuration File Options
+## Configuration file options
 
-The fields in the config file:
+Inference and sampling runs can be configured using a text file (see
+`example/bmdca.conf`). The fields in the file are as follows:
 
 ### [bmDCA]
 
@@ -236,10 +237,11 @@ The fields in the config file:
 2. `t_wait` - burn-in time (default: 10000)
 3. `temperature` - temperature at which to sample sequences (default: 1.0)
 
-## Output Files
+## Output files
 
 `bmdca` will output files during the course of its run:
- - `bmdca_params.conf`: a list of the hyperparameters used in the learning procedure.
+ - `bmdca_params.conf`: a list of the hyperparameters used in the learning
+   procedure.
  - `energy_%d.dat`: mean and std dev over replicates for sample sequence
    energies at each step of the Markov chain
  - `ergo_%d.dat`: set of autocorrelation calculations for sampled sequences
@@ -308,9 +310,9 @@ disable writing of a particular log file is to comment out the code in the
 Output file formats will probably be changed at a later date, likely to a
 binary format...
 
-## Output File Formats
+## Output file formats
 
-### Numerical Sequence Alignment
+### Numerical sequence alignment
 
 This file is a space-delimited file, e.g.:
 ```
@@ -324,7 +326,7 @@ The first line is:
 2. Number of positions (N)
 3. Size of amino acid alphabet (all AAs + 1 for gaps) (Q)
 
-### Learned Potts Model Parameters
+### Learned Potts model parameters
 
 The output directory contains learned parameters saved in files called
 `parameters_%d.txt`. They contain the parameters for both J and h, formatted
@@ -345,7 +347,7 @@ The position indices go from 0 to N-1 (N = # positions), and the amino acid
 indices go from 0 to 20 (21 amino acids total, including gaps). 0 corresponds
 to a gap.
 
-#### Sequence Statistics
+### Sequence statistics
 
 The sequence statistics files (e.g. `stat_align_1p.txt` and
 `stat_align_2p.txt`) have a different format.
