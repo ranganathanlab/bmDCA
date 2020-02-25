@@ -126,7 +126,7 @@ The command line flags are:
          by highly similar sequences arising from the phylogeny (default:
          `false`)
  - `-c`: (_optional_) config file for bmDCA run hyperparameters, such as
-   `examples/bmdca.conf`
+   `example/bmdca.conf`
  - `-t`: threshold for computing default sequence weights (default: `0.8`)
  - `-n`: input MSA, numerical format
  - `-w`: file containing sequence weights
@@ -179,7 +179,7 @@ The command line flags are:
  - `-j`: (_optional_) couplings (J) parameters file, binary format
  - `-d`: directory where output files are written
  - `-c`: (_optional_) config file for bmDCA run hyperparameters, e.g.
-   `examples/bmdca.conf`
+   `example/bmdca.conf`
  - `-o`: name of the output file for the sequences
  - `-n`: number of sequences to sample
 
