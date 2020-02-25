@@ -127,7 +127,8 @@ The command line flags are:
          sequence in the alignment, with the goal to not unduly bias inference
          by highly similar sequences arising from the phylogeny (default:
          `false`)
- - `-c`: (_optional_) config file for bmDCA run hyperparameters (optional)
+ - `-c`: (_optional_) config file for bmDCA run hyperparameters, such as
+   `examples/bmdca.conf`
  - `-t`: threshold for computing default sequence weights (default: `0.8`)
  - `-n`: input MSA, numerical format
  - `-w`: file containing sequence weights
@@ -142,10 +143,13 @@ acids are ordered as in the following string "-ACDEFGHIKLMNPQRSTVWY". They are
 then mapped to the integer corresponding to their position in the string, minus
 one. The gap symbol is mapped to 0, A is mapped to 1, etc...
 
+__Important:__ The MSA processing function does not handle gaps represented by
+'.' characters.
+
 #### Example 1
 
-To learn a FASTA-formatted multiple sequence alignment (with reweighting) and a
-config file:
+To learn a FASTA-formatted multiple sequence alignment (with re-weighting) and
+a config file:
 
 ```
 bmdca -i <input_alignment.fasta> -d <output_directory> -r -c <config_file.conf>
