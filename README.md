@@ -170,7 +170,7 @@ specified by the learned parameters.
 Run:
 ```
 bmdca_sample -i <parameters.txt> -d <output_directory> \
-  -o <output_file.txt> -n <number_of_sequences>
+  -o <output_file.txt> -n <number_of_sequences> -c <config_file.conf>
 ```
 
 The command line flags are:
@@ -178,7 +178,8 @@ The command line flags are:
  - `-h`: (_optional_) fields (h) parameters file, binary format
  - `-j`: (_optional_) couplings (J) parameters file, binary format
  - `-d`: directory where output files are written
- - `-c`: (_optional_) config file for bmDCA run hyperparameters
+ - `-c`: (_optional_) config file for bmDCA run hyperparameters, e.g.
+   `examples/bmdca.conf`
  - `-o`: name of the output file for the sequences
  - `-n`: number of sequences to sample
 
