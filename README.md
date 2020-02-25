@@ -17,13 +17,9 @@ in:
 This code is designed to eliminate the original's excessive file I/O and to
 parallelize the MCMC in the inference loop.
 
-## Usage
+## Installing Dependencies
 
-Steps to use the code:
-
-### 0. Install dependencies
-
-#### Armadillo
+### Armadillo
 
 Armadillo is a C++ linear algebra library. It can be installed using the
 standard package repositories for most Linux distributions (check AUR for Arch
@@ -65,7 +61,7 @@ sudo make install
 The files will be installed to `/usr/local/include` and `/usr/local/lib` by
 default. Make sure that both directories are in your GCC path.
 
-#### GCC
+### GCC
 
 To compile the source code, GCC is recommended. At a minimum, you need a
 compiler that supports the C++11 standard. Though optional, one that supports
@@ -85,12 +81,13 @@ You have several options to get the `gcc` command to default to the
 Homebrew-installed GCC. One option is to alias `gcc` to the path to the new GCC
 binary. Code that does this is included in the 'tools/rcparams' file.
 
-#### Autotools
+### Autotools
 
-These should already be installed. If not, install `automake` and `pkg-config`
-from your system repository.
+If not already installed, install `automake` from your system repository. You
+may also need to do the same for `pkg-config`.
 
-### 1. Compile and install the code
+
+## Compilation Instructions
 
 To install the program globally (default: `/usr/local`), run:
 
@@ -100,34 +97,39 @@ make
 sudo make install
 ```
 
-If instead you want to install the code locally, run:
+If instead you want to install the code locally (or don't have root
+permissions), run:
 ```
 ./autogen.sh --prefix=${HOME}/.local
 make
 make install
 ```
 
-Replace the `--prefix` value with any local path that is part of the system
-PATH.
+Replace the value to the right of `--prefix=` with any local path that is part
+of the system PATH.
 
 In the event you with to uninstall the code, simply run `sudo make uninstall`
-(or `make uninstall` if root permissions aren't needed).
+(or `make uninstall` as appropriate).
 
-### 2. Run bmDCA to learn the model parameters
+## Usage
 
-This step is required to convert the MSA text file into numerical format.
-```
-bmdca -i input_alignment.fasta -d output_directory -r -c config_file.conf
-```
+### Learning Parameters
+
+This step will take an input multiple sequence alignment (MSA) and a config
+file specifying learning parameters and options and then run an inference loop
+to fit values to a Potts model for amino acid frequencies at positions (Potts
+fields) and pairs of frequencies at pairs of positions (Potts couplings).
 
 The command line flags are:
  - `-i`: input MSA, FASTA format
- - `-d`: directory where output is written
- - `-r`: flag to compute re-weighting coefficients for each sequence in the
-         alignment (optional)
- - `-c`: config file for bmDCA run hyperparameters (optional)
+ - `-d`: directory where output files are written
+ - `-r`: (_optional_) flag to compute re-weighting coefficients for each
+         sequence in the alignment, with the goal to not unduly bias inference
+         by highly similar sequences arising from the phylogeny (default:
+         `false`)
+ - `-c`: (_optional_) config file for bmDCA run hyperparameters (optional)
  - `-t`: threshold for computing default sequence weights (default: `0.8`)
- - `-n`: numerical multiple sequence alignment
+ - `-n`: input MSA, numerical format
  - `-w`: file containing sequence weights
 
 If `-r` is not specified, each sequence will be equally weighted, and if no
@@ -140,73 +142,102 @@ acids are ordered as in the following string "-ACDEFGHIKLMNPQRSTVWY". They are
 then mapped to the integer corresponding to their position in the string, minus
 one. The gap symbol is mapped to 0, A is mapped to 1, etc...
 
-### 3. Sample sequences learned model
+#### Example 1
 
-After learning the parameters, you will be left with a file (or files)
-containing their values. To samples sequences from the trained Potts model,
-run:
+To learn a FASTA-formatted multiple sequence alignment (with reweighting) and a
+config file:
 
 ```
-bmdca_sample -i learned_parameters.txt -d output_directory \
-  -o output_file.txt -n number_of_sequences
+bmdca -i <input_alignment.fasta> -d <output_directory> -r -c <config_file.conf>
 ```
+
+#### Example 2
+
+If you already have a numerical-format alignment and set of per-sequence
+weights, run:
+```
+bmdca -i <numerical_alignment.txt> -w <sequence_weights.txt>
+  -d <output_directory> -c <config_file.conf>
+```
+
+### Sampling Synthetic Sequences
+
+One can use a Monte-Carlo based sampler to draw sequences from the model
+specified by the learned parameters.
+
+Run:
+```
+bmdca_sample -i <parameters.txt> -d <output_directory> \
+  -o <output_file.txt> -n <number_of_sequences>
+```
+
+The command line flags are:
+ - `-i`: input parameters
+ - `-h`: fields (h) parameters file
+ - `-j`: couplings (J) parameters file
+ - `-d`: directory where output files are written
+ - `-c`: (_optional_) config file for bmDCA run hyperparameters (optional)
+ - `-o`: name of the output file for the sequences
+ - `-n`: number of sequences to sample
 
 The samples will be all independent, with a hard-coded burn-in time of 100000
 steps.
 
-#### Config file
+## Configuration File Options
 
 The fields in the config file:
 
-1. `lambda_reg1` - L2 regularization strength for fields, h (default 0.01)
-2. `lambda_reg2` - L2 regularization strength for couplings, J (default 0.01)
+### [bmDCA]
+
+1. `lambda_reg1` - L2 regularization strength for fields, h (default: 0.01)
+2. `lambda_reg2` - L2 regularization strength for couplings, J (default: 0.01)
 3. `step_max` - maximum number of iterations for Boltzmann learning process
-   (default 2000)
-4. `error_max` - error convergence criterion for stopping (default 1e-05)
+   (default: 2000)
+4. `error_max` - error convergence criterion for stopping (default: 1e-05)
 5. `save_parameters` - save parameters every `save_parameters` number of steps
-   (default 50)
-6. `step_check` - _unused_ check learned parameters every `step_check` number
-   of steps (default 2000)
-7. `epsilon_0_h` - initial learning rate for fields (default 0.01)
-8. `epsilon_0_J` - initial learning rate for couplings (default 0.001)
-9. `adapt_up` - multiple by which to increase Potts (J and h) gradient (default
-   1.5)
+   (default 100)
+6. `random_seed` - initial seed for the random number generator (default: 1)
+7. `epsilon_0_h` - initial learning rate for fields (default: 0.01)
+8. `epsilon_0_J` - initial learning rate for couplings (default: 0.001)
+9. `adapt_up` - multiple by which to increase Potts (J and h) gradient
+   (default: 1.5)
 10. `adapt_down` - multiple by which to decrease Potts (J and h) gradient
-    (default 0.6)
-11. `min_step_h` - minimum learning rate for h (default 0.001)
-12. `max_step_h` - maximum learning rate for h (default 2.5)
-13. `min_step_J` - minimum learning rate for J (default 1e-05)
+    (default: 0.6)
+11. `min_step_h` - minimum learning rate for h (default: 0.001)
+12. `max_step_h` - maximum learning rate for h (default: 2.5)
+13. `min_step_J` - minimum learning rate for J (default: 1e-05)
 14. `max_step_J_N` - maximum learning rate for J, scaled by effective number of
-    sequences (default 2.5)
+    sequences (default: 2.5)
 15. `error_min_update` - threshold for differences in MSA and MCMC frequencies
-    above which parameters (J and h) are updated (default -1)
-16. `t_wait_0` - initial burn-in time (default 10000)
-17. `delta_t_0` - initial wait time between sampling sequences (default 100)
+    above which parameters (J and h) are updated (default: -1)
+16. `t_wait_0` - initial burn-in time (default: 10000)
+17. `delta_t_0` - initial wait time between sampling sequences (default: 100)
 18. `check_ergo` - flag to check MCMC sample energies and autocorrelations,
-    without which wait and burn-in times are not updated (default true)
-19. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default 1.5)
+    without which wait and burn-in times are not updated (default: true)
+19. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default: 1.5)
 20. `adapt_down_time` - multiple to decrease MCMC wait/burn-in time (default
     0.6)
 21. `step_important_max` - maximum number of importance sampling steps
-    (default=1 -> importance sampling disabled)
+    (default: 1, i.e. disable importance sampling)
 22. `coherence_min` - (default=.9999)
 23. `M` - number of sequences to sample for each MCMC replicate (default 1000)
 24. `count_max` - number of independent MCMC replicates (default 10)
 25. `init_sample` - flag for whether of not to use seed sequence for
     initializing the MCMC (default false)
-26. `init_sample_file` - file containing the MCMC seed sequences (default )
+26. `init_sample_file` - file containing the MCMC seed sequences (default: "")
 27. `temperature` - temperature at which to sample sequences (default 1)
-28. `t_wait_check` - _unused_ burn-in time for when running check MCMC (default
-    10000)
-29. `delta_t_check` - _unused_ wait time between sampled sequences when running
-    MCMC check (default 100)
-30. `M_check` - number of sequences to sample for each MCMC check replicate
-    (default 1000)
-31. `count_check` - number of replicates for the MCMC check (default 10)
+28. `output_binary` - flag to output data in binary format, which is faster and
+    more precise (default: false)
 
-### 3. Examine the output
+### [sampling]
 
-The outputs of `bmdca` are:
+1. `random_seed` - initial seed for the random number generator (default: 1)
+2. `t_wait` - burn-in time (default: 10000)
+3. `temperature` - temperature at which to sample sequences (default: 1.0)
+
+## Output Files
+
+`bmdca` will output files during the course of its run:
  - `bmdca_params.conf`: a list of the hyperparameters used in the learning procedure.
  - `energy_%d.dat`: mean and std dev over replicates for sample sequence
    energies at each step of the Markov chain
@@ -264,14 +295,21 @@ The outputs of `bmdca` are:
    frequencies for pairs of amino acids at each pair of positions from the set
    of MCMC-sampled sequences
 
+The final outputs will be stored with a `_final` suffix in the file name before
+the file extension. For example, the final learned parameters will be stored in
+`parameters_final.txt`. __Use this file for sampling synthetic sequences.__
+
 Depending how many times you configure `bmdca` to save steps to disk, the total
 data generated can be substantial ( > 1 Gb). At present, the only way to
 disable writing of a particular log file is to comment out the code in the
 `Sim::run()` function defined in `src/run.cpp`.
 
-Output file formats will probably be changed at a later date.
+Output file formats will probably be changed at a later date, likely to a
+binary format...
 
-#### Numerical sequence alignment
+## Output File Formats
+
+### Numerical Sequence Alignment
 
 This file is a space-delimited file, e.g.:
 ```
@@ -285,7 +323,7 @@ The first line is:
 2. Number of positions (N)
 3. Size of amino acid alphabet (all AAs + 1 for gaps) (Q)
 
-#### Learned parameters
+### Learned Potts Model Parameters
 
 The output directory contains learned parameters saved in files called
 `parameters_%d.txt`. They contain the parameters for both J and h, formatted
@@ -306,7 +344,7 @@ The position indices go from 0 to N-1 (N = # positions), and the amino acid
 indices go from 0 to 20 (21 amino acids total, including gaps). 0 corresponds
 to a gap.
 
-#### Sequence statistics
+#### Sequence Statistics
 
 The sequence statistics files (e.g. `stat_align_1p.txt` and
 `stat_align_2p.txt`) have a different format.
@@ -330,20 +368,3 @@ For 2 position (2p) frequencies:
 ```
 where `[amino acid frequencies (21x21)]` is a row that corresponds to the
 frequencies of the `21x21` pairs of amino acids at positions i and j.
-
-## Examples
-
-An example FASTA file with processed output is provided in the examples
-directory. To use it, run:
-
-```
-bmdca -i example/PF00014_raw.fasta -d example/output -r -c example/bmdca.conf
-```
-
-A numerical representation and sequence weights of the aforementioned FASTA
-file is also available. To use run:
-
-```
-bmdca -n example/PF00014_numerical.txt -w example/PF00014_weights.txt \
-  -d example/output -c example/bmdca.conf
-```
