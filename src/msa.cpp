@@ -7,7 +7,10 @@
 #include <string>
 #include <vector>
 
-MSA::MSA(std::string msa_file, bool reweight, bool is_numeric_msa, double threshold)
+MSA::MSA(std::string msa_file,
+         bool reweight,
+         bool is_numeric_msa,
+         double threshold)
 {
   if (is_numeric_msa) {
     readInputNumericMSA(msa_file);

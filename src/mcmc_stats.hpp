@@ -41,8 +41,8 @@ public:
   double dE_av_tot;
 
 private:
-  potts_model *params;
-  arma::Cube<int> *samples;
+  potts_model* params;
+  arma::Cube<int>* samples;
   arma::Mat<double> energies;
 
   double energies_start_avg;

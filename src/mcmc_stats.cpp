@@ -5,7 +5,7 @@
 
 #include "utils.hpp"
 
-MCMCStats::MCMCStats(arma::Cube<int> *s, potts_model *p)
+MCMCStats::MCMCStats(arma::Cube<int>* s, potts_model* p)
 {
   M = s->n_rows;
   N = s->n_cols;
@@ -19,7 +19,7 @@ MCMCStats::MCMCStats(arma::Cube<int> *s, potts_model *p)
 };
 
 void
-MCMCStats::updateData(arma::Cube<int> *s, potts_model *p)
+MCMCStats::updateData(arma::Cube<int>* s, potts_model* p)
 {
   samples = s;
   params = p;
@@ -136,8 +136,8 @@ MCMCStats::computeCorrelations(void)
   for (int i = 1; i < M - 1; i++) {
     overlaps.at(i - 1) = (double)d.at(i) / (double)count.at(i);
     overlaps_sigma.at(i - 1) =
-      sqrt(1.0 / count.at(i)) *
-      sqrt(d2.at(i) / (double)(count.at(i)) - pow(d.at(i) / (double)(count.at(i)), 2));
+      sqrt(1.0 / count.at(i)) * sqrt(d2.at(i) / (double)(count.at(i)) -
+                                     pow(d.at(i) / (double)(count.at(i)), 2));
   }
 
   overlap_inf = 2.0 * dinf / (double)(reps * (reps - 1) * M);
@@ -182,8 +182,8 @@ MCMCStats::writeCorrelationsStats(std::string overlap_file,
 
   output_stream_overlap_inf << "0 " << overlap_inf << " " << overlap_inf_sigma
                             << std::endl;
-  output_stream_overlap_inf << M << " " << overlap_inf << " " << overlap_inf_sigma
-                            << std::endl;
+  output_stream_overlap_inf << M << " " << overlap_inf << " "
+                            << overlap_inf_sigma << std::endl;
 
   output_stream_ergo << overlap_auto << " " << overlap_check << " "
                      << overlap_cross << " " << sigma_auto << " " << sigma_check
@@ -271,11 +271,11 @@ MCMCStats::computeSampleStats(void)
             n2.at(rep, samples->at(m, i, rep), samples->at(m, j, rep))++;
           }
 
-        n2av = arma::sum(n2, 0) / (M*reps);
-        n2squared = arma::sum(arma::pow(n2, 2), 0) / (M*reps);
+        n2av = arma::sum(n2, 0) / (M * reps);
+        n2squared = arma::sum(arma::pow(n2, 2), 0) / (M * reps);
         frequency_2p.at(i, j) = n2av;
         frequency_2p_sigma.at(i, j) =
-          arma::pow((n2squared/M - arma::pow(n2av, 2)) / sqrt(reps), .5);
+          arma::pow((n2squared / M - arma::pow(n2av, 2)) / sqrt(reps), .5);
       }
     }
   }
@@ -305,10 +305,9 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
         dE.at(rep, m) += cur->h.at(samples->at(m, i, rep)) -
                          prev->h.at(samples->at(m, i, rep));
         for (int j = i + 1; j < N; j++) {
-          dE.at(rep, m) += cur->J.at(i, j).at(samples->at(m, i, rep),
-                                              samples->at(m, j, rep)) -
-                           prev->J.at(i, j).at(samples->at(m, i, rep),
-                                               samples->at(m, j, rep));
+          dE.at(rep, m) +=
+            cur->J.at(i, j).at(samples->at(m, i, rep), samples->at(m, j, rep)) -
+            prev->J.at(i, j).at(samples->at(m, i, rep), samples->at(m, j, rep));
         }
       }
       dE_av.at(rep) += dE.at(rep, m);
@@ -384,7 +383,8 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
       n2squared.zeros();
       for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2.at(rep).at(samples->at(m, i, rep), samples->at(m, j, rep)) += p.at(rep, m);
+          n2.at(rep).at(samples->at(m, i, rep), samples->at(m, j, rep)) +=
+            p.at(rep, m);
         }
 
       for (int aa1 = 0; aa1 < Q; aa1++) {

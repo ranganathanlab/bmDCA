@@ -3,9 +3,9 @@
 
 #include "mcmc.hpp"
 #include "mcmc_stats.hpp"
+#include "model.hpp"
 #include "msa.hpp"
 #include "msa_stats.hpp"
-#include "model.hpp"
 #include "utils.hpp"
 
 class Sim
@@ -90,7 +90,7 @@ private:
   // Buffers
   arma::Mat<double> run_buffer;
   void initializeRunLog();
-  void writeRunLog(int=-1);
+  void writeRunLog(int = -1);
 
   // Sample data
   arma::Cube<int> samples;

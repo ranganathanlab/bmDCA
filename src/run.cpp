@@ -5,13 +5,13 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <string>
 #include <unistd.h>
-#include <random>
 
+#include "model.hpp"
 #include "msa.hpp"
 #include "msa_stats.hpp"
-#include "model.hpp"
 #include "pcg_random.hpp"
 #include "utils.hpp"
 
@@ -67,7 +67,8 @@ Sim::initializeParameters(void)
 };
 
 void
-Sim::checkParameters(void) {
+Sim::checkParameters(void)
+{
   // Ensure that the set of ergodiciy checks is disabled if M=1
   if ((M == 1) && check_ergo) {
     check_ergo = false;
@@ -320,7 +321,7 @@ Sim::run(void)
   // Instantiate the PCG random number generator and unifrom random
   // distribution.
   pcg32 rng(random_seed);
-  std::uniform_int_distribution<long int> dist(0, RAND_MAX-count_max);
+  std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
 
   // Initialize the buffer.
   run_buffer = arma::Mat<double>(save_parameters, 14, arma::fill::zeros);
@@ -334,10 +335,10 @@ Sim::run(void)
   for (step = 1; step <= step_max; step++) {
     std::cout << "Step: " << step << std::endl;
 
-    run_buffer.at((step-1) % save_parameters, 0) = step;
-    run_buffer.at((step-1) % save_parameters, 1) = count_max;
-    run_buffer.at((step-1) % save_parameters, 2) = t_wait;
-    run_buffer.at((step-1) % save_parameters, 3) = delta_t;
+    run_buffer.at((step - 1) % save_parameters, 0) = step;
+    run_buffer.at((step - 1) % save_parameters, 1) = count_max;
+    run_buffer.at((step - 1) % save_parameters, 2) = t_wait;
+    run_buffer.at((step - 1) % save_parameters, 3) = delta_t;
 
     std::cout << "loading params to mcmc... " << std::flush;
     timer.tic();
@@ -362,14 +363,8 @@ Sim::run(void)
                           dist(rng),
                           temperature);
       } else {
-        mcmc->sample(&samples,
-                     count_max,
-                     M,
-                     N,
-                     t_wait,
-                     delta_t,
-                     dist(rng),
-                     temperature);
+        mcmc->sample(
+          &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature);
       }
       std::cout << timer.toc() << " sec" << std::endl;
 
@@ -380,7 +375,8 @@ Sim::run(void)
 
       // Run checks and alter burn-in and wait times
       if (check_ergo) {
-        std::cout << "computing sequence energies and correlations... " << std::flush;
+        std::cout << "computing sequence energies and correlations... "
+                  << std::flush;
         timer.tic();
         mcmc_stats->computeEnergiesStats();
         mcmc_stats->computeCorrelations();
@@ -401,13 +397,13 @@ Sim::run(void)
         double e_end_sigma = energy_stats.at(3);
         double e_err = energy_stats.at(4);
 
-        run_buffer.at((step-1) % save_parameters, 4) = auto_corr;
-        run_buffer.at((step-1) % save_parameters, 5) = cross_corr;
-        run_buffer.at((step-1) % save_parameters, 6) = e_start;
-        run_buffer.at((step-1) % save_parameters, 7) = e_start_sigma;
-        run_buffer.at((step-1) % save_parameters, 8) = e_end;
-        run_buffer.at((step-1) % save_parameters, 9) = e_end_sigma;
-        run_buffer.at((step-1) % save_parameters, 10) = e_err;
+        run_buffer.at((step - 1) % save_parameters, 4) = auto_corr;
+        run_buffer.at((step - 1) % save_parameters, 5) = cross_corr;
+        run_buffer.at((step - 1) % save_parameters, 6) = e_start;
+        run_buffer.at((step - 1) % save_parameters, 7) = e_start_sigma;
+        run_buffer.at((step - 1) % save_parameters, 8) = e_end;
+        run_buffer.at((step - 1) % save_parameters, 9) = e_end_sigma;
+        run_buffer.at((step - 1) % save_parameters, 10) = e_err;
 
         bool flag_deltat_up = true;
         bool flag_deltat_down = true;
@@ -460,7 +456,8 @@ Sim::run(void)
     while (step_importance < step_importance_max and flag_coherence == true) {
       step_importance++;
       if (step_importance > 1) {
-        std::cout << "importance sampling step " << step_importance << "... " << std::flush;
+        std::cout << "importance sampling step " << step_importance << "... "
+                  << std::flush;
         timer.tic();
         mcmc_stats->computeSampleStatsImportance(&(current_model->params),
                                                  &(previous_model->params));
@@ -502,8 +499,6 @@ Sim::run(void)
       timer.tic();
       updateLearningRate();
       std::cout << timer.toc() << " sec" << std::endl;
-
-      // Check analysis
 
       // Save parameters
       // if ((step % save_parameters == 0 || step == 1) &&
@@ -684,9 +679,9 @@ Sim::computeErrorReparametrization(void)
   error_tot = error_1p + error_2p;
   error_stat_tot = error_stat_1p + error_stat_2p;
 
-  run_buffer.at((step-1) % save_parameters, 11) = error_1p;
-  run_buffer.at((step-1) % save_parameters, 12) = error_2p;
-  run_buffer.at((step-1) % save_parameters, 13) = error_tot;
+  run_buffer.at((step - 1) % save_parameters, 11) = error_1p;
+  run_buffer.at((step - 1) % save_parameters, 12) = error_2p;
+  run_buffer.at((step - 1) % save_parameters, 13) = error_tot;
 
   bool converged = false;
   if (error_tot < error_max) {
@@ -837,27 +832,44 @@ Sim::writeData(std::string id)
   }
 };
 
-void Sim::initializeRunLog() {
-  std::ofstream stream {"bmdca_run.log", std::ios_base::out};
-  stream << "step" << "\t"
-         << "reps" << "\t"
-         << "burn-in" << "\t"
-         << "burn-between" << "\t"
-         << "auto-corr" << "\t"
-         << "cross-corr" << "\t"
-         << "energy-start-avg" << "\t"
-         << "sigma-energy-start-sigma" << "\t"
-         << "energy-end-avg" << "\t"
-         << "energy-end-sigma" << "\t"
-         << "energy-err" << "\t"
-         << "error-h" << "\t"
-         << "error-J" << "\t"
+void
+Sim::initializeRunLog()
+{
+  std::ofstream stream{ "bmdca_run.log", std::ios_base::out };
+  stream << "step"
+         << "\t"
+         << "reps"
+         << "\t"
+         << "burn-in"
+         << "\t"
+         << "burn-between"
+         << "\t"
+         << "auto-corr"
+         << "\t"
+         << "cross-corr"
+         << "\t"
+         << "energy-start-avg"
+         << "\t"
+         << "sigma-energy-start-sigma"
+         << "\t"
+         << "energy-end-avg"
+         << "\t"
+         << "energy-end-sigma"
+         << "\t"
+         << "energy-err"
+         << "\t"
+         << "error-h"
+         << "\t"
+         << "error-J"
+         << "\t"
          << "error-tot" << std::endl;
   stream.close();
 };
 
-void Sim::writeRunLog(int current_step) {
-  std::ofstream stream {"bmdca_run.log", std::ios_base::app};
+void
+Sim::writeRunLog(int current_step)
+{
+  std::ofstream stream{ "bmdca_run.log", std::ios_base::app };
 
   int n_entries;
   if (current_step == 0) {
