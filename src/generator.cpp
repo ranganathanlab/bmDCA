@@ -1,33 +1,32 @@
 #include "generator.hpp"
 
+#include "mcmc.hpp"
+// #include "mcmc_stats.hpp"
+
 Generator::Generator(potts_model params, int n, int q, std::string config_file)
   : N(n)
   , Q(q)
-  , graph(n, q)
+  , model(params)
 {
   if (config_file.length() == 0) {
     initializeParameters();
   } else {
     loadParameters(config_file);
   }
-  graph.load(params);
 };
 
 void
-Generator::initializeParameters(void) {
+Generator::initializeParameters(void)
+{
   random_seed = 1;
-  adapt_up = 1.5;
-  adapt_down = 0.6;
-  check_ergo = true;
   t_wait = 10000;
-  delta_t = 100;
+  delta_t = 100; // placeholder
   temperature = 1.0;
-  use_indep_samples = true;
-  output_numerical = false;
 };
 
 void
-Generator::loadParameters(std::string file_name) {
+Generator::loadParameters(std::string file_name)
+{
   std::ifstream file(file_name);
   bool reading_bmdca_section = false;
   if (file.is_open()) {
@@ -58,61 +57,122 @@ Generator::loadParameters(std::string file_name) {
 };
 
 void
-Generator::setParameter(std::string key, std::string value) {
+Generator::setParameter(std::string key, std::string value)
+{
   if (key == "random_seed") {
     random_seed = std::stoi(value);
-  } else if (key == "adapt_up") {
-    adapt_up = std::stod(value);
-  } else if (key == "adapt_down") {
-    adapt_down = std::stod(value);
-  } else if (key == "check_ergo") {
-    if (value.size() == 1) {
-      check_ergo = (std::stoi(value) == 1);
-    } else {
-      check_ergo = (value == "true");
-    }
   } else if (key == "t_wait") {
     t_wait = std::stoi(value);
-  } else if (key == "delta_t") {
-    delta_t = std::stoi(value);
-  // } else if (key == "M") {
-  //   M = std::stoi(value);
   } else if (key == "temperature") {
     temperature = std::stod(value);
-  } else if (key == "use_indep_samples") {
-    if (value.size() == 1) {
-      use_indep_samples = (std::stoi(value) == 1);
-    } else {
-      use_indep_samples = (value == "true");
-    }
-  } else if (key == "output_numerical") {
-    if (value.size() == 1) {
-      output_numerical = (std::stoi(value) == 1);
-    } else {
-      output_numerical = (value == "true");
-    }
   }
 };
 
 void
-Generator::sample(arma::Cube<int>* ptr) {
-  int M = ptr->n_rows;
-  int N = ptr->n_cols;
-  int reps = ptr->n_slices;
+Generator::writeAASequences(std::string output_file)
+{
+  int M = samples.n_rows;
+  int N = samples.n_cols;
+  int reps = samples.n_slices;
 
-  if (use_indep_samples) {
-#pragma omp parallel
-    {
-#pragma omp for
-      for (int rep = 0; rep < reps; rep++) {
-        graph.sample_mcmc((arma::Mat<int>*)&(*ptr).slice(rep),
-                          M,
-                          t_wait,
-                          delta_t,
-                          random_seed + rep,
-                          temperature);
+  std::ofstream output_stream(output_file);
+
+  for (int rep = 0; rep < reps; rep++) {
+    for (int m = 0; m < M; m++) {
+      output_stream << ">sample" << m * rep + rep << std::endl;
+      for (int n = 0; n < N; n++) {
+        output_stream << convertAA(samples.at(m, n, rep));
       }
+      output_stream << std::endl << std::endl;
     }
   }
 };
 
+char
+Generator::convertAA(int n)
+{
+  char aa = '\0';
+  switch (n) {
+    case 0:
+      break;
+    case 1:
+      aa = 'A';
+      break;
+    case 2:
+      aa = 'C';
+      break;
+    case 3:
+      aa = 'D';
+      break;
+    case 4:
+      aa = 'E';
+      break;
+    case 5:
+      aa = 'F';
+      break;
+    case 6:
+      aa = 'G';
+      break;
+    case 7:
+      aa = 'H';
+      break;
+    case 8:
+      aa = 'I';
+      break;
+    case 9:
+      aa = 'K';
+      break;
+    case 10:
+      aa = 'L';
+      break;
+    case 11:
+      aa = 'M';
+      break;
+    case 12:
+      aa = 'N';
+      break;
+    case 13:
+      aa = 'P';
+      break;
+    case 14:
+      aa = 'Q';
+      break;
+    case 15:
+      aa = 'R';
+      break;
+    case 16:
+      aa = 'S';
+      break;
+    case 17:
+      aa = 'T';
+      break;
+    case 18:
+      aa = 'V';
+      break;
+    case 19:
+      aa = 'W';
+      break;
+    case 20:
+      aa = 'Y';
+      break;
+  }
+  return aa;
+};
+
+void
+Generator::run(int n_indep_runs, int n_per_run)
+{
+  runs = n_indep_runs;
+  run_count = n_per_run;
+  M = runs * run_count;
+
+  samples = arma::Cube<int>(run_count, N, runs, arma::fill::zeros);
+
+  MCMC mcmc = MCMC(model, N, Q);
+  mcmc.sample(
+    &samples, runs, run_count, N, t_wait, delta_t, random_seed, temperature);
+
+  // MCMCStats mcmc_stats = MCMCStats(&samples, &model);
+  // mcmc_stats.writeSamples("MC_samples.txt");
+  // mcmc_stats.writeSampleEnergies("MC_energies.txt");
+};

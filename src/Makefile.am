@@ -17,7 +17,8 @@ bmdca_SOURCES = bmdca.cpp \
                 utils.cpp
 
 bmdca_sample_SOURCES = bmdca_sample.cpp \
-			 generator.cpp \
-			 mcmc_stats.cpp \
-			 graph.cpp \
-			 utils.cpp
+                       generator.cpp \
+                       mcmc.cpp \
+                       mcmc_stats.cpp \
+                       graph.cpp \
+                       utils.cpp

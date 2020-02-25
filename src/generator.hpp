@@ -1,33 +1,30 @@
-#include "mcmc_stats.hpp"
-#include "graph.hpp"
 #include "utils.hpp"
 
 class Generator
 {
-  public:
-    Generator(potts_model, int, int);
-    Generator(potts_model, int, int, std::string);
-    void sample(arma::Cube<int>*);
+public:
+  Generator(potts_model, int, int, std::string);
+  void run(int, int);
+  void writeAASequences(std::string);
 
-  private:
-    int N; // number of positions
-    int Q; // number of amino acids
-    // int M; // number of sequences
+private:
+  int N;         // number of positions
+  int Q;         // number of amino acids
+  int runs;      // number of independent sampling runs
+  int run_count; // number of sequences sampled from independent runs
+  int M;         // number of sequences (runs * run_count)
 
-    long int random_seed;
-    double adapt_up;
-    double adapt_down;
-    bool check_ergo;
-    int t_wait;
-    int delta_t;
-    double temperature;
-    bool use_indep_samples;
-    bool output_numerical;
+  long int random_seed;
+  int t_wait;
+  int delta_t;
+  double temperature;
 
-    Graph graph;
-    potts_model model;
+  arma::Cube<int> samples;
+  potts_model model;
 
-    void loadParameters(std::string);
-    void initializeParameters(void);
-    void setParameter(std::string, std::string);
+  void loadParameters(std::string);
+  void initializeParameters(void);
+  void setParameter(std::string, std::string);
+
+  char convertAA(int);
 };

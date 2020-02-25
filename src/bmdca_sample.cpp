@@ -1,9 +1,9 @@
+#include <armadillo>
+#include <iostream>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <string>
-#include <iostream>
-#include <armadillo>
 
 #include "generator.hpp"
 
@@ -11,13 +11,11 @@ int
 main(int argc, char* argv[])
 {
   int num_sequences = 1;
-  int reps = 1;
-  // double temperature = 1.0;
 
   std::string parameters_file, h_file, J_file;
   std::string dest_dir = ".";
   std::string config_file;
-  std::string output_file = "mcmc_sequences.txt";
+  std::string output_file = "mcmc_sequences.fasta";
 
   bool dest_dir_given = false;
   bool compat_mode = true;
@@ -28,7 +26,6 @@ main(int argc, char* argv[])
     switch (c) {
       case 'i':
         parameters_file = optarg;
-        // input_file_given = true;
         break;
       case 'j':
         h_file = parameters_file;
@@ -49,16 +46,11 @@ main(int argc, char* argv[])
         output_file = optarg;
         break;
       case 'n':
-        // num_sequences = std::stoi(optarg);
-        reps = std::stoi(optarg);
+        num_sequences = std::stoi(optarg);
         break;
       case 'c':
         config_file = optarg;
-        // config_file_given = true;
         break;
-      // case 't':
-      //   temperature = std::stod(optarg);
-      //   break;
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
         std::exit(EXIT_FAILURE);
@@ -81,12 +73,8 @@ main(int argc, char* argv[])
   }
 
   Generator generator = Generator(params, N, Q, config_file);
-  arma::Cube<int> samples =
-    arma::Cube<int>(num_sequences, N, reps, arma::fill::zeros);
-  generator.sample(&(samples));
-
-  MCMCStats mcmc_stats = MCMCStats(&samples, &params);
-  mcmc_stats.writeSamples(output_file);
+  generator.run(num_sequences, 1);
+  generator.writeAASequences(output_file);
 
   return 0;
 };

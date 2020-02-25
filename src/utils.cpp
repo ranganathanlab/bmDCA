@@ -34,7 +34,8 @@ SeqRecord::getSequence(void)
 };
 
 potts_model
-loadPottsModel(std::string h_file, std::string J_file) {
+loadPottsModel(std::string h_file, std::string J_file)
+{
   potts_model params;
   params.h.load(h_file);
   params.J.load(J_file);
@@ -42,7 +43,8 @@ loadPottsModel(std::string h_file, std::string J_file) {
 };
 
 potts_model
-loadPottsModelCompat(std::string parameters_file) {
+loadPottsModelCompat(std::string parameters_file)
+{
   std::ifstream input_stream(parameters_file);
 
   if (!input_stream) {
@@ -53,7 +55,7 @@ loadPottsModelCompat(std::string parameters_file) {
 
   int count = 0;
   std::string line;
-  while(std::getline(input_stream, line))
+  while (std::getline(input_stream, line))
     count++;
 
   int N;
@@ -78,14 +80,14 @@ loadPottsModelCompat(std::string parameters_file) {
   int n1, n2, aa1, aa2;
   double value;
   std::string tmp = "";
-  for (int count = 0; count < (int)N*(N-1)/2 * Q * Q; count++) {
+  for (int count = 0; count < (int)N * (N - 1) / 2 * Q * Q; count++) {
     input_stream >> tmp;
     input_stream >> n1 >> n2 >> aa1 >> aa2;
     input_stream >> value;
     params.J.at(n1, n2).at(aa1, aa2) = value;
   }
 
-  for (int count = 0; count < N*Q; count++) {
+  for (int count = 0; count < N * Q; count++) {
     input_stream >> tmp;
     input_stream >> n1 >> aa1;
     input_stream >> value;
