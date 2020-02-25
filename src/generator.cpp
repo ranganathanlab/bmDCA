@@ -20,7 +20,7 @@ Generator::initializeParameters(void)
 {
   random_seed = 1;
   t_wait = 10000;
-  delta_t = 100; // placeholder
+  delta_t = 0; // placeholder
   temperature = 1.0;
 };
 
