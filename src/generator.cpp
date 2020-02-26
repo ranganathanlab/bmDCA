@@ -1,7 +1,7 @@
 #include "generator.hpp"
 
 #include "mcmc.hpp"
-// #include "mcmc_stats.hpp"
+#include "mcmc_stats.hpp"
 
 Generator::Generator(potts_model params, int n, int q, std::string config_file)
   : N(n)
@@ -92,6 +92,17 @@ Generator::writeAASequences(std::string output_file)
   }
 };
 
+void
+Generator::writeNumericalSequences(std::string output_file)
+{
+  int idx = output_file.find_last_of(".");
+  std::string raw_file = output_file.substr(0, idx);
+
+  MCMCStats mcmc_stats = MCMCStats(&samples, &model);
+  mcmc_stats.writeSamples(raw_file + "_numerical.txt");
+  mcmc_stats.writeSampleEnergies(raw_file + "_energies.txt");
+}
+
 char
 Generator::convertAA(int n)
 {
@@ -175,8 +186,4 @@ Generator::run(int n_indep_runs, int n_per_run)
   MCMC mcmc = MCMC(model, N, Q);
   mcmc.sample(
     &samples, runs, run_count, N, t_wait, delta_t, random_seed, temperature);
-
-  // MCMCStats mcmc_stats = MCMCStats(&samples, &model);
-  // mcmc_stats.writeSamples("MC_samples.txt");
-  // mcmc_stats.writeSampleEnergies("MC_energies.txt");
 };

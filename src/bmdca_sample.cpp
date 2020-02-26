@@ -79,6 +79,7 @@ main(int argc, char* argv[])
 
   generator.run(num_sequences, 1);
   generator.writeAASequences(output_file);
+  generator.writeNumericalSequences(output_file);
 
   return 0;
 };

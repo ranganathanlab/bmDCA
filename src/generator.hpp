@@ -6,6 +6,7 @@ public:
   Generator(potts_model, int, int, std::string);
   void run(int, int);
   void writeAASequences(std::string);
+  void writeNumericalSequences(std::string);
 
 private:
   int N;         // number of positions
