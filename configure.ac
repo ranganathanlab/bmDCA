@@ -17,6 +17,8 @@ AC_CONFIG_MACRO_DIR([m4])
 m4_include([m4/ax_cxx_compile_stdcxx.m4])
 AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
 
+PKG_PROG_PKG_CONFIG
+
 # Check for required libraries and headers.
 PKG_CHECK_MODULES(
   [ARMADILLO],
