@@ -3,6 +3,10 @@
 
 #include <string>
 
+#ifndef AA_ALPHABET_SIZE
+#define AA_ALPHABET_SIZE 21
+#endif
+
 SeqRecord::SeqRecord(std::string h, std::string s)
   : header(h)
   , sequence(s){};
@@ -59,7 +63,7 @@ loadPottsModelCompat(std::string parameters_file)
     count++;
 
   int N;
-  int Q = 21;
+  int Q = AA_ALPHABET_SIZE;
   N =
     (int)(sqrt(2 * count + ((double)Q - 2) * ((double)Q - 2) / 4) / (double)Q +
           ((double)Q - 2) / (2 * (double)Q));

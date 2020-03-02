@@ -7,6 +7,10 @@
 #include <string>
 #include <vector>
 
+#ifndef AA_ALPHABET_SIZE
+#define AA_ALPHABET_SIZE 21
+#endif
+
 MSA::MSA(std::string msa_file,
          bool reweight,
          bool is_numeric_msa,
@@ -18,7 +22,7 @@ MSA::MSA(std::string msa_file,
     readInputMSA(msa_file);
     M = seq_records.size();
     N = getSequenceLength(seq_records.begin()->getSequence());
-    Q = 21;
+    Q = AA_ALPHABET_SIZE;
     makeNumericalMatrix();
   }
   if (reweight) {
@@ -36,7 +40,7 @@ MSA::MSA(std::string msa_file, std::string weights_file, bool is_numeric_msa)
     readInputMSA(msa_file);
     M = seq_records.size();
     N = getSequenceLength(seq_records.begin()->getSequence());
-    Q = 21;
+    Q = AA_ALPHABET_SIZE;
     makeNumericalMatrix();
   }
   readSequenceWeights(weights_file);

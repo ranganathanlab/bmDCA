@@ -5,7 +5,9 @@
 #include <fstream>
 #include <iostream>
 
+#ifndef AA_ALPHABET_SIZE
 #define AA_ALPHABET_SIZE 21
+#endif
 
 MSAStats::MSAStats(MSA msa)
 {
