@@ -21,10 +21,7 @@ private:
   // Member functions
   void initializeParameters(void);
   void checkParameters(void);
-  void initializeRun(void);
   void readInitialSample(int, int);
-  void computeAutocorrelation(void);
-  void checkCurrentStep(void);
   bool computeErrorReparametrization(void);
   void updateLearningRate(void);
   void updateReparameterization(void);

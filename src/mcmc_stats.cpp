@@ -102,6 +102,7 @@ MCMCStats::computeCorrelations(void)
   int id;
   double dinf, dinf2;
 
+  // Compute distances within replicates
   for (int rep = 0; rep < reps; rep++) {
     for (int seq1 = 0; seq1 < M; seq1++) {
       for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
@@ -118,14 +119,15 @@ MCMCStats::computeCorrelations(void)
     }
   }
 
+  // Compute distances between replicates
   dinf = 0;
   dinf2 = 0;
-  for (int seq1 = 0; seq1 < M; seq1++) {
+  for (int seq = 0; seq < M; seq++) {
     for (int rep1 = 0; rep1 < reps; rep1++) {
       for (int rep2 = rep1 + 1; rep2 < reps; rep2++) {
         id = 0;
         for (int i = 0; i < N; i++) {
-          if (samples->at(seq1, i, rep1) == samples->at(seq1, i, rep2)) {
+          if (samples->at(seq, i, rep1) == samples->at(seq, i, rep2)) {
             id++;
           }
         }
