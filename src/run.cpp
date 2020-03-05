@@ -324,7 +324,7 @@ Sim::run(void)
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
 
   // Initialize the buffer.
-  run_buffer = arma::Mat<double>(save_parameters, 14, arma::fill::zeros);
+  run_buffer = arma::Mat<double>(save_parameters, 17, arma::fill::zeros);
   initializeRunLog();
 
   std::cout << timer.toc() << " sec" << std::endl << std::endl;
@@ -399,11 +399,15 @@ Sim::run(void)
 
         run_buffer.at((step - 1) % save_parameters, 4) = auto_corr;
         run_buffer.at((step - 1) % save_parameters, 5) = cross_corr;
-        run_buffer.at((step - 1) % save_parameters, 6) = e_start;
-        run_buffer.at((step - 1) % save_parameters, 7) = e_start_sigma;
-        run_buffer.at((step - 1) % save_parameters, 8) = e_end;
-        run_buffer.at((step - 1) % save_parameters, 9) = e_end_sigma;
-        run_buffer.at((step - 1) % save_parameters, 10) = e_err;
+        run_buffer.at((step - 1) % save_parameters, 6) = check_corr;
+        run_buffer.at((step - 1) % save_parameters, 7) = auto_cross_err;
+        run_buffer.at((step - 1) % save_parameters, 8) = cross_check_err;
+
+        run_buffer.at((step - 1) % save_parameters, 9) = e_start;
+        run_buffer.at((step - 1) % save_parameters, 10) = e_start_sigma;
+        run_buffer.at((step - 1) % save_parameters, 11) = e_end;
+        run_buffer.at((step - 1) % save_parameters, 12) = e_end_sigma;
+        run_buffer.at((step - 1) % save_parameters, 13) = e_err;
 
         bool flag_deltat_up = true;
         bool flag_deltat_down = true;
@@ -679,9 +683,9 @@ Sim::computeErrorReparametrization(void)
   error_tot = error_1p + error_2p;
   error_stat_tot = error_stat_1p + error_stat_2p;
 
-  run_buffer.at((step - 1) % save_parameters, 11) = error_1p;
-  run_buffer.at((step - 1) % save_parameters, 12) = error_2p;
-  run_buffer.at((step - 1) % save_parameters, 13) = error_tot;
+  run_buffer.at((step - 1) % save_parameters, 14) = error_1p;
+  run_buffer.at((step - 1) % save_parameters, 15) = error_2p;
+  run_buffer.at((step - 1) % save_parameters, 16) = error_tot;
 
   bool converged = false;
   if (error_tot < error_max) {
@@ -843,22 +847,30 @@ Sim::initializeRunLog()
          << "burn-in"
          << "\t"
          << "burn-between"
-         << "\t"
-         << "auto-corr"
-         << "\t"
-         << "cross-corr"
-         << "\t"
-         << "energy-start-avg"
-         << "\t"
-         << "sigma-energy-start-sigma"
-         << "\t"
-         << "energy-end-avg"
-         << "\t"
-         << "energy-end-sigma"
-         << "\t"
-         << "energy-err"
-         << "\t"
-         << "error-h"
+         << "\t";
+  if (check_ergo) {
+    stream << "auto-corr"
+           << "\t"
+           << "cross-corr"
+           << "\t"
+           << "check-corr"
+           << "\t"
+           << "auto-cross-err"
+           << "\t"
+           << "cross-check-err"
+           << "\t"
+           << "energy-start-avg"
+           << "\t"
+           << "sigma-energy-start-sigma"
+           << "\t"
+           << "energy-end-avg"
+           << "\t"
+           << "energy-end-sigma"
+           << "\t"
+           << "energy-err"
+           << "\t";
+  }
+  stream << "error-h"
          << "\t"
          << "error-J"
          << "\t"
@@ -890,10 +902,13 @@ Sim::writeRunLog(int current_step)
       stream << run_buffer.at(i, 8) << "\t";
       stream << run_buffer.at(i, 9) << "\t";
       stream << run_buffer.at(i, 10) << "\t";
+      stream << run_buffer.at(i, 11) << "\t";
+      stream << run_buffer.at(i, 12) << "\t";
+      stream << run_buffer.at(i, 13) << "\t";
     }
-    stream << run_buffer.at(i, 11) << "\t";
-    stream << run_buffer.at(i, 12) << "\t";
-    stream << run_buffer.at(i, 13) << std::endl;
+    stream << run_buffer.at(i, 14) << "\t";
+    stream << run_buffer.at(i, 15) << "\t";
+    stream << run_buffer.at(i, 16) << std::endl;
   }
   run_buffer.zeros();
   stream.close();
