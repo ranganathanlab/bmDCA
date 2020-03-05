@@ -386,8 +386,8 @@ Sim::run(void)
         std::vector<double> corr_stats = mcmc_stats->getCorrelationsStats();
 
         double auto_corr = corr_stats.at(2);
-        double check_corr = corr_stats.at(3);
-        double cross_corr = corr_stats.at(4);
+        double cross_corr = corr_stats.at(3);
+        double check_corr = corr_stats.at(4);
         double cross_check_err = corr_stats.at(9);
         double auto_cross_err = corr_stats.at(8);
 
