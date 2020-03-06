@@ -173,21 +173,23 @@ specified by the learned parameters.
 
 Run:
 ```
-bmdca_sample -i <parameters.txt> -d <output_directory> \
-  -o <output_file.txt> -n <number_of_sequences> -c <config_file.conf>
+bmdca_sample -p <parameters.txt> -d <output_directory> \
+  -o <output_file.txt> -n <number_of_sequences> \
+  -r <number_of_indep_sampling_runs> -c <config_file.conf>
 ```
 
 The command line flags are:
- - `-i`: input parameters, text format
+ - `-p`: input parameters, text format
  - `-h`: (_optional_) fields (h) parameters file, binary format
  - `-j`: (_optional_) couplings (J) parameters file, binary format
  - `-d`: directory where output files are written
  - `-c`: (_optional_) config file for bmDCA run hyperparameters, e.g.
    `example/bmdca.conf`
  - `-o`: name of the output file for the sequences
- - `-n`: number of sequences to sample
+ - `-n`: number of sequences to sample in each independent run (default: 1000)
+ - `-r`: number of independent sequencing runs (default: 10)
 
-Note, use the `-i` parameter if the `bmdca` output is stored in text files. The
+Note, use the `-p` parameter if the `bmdca` output is stored in text files. The
 `-j` and `-h` flags, which much be used in conjunction, correspond to `bmdca`
 output stored as binaries.
 
@@ -241,8 +243,14 @@ Inference and sampling runs can be configured using a text file (see
 ### [sampling]
 
 1. `random_seed` - initial seed for the random number generator (default: 1)
-2. `t_wait` - burn-in time (default: 10000)
-3. `temperature` - temperature at which to sample sequences (default: 1.0)
+2. `t_wait_0` - initial burn-in time (default: 100000)
+3. `delta_t_0` - initial wait time between sampling sequences (default: 1000)
+4. `check_ergo` - flag to check MCMC sample energies and autocorrelations,
+   without which wait and burn-in times are not updated (default: true)
+5. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default: 1.5)
+6. `adapt_down_time` - multiple to decrease MCMC wait/burn-in time (default
+   0.6)
+7. `temperature` - temperature at which to sample sequences (default: 1.0)
 
 ## Output files
 
