@@ -10,7 +10,8 @@
 int
 main(int argc, char* argv[])
 {
-  int num_sequences = 1;
+  int num_sequences = 1000;
+  int num_replicates = 10;
 
   std::string parameters_file, h_file, J_file;
   std::string dest_dir = ".";
@@ -22,9 +23,9 @@ main(int argc, char* argv[])
 
   // Read command-line parameters.
   char c;
-  while ((c = getopt(argc, argv, "i:h:j:d:n:c:o:")) != -1) {
+  while ((c = getopt(argc, argv, "p:h:j:d:n:c:o:r:")) != -1) {
     switch (c) {
-      case 'i':
+      case 'p':
         parameters_file = optarg;
         break;
       case 'h':
@@ -50,6 +51,9 @@ main(int argc, char* argv[])
         break;
       case 'n':
         num_sequences = std::stoi(optarg);
+        break;
+      case 'r':
+        num_replicates = std::stoi(optarg);
         break;
       case 'c':
         config_file = optarg;
@@ -77,7 +81,7 @@ main(int argc, char* argv[])
     chdir(dest_dir.c_str());
   }
 
-  generator.run(num_sequences, 1);
+  generator.run(num_replicates, num_sequences);
   generator.writeAASequences(output_file);
   generator.writeNumericalSequences(output_file);
 

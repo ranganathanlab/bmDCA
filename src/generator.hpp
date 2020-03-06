@@ -1,9 +1,12 @@
 #include "utils.hpp"
+#include "mcmc.hpp"
+#include "mcmc_stats.hpp"
 
 class Generator
 {
 public:
   Generator(potts_model, int, int, std::string);
+  ~Generator(void);
   void run(int, int);
   void writeAASequences(std::string);
   void writeNumericalSequences(std::string);
@@ -11,20 +14,26 @@ public:
 private:
   int N;         // number of positions
   int Q;         // number of amino acids
-  int runs;      // number of independent sampling runs
-  int run_count; // number of sequences sampled from independent runs
-  int M;         // number of sequences (runs * run_count)
+  int M;         // number of independent sampling runs
+  int count_max; // number of sequences sampled from independent runs
 
   long int random_seed;
-  int t_wait;
-  int delta_t;
+  int t_wait_0;
+  int delta_t_0;
+  bool check_ergo;
+  double adapt_up_time;
+  double adapt_down_time;
   double temperature;
 
   arma::Cube<int> samples;
   potts_model model;
 
+  MCMC *mcmc;
+  MCMCStats *mcmc_stats;
+
   void loadParameters(std::string);
   void initializeParameters(void);
+  void checkParameters(void);
   void setParameter(std::string, std::string);
 
   char convertAA(int);
