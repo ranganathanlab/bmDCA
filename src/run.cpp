@@ -303,6 +303,8 @@ Sim::run(void)
 
   std::cout << "initializing run... " << std::flush;
 
+  arma::wall_clock step_timer;
+
   arma::wall_clock timer;
   timer.tic();
 
@@ -324,7 +326,7 @@ Sim::run(void)
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
 
   // Initialize the buffer.
-  run_buffer = arma::Mat<double>(save_parameters, 17, arma::fill::zeros);
+  run_buffer = arma::Mat<double>(save_parameters, 19, arma::fill::zeros);
   initializeRunLog();
 
   std::cout << timer.toc() << " sec" << std::endl << std::endl;
@@ -333,6 +335,7 @@ Sim::run(void)
   int t_wait = t_wait_0;
   int delta_t = delta_t_0;
   for (step = 1; step <= step_max; step++) {
+    step_timer.tic();
     std::cout << "Step: " << step << std::endl;
 
     run_buffer.at((step - 1) % save_parameters, 0) = step;
@@ -348,10 +351,11 @@ Sim::run(void)
     // Sampling from MCMC (keep trying until correct properties found)
     bool flag_mc = true;
     while (flag_mc) {
-
       // Draw from MCMC
-      timer.tic();
       std::cout << "sampling model with mcmc... " << std::flush;
+      timer.tic();
+      long int seed = dist(rng);
+      run_buffer.at((step - 1) % save_parameters, 17) = seed;
       if (init_sample) {
         mcmc->sample_init(&samples,
                           count_max,
@@ -360,7 +364,7 @@ Sim::run(void)
                           t_wait,
                           delta_t,
                           &initial_sample,
-                          dist(rng),
+                          seed,
                           temperature);
       } else {
         mcmc->sample(
@@ -503,6 +507,8 @@ Sim::run(void)
       timer.tic();
       updateLearningRate();
       std::cout << timer.toc() << " sec" << std::endl;
+
+      run_buffer.at((step - 1) % save_parameters, 18) = step_timer.toc();
 
       // Save parameters
       // if ((step % save_parameters == 0 || step == 1) &&
@@ -874,7 +880,11 @@ Sim::initializeRunLog()
          << "\t"
          << "error-J"
          << "\t"
-         << "error-tot" << std::endl;
+         << "error-tot"
+         << "\t"
+         << "seed"
+         << "\t"
+         << "step time" << std::endl;
   stream.close();
 };
 
@@ -908,7 +918,9 @@ Sim::writeRunLog(int current_step)
     }
     stream << run_buffer.at(i, 14) << "\t";
     stream << run_buffer.at(i, 15) << "\t";
-    stream << run_buffer.at(i, 16) << std::endl;
+    stream << run_buffer.at(i, 16) << "\t";
+    stream << (long int)run_buffer.at(i, 17) << "\t";
+    stream << run_buffer.at(i, 18) << std::endl;
   }
   run_buffer.zeros();
   stream.close();
