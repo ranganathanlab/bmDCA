@@ -40,4 +40,7 @@ Max(double, double);
 double
 Min(double, double);
 
+int
+deleteFile(std::string);
+
 #endif

@@ -131,3 +131,17 @@ Min(double a, double b)
     return a;
   return b;
 };
+
+int
+deleteFile(std::string filename) {
+  std::fstream fs;
+  fs.open(filename);
+  if (!fs.fail()) {
+    if (remove("MC_sequences_temp.fasta") != 0) {
+      fs.close();
+      return 1;
+    }
+  }
+  fs.close();
+  return 0;
+};

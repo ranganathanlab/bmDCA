@@ -309,18 +309,31 @@ Generator::run(int n_indep_runs, int n_per_run)
       if (not flag_deltat_up and not flag_twaiting_up) {
         flag_mc = false;
       } else {
-        if (resample_counter > resample_max) {
-          std::cout << "maximum number of resamplings " << resample_counter
-                    << " reached. stopping..." << std::endl;
+        if (resample_counter >= resample_max) {
+          std::cout << "maximum number of resamplings (" << resample_counter
+                    << ") reached. stopping..." << std::endl;
+          flag_mc = false;
         } else {
           std::cout << "resampling..." << std::endl;
           resample_counter++;
+
+          std::cout << "writing temporary files" << std::endl;
+          writeAASequences("temp.fasta");
+          writeNumericalSequences("temp.fasta");
         }
       }
     } else {
       flag_mc = false;
     }
   }
+
+  if (deleteFile("temp.fasta") != 0)
+    std::cerr << "temporary file deletion failed!" << std::endl;
+  else if (deleteFile("temp_numerical.txt") != 0)
+    std::cerr << "temporary file deletion failed!" << std::endl;
+  else if (deleteFile("temp_energies.txt") != 0)
+    std::cout << "deletemporary files deleted" << std::endl;
+
   std::cout << "done" << std::endl;
   return;
 };
