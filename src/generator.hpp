@@ -17,6 +17,7 @@ private:
   int M;         // number of independent sampling runs
   int count_max; // number of sequences sampled from independent runs
 
+  int resample_max;
   long int random_seed;
   int t_wait_0;
   int delta_t_0;

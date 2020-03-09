@@ -24,6 +24,7 @@ Generator::~Generator(void) {
 void
 Generator::initializeParameters(void)
 {
+  resample_max = 20;
   random_seed = 1;
   t_wait_0 = 100000;
   delta_t_0 = 1000;
@@ -78,7 +79,9 @@ Generator::loadParameters(std::string file_name)
 void
 Generator::setParameter(std::string key, std::string value)
 {
-  if (key == "random_seed") {
+  if (key == "resample_max") {
+    resample_max = std::stoi(value);
+  } else if (key == "random_seed") {
     random_seed = std::stoi(value);
   } else if (key == "t_wait_0") {
     t_wait_0 = std::stoi(value);
@@ -232,6 +235,7 @@ Generator::run(int n_indep_runs, int n_per_run)
   int t_wait = t_wait_0;
   int delta_t = delta_t_0;
   bool flag_mc = true;
+  int resample_counter = 0;
   while (flag_mc) {
     std::cout << "sampling model with mcmc... " << std::flush;
     timer.tic();
@@ -305,7 +309,13 @@ Generator::run(int n_indep_runs, int n_per_run)
       if (not flag_deltat_up and not flag_twaiting_up) {
         flag_mc = false;
       } else {
-        std::cout << "resampling..." << std::endl;
+        if (resample_counter > resample_max) {
+          std::cout << "maximum number of resamplings " << resample_counter
+                    << " reached. stopping..." << std::endl;
+        } else {
+          std::cout << "resampling..." << std::endl;
+          resample_counter++;
+        }
       }
     } else {
       flag_mc = false;
