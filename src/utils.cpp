@@ -2,6 +2,7 @@
 #include "utils.hpp"
 
 #include <string>
+#include <iostream>
 
 #ifndef AA_ALPHABET_SIZE
 #define AA_ALPHABET_SIZE 21
@@ -137,7 +138,7 @@ deleteFile(std::string filename) {
   std::fstream fs;
   fs.open(filename);
   if (!fs.fail()) {
-    if (remove("MC_sequences_temp.fasta") != 0) {
+    if (std::remove(filename.c_str()) != 0) {
       fs.close();
       return 1;
     }
