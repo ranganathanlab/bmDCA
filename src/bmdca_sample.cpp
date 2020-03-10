@@ -81,9 +81,7 @@ main(int argc, char* argv[])
     chdir(dest_dir.c_str());
   }
 
-  generator.run(num_replicates, num_sequences);
-  generator.writeAASequences(output_file);
-  generator.writeNumericalSequences(output_file);
+  generator.run(num_replicates, num_sequences, output_file);
 
   return 0;
 };

@@ -7,7 +7,7 @@ class Generator
 public:
   Generator(potts_model, int, int, std::string);
   ~Generator(void);
-  void run(int, int);
+  void run(int, int, std::string);
   void writeAASequences(std::string);
   void writeNumericalSequences(std::string);
 

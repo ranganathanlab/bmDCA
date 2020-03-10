@@ -208,7 +208,7 @@ Generator::convertAA(int n)
 };
 
 void
-Generator::run(int n_indep_runs, int n_per_run)
+Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
 {
   std::cout << "initializing sampler... " << std::flush;
 
@@ -224,7 +224,7 @@ Generator::run(int n_indep_runs, int n_per_run)
   mcmc = new MCMC(model, N, Q);
   mcmc->load(model);
   mcmc_stats = new MCMCStats(&samples, &(model));
-  
+
   // Instantiate the PCG random number generator and unifrom random
   // distribution.
   pcg32 rng(random_seed);
@@ -318,8 +318,8 @@ Generator::run(int n_indep_runs, int n_per_run)
           resample_counter++;
 
           std::cout << "writing temporary files" << std::endl;
-          writeAASequences("temp.fasta");
-          writeNumericalSequences("temp.fasta");
+          writeAASequences("temp_" + output_file);
+          writeNumericalSequences("temp_" + output_file);
         }
       }
     } else {
@@ -327,12 +327,19 @@ Generator::run(int n_indep_runs, int n_per_run)
     }
   }
 
-  if (deleteFile("temp.fasta") != 0)
+
+  int idx = output_file.find_last_of(".");
+  std::string output_name = output_file.substr(0, idx);
+  if (deleteFile("temp_" + output_file) != 0)
     std::cerr << "temporary file deletion failed!" << std::endl;
-  else if (deleteFile("temp_numerical.txt") != 0)
+  else if (deleteFile("temp_" + output_name + "_numerical.txt") != 0)
     std::cerr << "temporary file deletion failed!" << std::endl;
-  else if (deleteFile("temp_energies.txt") != 0)
-    std::cout << "deletemporary files deleted" << std::endl;
+  else if (deleteFile("temp_" + output_name + "_energies.txt") != 0)
+    std::cerr << "temporary file deletion failed!" << std::endl;
+
+  std::cout << "writing final sequences" << std::endl;
+  writeAASequences(output_file);
+  writeNumericalSequences(output_file);
 
   std::cout << "done" << std::endl;
   return;
