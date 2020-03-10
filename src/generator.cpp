@@ -142,6 +142,7 @@ Generator::convertAA(int n)
   char aa = '\0';
   switch (n) {
     case 0:
+      aa = '-';
       break;
     case 1:
       aa = 'A';
