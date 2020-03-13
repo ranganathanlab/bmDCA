@@ -440,14 +440,20 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
                               J[i][pos][q0][aa];
           }
         } else {
-          de.at(pos, aa) += h[pos][q1] - h[pos][q0];
-          for (size_t pos2 = 0; pos2 < n; pos2++) {
-            if (pos2 < i) {
-              de.at(pos, aa) +=
-                J[pos2][i][conf[pos2]][q1] - J[pos2][i][conf[pos2]][q0];
-            } else if (pos2 > i) {
-              de.at(pos, aa) +=
-                J[i][pos2][q1][conf[pos2]] - J[i][pos2][q0][conf[pos2]];
+          if (q1 == aa) {
+            de.at(pos, aa) = 0;
+          } else if (q0 == aa) {
+            de.at(pos, aa) = -tmp;
+          } else {
+            de.at(pos, aa) += h[pos][q1] - h[pos][q0];
+            for (size_t pos2 = 0; pos2 < n; pos2++) {
+              if (pos2 < i) {
+                de.at(pos, aa) +=
+                  J[pos2][i][conf[pos2]][q1] - J[pos2][i][conf[pos2]][q0];
+              } else if (pos2 > i) {
+                de.at(pos, aa) +=
+                  J[i][pos2][q1][conf[pos2]] - J[i][pos2][q0][conf[pos2]];
+              }
             }
           }
         }
@@ -502,14 +508,20 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
                                 J[i][pos][q0][aa];
             }
           } else {
-            de.at(pos, aa) += h[pos][q1] - h[pos][q0];
-            for (size_t pos2 = 0; pos2 < n; pos2++) {
-              if (pos2 < i) {
-                de.at(pos, aa) +=
-                  J[pos2][i][conf[pos2]][q1] - J[pos2][i][conf[pos2]][q0];
-              } else if (pos2 > i) {
-                de.at(pos, aa) +=
-                  J[i][pos2][q1][conf[pos2]] - J[i][pos2][q0][conf[pos2]];
+            if (q1 == aa) {
+              de.at(pos, aa) = 0;
+            } else if (q0 == aa) {
+              de.at(pos, aa) = -tmp;
+            } else {
+              de.at(pos, aa) += h[pos][q1] - h[pos][q0];
+              for (size_t pos2 = 0; pos2 < n; pos2++) {
+                if (pos2 < i) {
+                  de.at(pos, aa) +=
+                    J[pos2][i][conf[pos2]][q1] - J[pos2][i][conf[pos2]][q0];
+                } else if (pos2 > i) {
+                  de.at(pos, aa) +=
+                    J[i][pos2][q1][conf[pos2]] - J[i][pos2][q0][conf[pos2]];
+                }
               }
             }
           }
