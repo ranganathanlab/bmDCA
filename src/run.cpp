@@ -58,12 +58,6 @@ Sim::initializeParameters(void)
   count_max = 10;      // number of independent MCMC runs
   init_sample = false; // flag to load first position for mcmc seqs
   temperature = 1.0;   // temperature at which to sample mcmc
-
-  // // check routine settings
-  // t_wait_check = t_wait_0;
-  // delta_t_check = delta_t_0;
-  // M_check = M;
-  // count_check = count_max;
 };
 
 void
@@ -178,8 +172,6 @@ Sim::setParameter(std::string key, std::string value)
     error_max = std::stod(value);
   } else if (key == "save_parameters") {
     save_parameters = std::stoi(value);
-  // } else if (key == "step_check") {
-  //   step_check = std::stoi(value);
   } else if (key == "random_seed") {
     random_seed = std::stoi(value);
   } else if (key == "epsilon_0_h") {
@@ -232,14 +224,6 @@ Sim::setParameter(std::string key, std::string value)
     init_sample_file = value;
   } else if (key == "temperature") {
     temperature = std::stod(value);
-  // } else if (key == "t_wait_check") {
-  //   t_wait_check = std::stoi(value);
-  // } else if (key == "delta_t_check") {
-  //   delta_t_check = std::stoi(value);
-  // } else if (key == "M_check") {
-  //   M_check = std::stoi(value);
-  // } else if (key == "count_check") {
-  //   count_check = std::stoi(value);
   } else if (key == "output_binary") {
     if (value.size() == 1) {
       output_binary = (std::stoi(value) == 1);

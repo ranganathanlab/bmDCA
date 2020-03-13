@@ -496,7 +496,7 @@ Graph::print_parameters(ostream& os)
       }
     }
   }
-  log_out << "printing parameters H" << endl;
+  log_out << "printing parameters h" << endl;
   for (size_t i = 0; i < n; ++i) {
     for (size_t yi = 0; yi < q; ++yi) {
       os << "h " << i << " " << yi << " " << h[i][yi] << endl;
@@ -519,7 +519,7 @@ Graph::print_parameters(FILE* of)
       }
     }
   }
-  log_out << "printing parameters H" << endl;
+  log_out << "printing parameters h" << endl;
   for (size_t i = 0; i < n; ++i) {
     for (size_t yi = 0; yi < q; ++yi) {
       fprintf(of, "h %lu %lu %g\n", i, yi, h[i][yi]);

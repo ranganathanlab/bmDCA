@@ -76,12 +76,6 @@ private:
   std::string init_sample_file; // name of file with mcmc initial sample
   double temperature;           // temperature at which to sample potts model
 
-  // // Check routine settings
-  // int t_wait_check;  // t_wait
-  // int delta_t_check; // delta_t
-  // int M_check;       // M
-  // int count_check;   // count_max
-
   bool output_binary = false;
 
   // Key-value wrapper for loading parameters from a file.
