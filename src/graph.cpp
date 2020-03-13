@@ -333,6 +333,155 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
   return;
 };
 
+void
+Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
+                           size_t m,
+                           size_t mc_iters0,
+                           size_t mc_iters,
+                           long int seed,
+                           double temperature)
+{
+
+  pcg32 rng(seed);
+  std::uniform_real_distribution<> uniform(0, 1);
+
+  // Generate random initial sequence.
+  size_t ts = 0;
+  vector<size_t> conf(n);
+  for (size_t i = 0; i < n; ++i) {
+    conf[i] = size_t(q * uniform(rng));
+    assert(conf[i] < q);
+  }
+
+  // // Compute energy of random initial sequence.
+  // double en_x = 0.;
+  // for (size_t i = 0; i < n; ++i) {
+  //   en_x -= h[i][conf[i]];
+  //   for (size_t j = i + 1; j < n; ++j) {
+  //     en_x -= J[i][j][conf[i]][conf[j]];
+  //   }
+  // }
+
+  arma::Mat<double> de = arma::Mat<double>(n, q, arma::fill::zeros);
+  arma::Mat<double> g = arma::Mat<double>(n, q, arma::fill::zeros);
+  double lambda = 0.0;
+  std::vector<double> p(n*q);
+
+  for (size_t k = 0; k < mc_iters0; ++k) {
+    for (size_t i = 0; i < n; i++) {
+      size_t q0 = conf[i];
+      double e0 = -h[i][q0];
+      for (size_t j = 0; j < n; j++) {
+        if (j != i) {
+          e0 -= J[i][j][q0][conf[j]];
+        }
+      }
+
+      for (size_t q1 = 0; q1 < q; q1++) {
+        if (q0 == q1) {
+          de.at(i, q1) = 0.0;
+        } else {
+          double e1 = -h[i][q1];
+          for (size_t j = 0; j < n; j++) {
+            if (j != i) {
+              e1 -= J[i][j][q1][conf[j]];
+            }
+          }
+          de.at(i, q1) = e1 - e0;
+        }
+      }
+    }
+
+    // g = arma::exp(de * -1.0/2.0/temperature);
+    g = .5 + .5*arma::tanh(de * -1.0/2.0/temperature);
+    lambda = arma::accu(g) - n;
+    g = g / lambda;
+
+    double rand = uniform(rng);
+    double r_sum = 0.0;
+    size_t i = 0;
+    size_t q1 = 0;
+    bool done = false;
+    for (i = 0; i < n; i++) {
+      for (q1 = 0; q1 < q; q1++) {
+        if (conf[i] == q1) {
+          continue;
+        } else {
+          r_sum += g.at(i, q1);
+        }
+        if (r_sum > rand) {
+          done = true;
+          break;
+        }
+      }
+      if (done) {
+        break;
+      }
+    }
+    conf[i] = q1;
+  }
+
+  for (size_t s = 0; s < m; ++s) {
+    for (size_t k = 0; k < mc_iters; ++k) {
+      for (size_t i = 0; i < n; i++) {
+        size_t q0 = conf[i];
+        double e0 = -h[i][q0];
+        for (size_t j = 0; j < n; j++) {
+          if (j != i) {
+            e0 -= J[i][j][q0][conf[j]];
+          }
+        }
+
+        for (size_t q1 = 0; q1 < q; q1++) {
+          if (q0 == q1) {
+            de.at(i, q1) = 0.0;
+          } else {
+            double e1 = -h[i][q1];
+            for (size_t j = 0; j < n; j++) {
+              if (j != i) {
+                e1 -= J[i][j][q1][conf[j]];
+              }
+            }
+            de.at(i, q1) = e1 - e0;
+          }
+        }
+      }
+
+      // g = arma::exp(de * -1.0/2.0/temperature);
+      g = .5 + .5*arma::tanh(de * -1.0/2.0/temperature);
+      lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
+      g = g / lambda;
+
+      double rand = uniform(rng);
+      double r_sum = 0.0;
+      size_t i = 0;
+      size_t q1 = 0;
+      bool done = false;
+      for (i = 0; i < n; i++) {
+        for (q1 = 0; q1 < q; q1++) {
+          if (conf[i] == q1) {
+            continue;
+          } else {
+            r_sum += g.at(i, q1);
+          }
+          if (r_sum > rand) {
+            done = true;
+            break;
+          }
+        }
+        if (done) {
+          break;
+        }
+      }
+      conf[i] = q1;
+    }
+    for (size_t i = 0; i < n; ++i) {
+      (*ptr).at(s, i) = (int)conf[i];
+    }
+  }
+  return;
+};
+
 ostream&
 Graph::print_parameters(ostream& os)
 {

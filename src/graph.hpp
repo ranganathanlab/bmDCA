@@ -44,6 +44,13 @@ public:
                         long int seed,
                         double temperature = 1.0);
 
+  void sample_mcmc_zanella(arma::Mat<int>* ptr,
+                           size_t,
+                           size_t,
+                           size_t,
+                           long int,
+                           double = 1.0);
+
   void print_parameters(FILE* of);
 };
 
