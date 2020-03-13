@@ -60,6 +60,9 @@ private:
   double adapt_down_time; // positive adaptive step for sampling/
                           // thermalization times
 
+  int t_wait;
+  int delta_t;
+
   // Importance sampling settings
   int step_importance_max; // importance sampling maximum iterations
   double coherence_min;    // coherence importance sampling

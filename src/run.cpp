@@ -331,8 +331,8 @@ Sim::run(void)
   std::cout << timer.toc() << " sec" << std::endl << std::endl;
 
   // BM sampling loop
-  int t_wait = t_wait_0;
-  int delta_t = delta_t_0;
+  t_wait = t_wait_0;
+  delta_t = delta_t_0;
   for (step = 1; step <= step_max; step++) {
     step_timer.tic();
     std::cout << "Step: " << step << std::endl;
@@ -830,7 +830,7 @@ Sim::writeData(std::string id)
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
 
   if (check_ergo) {
-    // mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat");
+    // mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat", delta_t);
     // mcmc_stats->writeEnergyStats("my_energies_start_" + id + ".txt",
     //                              "my_energies_end_" + id + ".txt",
     //                              "my_energies_cfr_" + id + ".txt",
