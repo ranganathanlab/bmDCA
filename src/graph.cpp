@@ -368,61 +368,9 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   std::vector<double> p(n*q);
 
   for (size_t k = 0; k < mc_iters0; ++k) {
-    for (size_t i = 0; i < n; i++) {
-      size_t q0 = conf[i];
-      double e0 = -h[i][q0];
-      for (size_t j = 0; j < n; j++) {
-        if (j != i) {
-          e0 -= J[i][j][q0][conf[j]];
-        }
-      }
 
-      for (size_t q1 = 0; q1 < q; q1++) {
-        if (q0 == q1) {
-          de.at(i, q1) = 0.0;
-        } else {
-          double e1 = -h[i][q1];
-          for (size_t j = 0; j < n; j++) {
-            if (j != i) {
-              e1 -= J[i][j][q1][conf[j]];
-            }
-          }
-          de.at(i, q1) = e1 - e0;
-        }
-      }
-    }
-
-    // g = arma::exp(de * -1.0/2.0/temperature);
-    g = .5 + .5*arma::tanh(de * -1.0/2.0/temperature);
-    lambda = arma::accu(g) - n;
-    g = g / lambda;
-
-    double rand = uniform(rng);
-    double r_sum = 0.0;
-    size_t i = 0;
-    size_t q1 = 0;
-    bool done = false;
-    for (i = 0; i < n; i++) {
-      for (q1 = 0; q1 < q; q1++) {
-        if (conf[i] == q1) {
-          continue;
-        } else {
-          r_sum += g.at(i, q1);
-        }
-        if (r_sum > rand) {
-          done = true;
-          break;
-        }
-      }
-      if (done) {
-        break;
-      }
-    }
-    conf[i] = q1;
-  }
-
-  for (size_t s = 0; s < m; ++s) {
-    for (size_t k = 0; k < mc_iters; ++k) {
+    // Compute initial neighborhood.
+    if (k < 1) {
       for (size_t i = 0; i < n; i++) {
         size_t q0 = conf[i];
         double e0 = -h[i][q0];
@@ -446,6 +394,69 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
           }
         }
       }
+    }
+
+    // g = arma::exp(de * -1.0/2.0/temperature);
+    g = .5 + .5*arma::tanh(de * -1.0/2.0/temperature);
+    lambda = arma::accu(g) - n;
+    g = g / lambda;
+
+    double rand = uniform(rng);
+    double r_sum = 0.0;
+    size_t i = 0;
+    size_t q0 = 0;
+    size_t q1 = 0;
+    bool done = false;
+    for (i = 0; i < n; i++) {
+      for (q1 = 0; q1 < q; q1++) {
+        if (conf[i] == q1) {
+          continue;
+        } else {
+          r_sum += g.at(i, q1);
+        }
+        if (r_sum > rand) {
+          done = true;
+          break;
+        }
+      }
+      if (done) {
+        break;
+      }
+    }
+
+    double tmp = de.at(i, q1);
+    q0 = conf[i];
+    conf[i] = q1;
+    for (size_t pos = 0; pos < n; pos++) {
+      for (size_t aa = 0; aa < q; aa++) {
+        if (pos != i) {
+          if (pos < i) {
+            de.at(pos, aa) += J[pos][i][conf[pos]][q1] -
+                              J[pos][i][conf[pos]][q0] - J[pos][i][aa][q1] +
+                              J[pos][i][aa][q0];
+          } else {
+            de.at(pos, aa) += J[i][pos][q1][conf[pos]] -
+                              J[i][pos][q0][conf[pos]] - J[i][pos][q1][aa] +
+                              J[i][pos][q0][aa];
+          }
+        } else {
+          de.at(pos, aa) += h[pos][q1] - h[pos][q0];
+          for (size_t pos2 = 0; pos2 < n; pos2++) {
+            if (pos2 < i) {
+              de.at(pos, aa) +=
+                J[pos2][i][conf[pos2]][q1] - J[pos2][i][conf[pos2]][q0];
+            } else if (pos2 > i) {
+              de.at(pos, aa) +=
+                J[i][pos2][q1][conf[pos2]] - J[i][pos2][q0][conf[pos2]];
+            }
+          }
+        }
+      }
+    }
+  }
+
+  for (size_t s = 0; s < m; ++s) {
+    for (size_t k = 0; k < mc_iters; ++k) {
 
       // g = arma::exp(de * -1.0/2.0/temperature);
       g = .5 + .5*arma::tanh(de * -1.0/2.0/temperature);
@@ -455,6 +466,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       double rand = uniform(rng);
       double r_sum = 0.0;
       size_t i = 0;
+      size_t q0 = 0;
       size_t q1 = 0;
       bool done = false;
       for (i = 0; i < n; i++) {
@@ -473,7 +485,36 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
           break;
         }
       }
+
+      double tmp = de.at(i, q1);
+      q0 = conf[i];
       conf[i] = q1;
+      for (size_t pos = 0; pos < n; pos++) {
+        for (size_t aa = 0; aa < q; aa++) {
+          if (pos != i) {
+            if (pos < i) {
+              de.at(pos, aa) += J[pos][i][conf[pos]][q1] -
+                                J[pos][i][conf[pos]][q0] - J[pos][i][aa][q1] +
+                                J[pos][i][aa][q0];
+            } else {
+              de.at(pos, aa) += J[i][pos][q1][conf[pos]] -
+                                J[i][pos][q0][conf[pos]] - J[i][pos][q1][aa] +
+                                J[i][pos][q0][aa];
+            }
+          } else {
+            de.at(pos, aa) += h[pos][q1] - h[pos][q0];
+            for (size_t pos2 = 0; pos2 < n; pos2++) {
+              if (pos2 < i) {
+                de.at(pos, aa) +=
+                  J[pos2][i][conf[pos2]][q1] - J[pos2][i][conf[pos2]][q0];
+              } else if (pos2 > i) {
+                de.at(pos, aa) +=
+                  J[i][pos2][q1][conf[pos2]] - J[i][pos2][q0][conf[pos2]];
+              }
+            }
+          }
+        }
+      }
     }
     for (size_t i = 0; i < n; ++i) {
       (*ptr).at(s, i) = (int)conf[i];
