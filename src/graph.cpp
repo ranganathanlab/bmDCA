@@ -324,7 +324,7 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
       }
     }
     for (size_t i = 0; i < n; ++i) {
-      (*ptr)(s, i) = conf[i];
+      (*ptr).at(s, i) = conf[i];
     }
   }
   // std::string output_string =
