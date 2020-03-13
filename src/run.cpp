@@ -255,9 +255,8 @@ Sim::setParameter(std::string key, std::string value)
 Sim::Sim(MSAStats msa_stats, std::string config_file)
   : msa_stats(msa_stats)
 {
-  if (config_file.empty()) {
-    initializeParameters();
-  } else {
+  initializeParameters();
+  if (!config_file.empty()) {
     loadParameters(config_file);
   }
   checkParameters();

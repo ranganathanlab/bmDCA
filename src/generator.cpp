@@ -10,9 +10,8 @@ Generator::Generator(potts_model params, int n, int q, std::string config_file)
   , Q(q)
   , model(params)
 {
-  if (config_file.length() == 0) {
-    initializeParameters();
-  } else {
+  initializeParameters();
+  if (config_file.length() != 0) {
     loadParameters(config_file);
   }
 };
