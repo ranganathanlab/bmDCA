@@ -159,10 +159,10 @@ bmdca -i <input_alignment.fasta> -d <output_directory> -r -c <config_file.conf>
 
 #### Example 2
 
-If you already have a numerical-format alignment and set of per-sequence
-weights, run:
+If you already have a numerically-format alignment (gaps are 0) and set of
+per-sequence weights, run:
 ```
-bmdca -i <numerical_alignment.txt> -w <sequence_weights.txt>
+bmdca -n <numerical_alignment.txt> -w <sequence_weights.txt>
   -d <output_directory> -c <config_file.conf>
 ```
 
