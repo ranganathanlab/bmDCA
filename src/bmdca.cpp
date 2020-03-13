@@ -6,6 +6,19 @@
 #include "msa_stats.hpp"
 #include "run.hpp"
 
+void print_usage(void) {
+  std::cout << "bmdca usage:" << std::endl;
+  std::cout << "(e.g. bmdca -i <input MSA> -r -d <directory> -c <config file>)"
+            << std::endl;
+  std::cout << "  -i: input MSA (FASTA format)" << std::endl;
+  std::cout << "  -d: destination directory" << std::endl;
+  std::cout << "  -r: re-weighting flag" << std::endl;
+  std::cout << "  -n: numerical MSA" << std::endl;
+  std::cout << "  -w: sequence weights" << std::endl;
+  std::cout << "  -c: config file" << std::endl;
+  std::cout << "  -h: print usage (i.e. this message)" << std::endl;
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -24,8 +37,11 @@ main(int argc, char* argv[])
 
   // Read command-line parameters.
   char c;
-  while ((c = getopt(argc, argv, "i:d:c:rn:w:t:")) != -1) {
+  while ((c = getopt(argc, argv, "i:d:hc:rn:w:t:")) != -1) {
     switch (c) {
+      case 'h':
+        print_usage();
+        break;
       case 'i':
         input_file = optarg;
         input_file_given = true;
@@ -126,6 +142,8 @@ main(int argc, char* argv[])
 
     sim.writeParameters("bmdca_params.conf");
     sim.run();
+  } else {
+    print_usage();
   }
 
   return 0;
