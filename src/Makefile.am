@@ -1,6 +1,5 @@
 bin_PROGRAMS = bmdca bmdca_sample
 
-CXX = g++
 CXXFLAGS = -O3 -std=c++11 $(OPENMP_CXXFLAGS) $(ARMADILLO_CFLAGS)
 LDFLAGS = -lm $(ARMADILLO_LIBS)
 
