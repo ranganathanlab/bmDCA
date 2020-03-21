@@ -4,7 +4,7 @@ Dependencies (installation instructions detailed below):
  * [Armadillo](http://arma.sourceforge.net/)
  * [GCC](https://gcc.gnu.org/) that supports the C++11 standard and
    [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
- * Autotools
+ * AutoTools
 
 This repository contains a C++ reimplementation of bmDCA adapted from [the
 original](https://github.com/matteofigliuzzi/bmDCA) code. Method is described
@@ -19,37 +19,147 @@ parallelize the MCMC in the inference loop.
 
 ## Installing dependencies
 
+### GCC, AutoTools, pkg-config
+
+GCC is used to compile the source code (and dependencies, if necessary). The
+code relies on the `fopenmp` flag for parallelization, so GCC is preferred over
+Clang. It also needs support for the C++11 standard, so any GCC later than
+version 4.2 will suffice.
+
+AutoTools is for generating generate makefiles and install paths.
+
+pkg-config is a program that provides a simple interface between installed
+programs (e.g. libraries and header files) and the compiler. It's used by
+AutoTools to check for dependencies before compilation.
+
+#### Linux
+
+All of these packages can be simply install from your distribution's package
+repository.
+
+For Debian and Ubuntu:
+```
+sudo apt install g++ automake autoconf pkg-config
+```
+
+For Arch Linux, GCC should have been installed with the `base` and `base-devel`
+metapackages, but if not installed, run:
+```
+sudo pacman -S gcc automake autoconf pkgconf
+```
+
+#### macOS
+
+First, install Xcode developer tools. Run:
+```
+xcode-select --install
+```
+
+You may already have this installed.
+
+Next, install Homebrew. See the [online instructions](https://brew.sh) for how
+to do this.
+
+Once installed, run:
+```
+brew install gcc automake autoconf pkg-config
+```
+
+This will install the most recent GCC (9.3.0 as of writing) along with
+AutoTools and pkg-config.
+
+__IMPORTANT:__ The default `gcc`, located in `/usr/bin/gcc` is actually aliased
+to `clang`, which is another compiler. While in principle this is not an issue,
+this version of Clang is not compatible with the `fopenmp` compiler flag that
+is used to enable parallelization of the MCMC sampler. Additionally, libraries
+(see Armadillo in the next step) installed via Homebrew are not by default
+known to `pkg-config` or the linker.
+
+Addressing all of these issues involves overriding the `CC` and `CXX`
+environmental variables with the new GCC, updating `PKG_CONFIG_PATH` with paths
+to any relevant \*.pc files, and updating `LD_LIBRARY_PATH` with any shared
+object library linked at compile time.
+
+Doing this for the first time is a bit bewildering, so for convenience, use the
+`rcparams` file in the `tools` directory in this repository. In it are a few
+helper functions and aliases. Simply append the contents of that file to your
+shell run commands. If you don't know what shell you're using, run:
+```
+echo $SHELL
+```
+
+For bash, append to `rcparams` to `${HOME}/.bashrc`, and for zsh, append to
+`${HOME}/.zshrc`. The general idea is that macOS versions <=10.14 (Mojave and
+earlier), uses bash as the default shell, and for >=10.15 (Catalina and later),
+Apple switched the default shell to zsh.
+
+You can append the `rcparams` file by copy-pasting the code in your favorite
+text editor. You could also do something like `cat tools/rcparams >>
+${HOME}/.bashrc`, for example.
+
+__Note:__ Run commands are executed when the shell starts, not when the files
+are edited. To update your shell to reflect changes, you can either run:
+```
+source ${HOME}/.bashrc
+```
+
+Or simply open a new shell. (For remote systems, you can just log out and log
+in again.)
+
 ### Armadillo
 
-Armadillo is a C++ linear algebra library.
+Armadillo is a C++ linear algebra library. It's used for storing data in matrix
+structures and performing quick computations in the bmDCA inference loop. To
+install, again look to your package repository.
 
-#### Package repositories
+#### Option 1: Package repositories
 
-Armadillo can be installed using the standard package repositories for most
-Linux distributions (check AUR for Arch Linux) and Homebrew on macOS (`brew
-install armadillo`).
+For Debian and Ubuntu:
+```
+sudo apt install libarmadillo-dev
+```
 
-__Note for macOS users__: bmDCA depends on `pkg-config` for finding paths for
-source files and shared object libraries. The directories where the program
-expects to find pkgconfig \*.pc files are listed in the `PKG_CONFIG_PATH`
-variable (run: `echo $PKG_CONFIG_PATH`). To ensure that `pkg-config` finds
-these files for Homebrew-installed programs, you can append to the variable
-manually, or you can use the `pkgconfig_find()` function provided the
-`tools/rcparams` file. Simply append the contents of that file to your shell
-run commands (e.g. `${HOME}/.bashrc`).
+For Arch Linux, check the AUR. You will first need to install the SuperLU
+library from AUR:
+```
+git clone https://aur.archlinux.org/superlu.git
+cd superlu
+makepkg -si
+cd ..
+```
 
-Additionally, the linker can only link libraries found in directories specified
-in `LD_LIBRARY_PATH`. To add the armadillo `lib/` directory to this variable,
-append to the variable yourself, or you can use the `ld_path_add()` function,
-also defined in the `tools/rcparams` file.
+SuperLU is a fast matrix factorization library required as a build dependency
+for Armadillo. Other build dependencies will be installed via `makepkg` from
+the official repositories.
 
-#### Manual
+Now, download and install Armadillo:
+```
+git clone https://aur.archlinux.org/armadillo.git
+cd armadillo
+makepkg -si
+cd ..
+```
 
-If a compiled package is not available, you will need to install it
-manually. First, make sure that `cmake`, `openblas` (or `blas`), `lapack`,
-`arpack`, and `SuperLU` are installed. Then, to download and install armadillo
-system wide, run the following (Unix systems only):
+For macOS:
+```
+brew install armadillo
+```
 
+The libraries and headers will be found via the `pkgconfig_find()` and
+`ld_lib_add()` functions specified in the `rcparams` file. If everything was
+already appended to your run command file when installing GCC, nothing else is
+needed here.
+
+
+#### Option 2: Manual
+
+If there is no package for Armadillo, or you do not have root privileges on the
+system your using, you can instead compile the library from source.
+
+First, make sure that `cmake`, `openblas` (or `blas`), `lapack`, `arpack`, and
+`SuperLU` are installed. CMake is a compilation tool and the others are build
+dependencies. Then, to download and install Armadillo system wide, run the
+following:
 ```
 wget https://sourceforge.net/projects/arma/files/armadillo-9.850.1.tar.xz
 tar xf armadillo-9.850.1.tar.xz
@@ -57,42 +167,33 @@ cd armadillo-9.850.1
 cmake .
 make -j4
 sudo make install
+cd ..
 ```
 
 The files will be installed to `/usr/local/include` and `/usr/local/lib` by
-default. Make sure that both directories are in your `PKG_CONFIG_PATH` and
-`LD_LIBRARY_PATH` environment variables.
-
-### GCC
-
-To compile the source code, GCC is recommended. At a minimum, you need a
-compiler that supports the C++11 standard. Though optional, one that supports
-OpenMP is also recommended. Any GCC later than version 4.2 will suffice.
-
-For Linux users, install a recent GCC from your distributions package
-repository.
-
-For Mac users, the default `gcc` is actually to `clang`, which will not allow
-compilation with the `-fopenmp` flag. To install a recent version of GCC, run:
-
+default. This requires root privileges (hence, the `sudo make install` at the
+end). If you want to install elsewhere, adjust the above commands:
 ```
-brew install gcc
+wget https://sourceforge.net/projects/arma/files/armadillo-9.850.1.tar.xz
+tar xf armadillo-9.850.1.tar.xz
+cd armadillo-9.850.1
+cmake . -DCMAKE_INSTALL_PREFIX:PATH=<alternate_path>
+make -j4
+make install
+cd ..
 ```
 
-You have several options to get the `gcc` command to default to the
-Homebrew-installed GCC. One option is to alias `gcc` to the path to the new GCC
-binary. Code that does this is included in the 'tools/rcparams' file.
+Here, change `<alternate_path>` to wherever you want, for example `${HOME}` or
+`${HOME}/.local`.
 
-### Autotools
+### Windows
 
-If not already installed, install `automake` from your system repository. You
-may also need to do the same for `pkg-config`.
-
+Documentation pending.
 
 ## Compilation and installation
 
-To install the program globally (default: `/usr/local`), run:
-
+Now that all the dependencies have been installed, compile and install bmDCA
+globally (default: `/usr/local`) by running:
 ```
 ./autogen.sh
 make
@@ -111,7 +212,7 @@ Replace the value to the right of `--prefix=` with any local path that is part
 of the system PATH.
 
 In the event you with to uninstall the code, simply run `sudo make uninstall`
-(or `make uninstall` as appropriate).
+or `make uninstall` as appropriate.
 
 ## Usage
 
