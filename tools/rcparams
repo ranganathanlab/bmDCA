@@ -42,24 +42,28 @@ ld_path_add() {
 # Set aliases and load paths
 #
 
-# Add alias for Homebrew gcc.
+# Add alias for Homebrew GCC and export to CC and CXX environment variables.
 if [ -f /usr/local/bin/gcc-9 ]; then
   alias gcc=/usr/local/bin/gcc-9
   alias g++=/usr/local/bin/g++-9
+  export CC=/usr/local/bin/gcc-9
+  export CXX=/usr/local/bin/g++-9
 elif [ -f /usr/local/Cellar/gcc/bin/gcc-9 ]; then
   alias gcc=/usr/local/Cellar/gcc/bin/gcc-9
   alias g++=/usr/local/Cellar/gcc/bin/g++-9
+  export CC=/usr/local/Cellar/gcc/bin/gcc-9
+  export CXX=/usr/local/Cellar/gcc/bin/g++-9
 elif [ -f /usr/local/bin/gcc-8 ]; then
   alias gcc=/usr/local/bin/gcc-8
   alias g++=/usr/local/bin/g++-8
+  export CC=/usr/local/bin/gcc-8
+  export CXX=/usr/local/bin/g++-8
 elif [ -f /usr/local/Cellar/gcc/bin/gcc-8 ]; then
   alias gcc=/usr/local/Cellar/gcc/bin/gcc-8
   alias g++=/usr/local/Cellar/gcc/bin/g++-8
+  export CC=/usr/local/Cellar/gcc/bin/gcc-8
+  export CXX=/usr/local/Cellar/gcc/bin/g++-8
 fi
-
-# Export aliases to compiler environmental variables.
-export CC=$(alias gcc | sed -n "s,^gcc='*\(.*\)'*$,\1,p")
-export CXX=$(alias g++ | sed -n "s,^g++='*\(.*\)'*$,\1,p")
 
 # Look for pkg-config directories
 pkgconfig_find /usr/local/Cellar  # from Homebrew
