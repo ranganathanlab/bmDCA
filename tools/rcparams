@@ -7,11 +7,11 @@
 #   $1 - absolute path of directory
 pkgconfig_find() {
   if [ -d "${1}" ]; then
-    PKG_CONFIG_PATH_NEW=$(find "${1}" -type d -name "pkgconfig" -print | \
-                          tr '\n' ':')
-    if ! [[ ${PKG_CONFIG_PATH_NEW} == "" ]] && \
-       ! [[ ${PKG_CONFIG_PATH} =~ ${PKG_CONFIG_PATH_NEW} ]]; then
-      export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${PKG_CONFIG_PATH_NEW}
+    local PKG_CONFIG_PATH_NEW=$(find "${1}" -type d -name "pkgconfig" -print | \
+                                tr '\n' ':')
+    if ! [[ "${PKG_CONFIG_PATH_NEW}" == "" ]] && \
+       ! [[ "${PKG_CONFIG_PATH}" =~ "${PKG_CONFIG_PATH_NEW}" ]]; then
+      export PKG_CONFIG_PATH="${PKG_CONFIG_PATH_NEW}${PKG_CONFIG_PATH}"
     fi
   fi
 }
@@ -21,19 +21,19 @@ pkgconfig_find() {
 # binaries compiled against libraries in stored in exotic directories.
 #   $1 - library name input to pkg-config
 ld_lib_add() {
-  LIB_PATH=$(pkg-config --libs "${1}" 2>/dev/null | \
-             sed -n "s,-L\(.*\)\ -l.*,\1,p")
-  if ! [[ ${LIB_PATH} == "" ]] && \
-     ! [[ ${LD_LIBRARY_PATH} =~ ${LIB_PATH} ]]; then
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${LIB_PATH}
+  local LIB_PATH=$(pkg-config --libs "${1}" 2>/dev/null | \
+                   sed -n "s,-L\(.*\)\ -l.*,\1,p")
+  if ! [[ "${LIB_PATH}" == "" ]] && \
+     ! [[ "${LD_LIBRARY_PATH}" =~ "${LIB_PATH}" ]]; then
+    export LD_LIBRARY_PATH="${LIB_PATH}:${LD_LIBRARY_PATH}"
   fi
 }
 
 # Add specified paths to the LD_LIBRARY_PATH.
 #   $1 - absolute path of directory
 ld_path_add() {
-  if [ -d "$1" ]; then
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(readlink -f "$1")
+  if [ -d "${1}" ]; then
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$(readlink -f "${1}")"
   fi
 }
 
