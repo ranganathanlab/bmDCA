@@ -57,6 +57,10 @@ elif [ -f /usr/local/Cellar/gcc/bin/gcc-8 ]; then
   alias g++=/usr/local/Cellar/gcc/bin/g++-8
 fi
 
+# Export aliases to compiler environmental variables.
+export CC=$(alias gcc | sed -n "s,^gcc='*\(.*\)'*$,\1,p")
+export CXX=$(alias g++ | sed -n "s,^g++='*\(.*\)'*$,\1,p")
+
 # Look for pkg-config directories
 pkgconfig_find /usr/local/Cellar  # from Homebrew
 ld_lib_add armadillo 
