@@ -64,6 +64,28 @@ Model::writeParams(std::string output_file_h, std::string output_file_J)
 };
 
 void
+Model::writeParamsHDF(std::string output_file)
+{
+  arma::Mat<int> N_mat = arma::Mat<int>(1, 1);
+  arma::Mat<int> Q_mat = arma::Mat<int>(1, 1);
+  N_mat.at(0, 0) = N;
+  Q_mat.at(0, 0) = Q;
+  N_mat.save(arma::hdf5_name(output_file, "N"));
+  Q_mat.save(arma::hdf5_name(output_file, "Q", arma::hdf5_opts::append));
+
+  params.h.save(arma::hdf5_name(output_file, "h", arma::hdf5_opts::append));
+
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      params.J.at(i, j).save(
+        arma::hdf5_name(output_file,
+                        "J/" + std::to_string(i) + "_" + std::to_string(j),
+                        arma::hdf5_opts::append));
+    }
+  }
+};
+
+void
 Model::writeParamsCompat(std::string output_file)
 {
   std::ofstream output_stream(output_file);
@@ -97,6 +119,28 @@ Model::writeLearningRates(std::string output_file_h, std::string output_file_J)
 {
   learning_rates.h.save(output_file_h, arma::arma_binary);
   learning_rates.J.save(output_file_J, arma::arma_binary);
+};
+
+void
+Model::writeLearningRatesHDF(std::string output_file)
+{
+  arma::Mat<int> N_mat = arma::Mat<int>(1, 1);
+  arma::Mat<int> Q_mat = arma::Mat<int>(1, 1);
+  N_mat.at(0, 0) = N;
+  Q_mat.at(0, 0) = Q;
+  N_mat.save(arma::hdf5_name(output_file, "N"));
+  Q_mat.save(arma::hdf5_name(output_file, "Q", arma::hdf5_opts::append));
+
+  learning_rates.h.save(arma::hdf5_name(output_file, "h", arma::hdf5_opts::append));
+
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      learning_rates.J.at(i, j).save(
+        arma::hdf5_name(output_file,
+                        "J/" + std::to_string(i) + "_" + std::to_string(j),
+                        arma::hdf5_opts::append));
+    }
+  }
 };
 
 void
@@ -134,6 +178,28 @@ Model::writeGradient(std::string output_file_h, std::string output_file_J)
 {
   gradient.h.save(output_file_h, arma::arma_binary);
   gradient.J.save(output_file_J, arma::arma_binary);
+};
+
+void
+Model::writeGradientHDF(std::string output_file)
+{
+  arma::Mat<int> N_mat = arma::Mat<int>(1, 1);
+  arma::Mat<int> Q_mat = arma::Mat<int>(1, 1);
+  N_mat.at(0, 0) = N;
+  Q_mat.at(0, 0) = Q;
+  N_mat.save(arma::hdf5_name(output_file, "N"));
+  Q_mat.save(arma::hdf5_name(output_file, "Q", arma::hdf5_opts::append));
+
+  gradient.h.save(arma::hdf5_name(output_file, "h", arma::hdf5_opts::append));
+
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      gradient.J.at(i, j).save(
+        arma::hdf5_name(output_file,
+                        "J/" + std::to_string(i) + "_" + std::to_string(j),
+                        arma::hdf5_opts::append));
+    }
+  }
 };
 
 void

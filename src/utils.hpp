@@ -26,6 +26,8 @@ typedef struct
 
 potts_model loadPottsModel(std::string, std::string);
 
+potts_model loadPottsModelHDF(std::string);
+
 potts_model loadPottsModelCompat(std::string);
 
 int

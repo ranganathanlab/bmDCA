@@ -24,6 +24,8 @@ public:
   void writeCorrelationsStats(std::string, std::string, std::string);
   void writeFrequency1p(std::string, std::string);
   void writeFrequency2p(std::string, std::string);
+  void writeFrequency1pHDF(std::string);
+  void writeFrequency2pHDF(std::string);
   void writeFrequency1pCompat(std::string, std::string);
   void writeFrequency2pCompat(std::string, std::string);
 
