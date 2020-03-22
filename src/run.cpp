@@ -794,7 +794,7 @@ Sim::writeData(std::string id)
     current_model->writeGradient("gradients_h_" + id + ".bin",
                                  "gradients_J_" + id + ".bin");
     current_model->writeLearningRates("learning_rates_h_" + id + ".bin",
-                                      "learning_rate_J_" + id + ".bin");
+                                      "learning_rates_J_" + id + ".bin");
 
     mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".bin",
                                  "stat_MC_1p_sigma_" + id + ".bin");
