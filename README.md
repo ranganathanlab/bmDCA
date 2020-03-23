@@ -106,6 +106,12 @@ source ${HOME}/.bashrc
 Or simply open a new shell. (For remote systems, you can just log out and log
 in again.)
 
+#### Windows
+
+Until a Windows-specific set of instructions are added, install Windows
+Subsystem for Linux (WSL). Pick a Linux distribution (Ubuntu or Debian should
+work fine) and follow the Linux instructions mentioned above.
+
 ### Armadillo
 
 Armadillo is a C++ linear algebra library. It's used for storing data in matrix
@@ -113,6 +119,8 @@ structures and performing quick computations in the bmDCA inference loop. To
 install, again look to your package repository.
 
 #### Option 1: Package repositories
+
+##### Linux
 
 For Debian and Ubuntu:
 ```
@@ -140,6 +148,8 @@ makepkg -si
 cd ..
 ```
 
+##### macOS
+
 For macOS:
 ```
 brew install armadillo
@@ -150,6 +160,11 @@ The libraries and headers will be found via the `pkgconfig_find()` and
 already appended to your run command file when installing GCC, nothing else is
 needed here.
 
+##### Windows
+
+Until a Windows-specific set of instructions are added, install Windows
+Subsystem for Linux (WSL). Pick a Linux distribution (Ubuntu or Debian should
+work fine) and follow the Linux instructions mentioned above.
 
 #### Option 2: Manual
 
@@ -185,10 +200,6 @@ cd ..
 
 Here, change `<alternate_path>` to wherever you want, for example `${HOME}` or
 `${HOME}/.local`.
-
-### Windows
-
-Documentation pending.
 
 ## Compilation and installation
 
