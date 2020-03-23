@@ -12,7 +12,7 @@
 class Sim
 {
 public:
-  Sim(MSAStats, std::string, std::string);
+  Sim(MSAStats, std::string, std::string, bool);
   ~Sim(void);
   void run(void);
   void loadParameters(std::string);

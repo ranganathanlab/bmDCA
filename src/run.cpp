@@ -349,7 +349,10 @@ Sim::setParameter(std::string key, std::string value)
   }
 };
 
-Sim::Sim(MSAStats msa_stats, std::string config_file, std::string dest_dir)
+Sim::Sim(MSAStats msa_stats,
+         std::string config_file,
+         std::string dest_dir,
+         bool force_restart)
   : msa_stats(msa_stats)
 {
 
@@ -358,7 +361,8 @@ Sim::Sim(MSAStats msa_stats, std::string config_file, std::string dest_dir)
     std::cout << "loading hyperparameters... " << std::flush;
     loadParameters(config_file);
     std::cout << "done." << std::endl;
-  } else if (checkFileExists(dest_dir + "/" + hyperparameter_file)) {
+  } else if ((!force_restart) &
+             (checkFileExists(dest_dir + "/" + hyperparameter_file))) {
     std::cout << "loading previously used hyperparameters..." << std::flush;
     loadParameters(dest_dir + "/" + hyperparameter_file);
     std::cout << "done." << std::endl;
@@ -369,7 +373,7 @@ Sim::Sim(MSAStats msa_stats, std::string config_file, std::string dest_dir)
      chdir(dest_dir.c_str());
   }
 
-  if (checkFileExists(hyperparameter_file)) {
+  if ((!force_restart) & (checkFileExists(hyperparameter_file))) {
     if (!compareParameters(hyperparameter_file)) {
       std::cerr << "ERROR: current and previous hyperparameters mismatched. "
                    "restarting... "
