@@ -32,6 +32,7 @@ private:
   void updateReparameterization(void);
   void writeData(std::string);
   void writeData(int);
+  void clearFiles(std::string);
 
   // BM settings
   double lambda_reg1;  // L2 regularization strength for 1p statistics (fields)

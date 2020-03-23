@@ -370,7 +370,7 @@ Sim::Sim(MSAStats msa_stats,
   checkParameters();
 
   if (!dest_dir.empty()) {
-     chdir(dest_dir.c_str());
+    chdir(dest_dir.c_str());
   }
 
   if ((!force_restart) & (checkFileExists(hyperparameter_file))) {
@@ -379,7 +379,7 @@ Sim::Sim(MSAStats msa_stats,
                    "restarting... "
                 << std::endl;
       step_offset = 0;
-      deleteAllFiles(".");
+      clearFiles(".");
       writeParameters(hyperparameter_file);
     } else {
       setStepOffset();
@@ -417,6 +417,49 @@ Sim::Sim(MSAStats msa_stats,
     }
   }
   mcmc = new MCMC(msa_stats.getN(), msa_stats.getQ());
+};
+
+void
+Sim::clearFiles(std::string dest_dir) {
+  DIR *dp;
+  struct dirent *dirp;
+
+  std::vector<std::string> files;
+  dp = opendir(dest_dir.c_str());
+
+  while ((dirp = readdir(dp)) != NULL) {
+    std::string fname = dirp->d_name;
+
+    if (fname.find("parameters_"))
+      files.push_back(fname);
+    else if (fname.find("gradients_"))
+      files.push_back(fname);
+    else if (fname.find("bmdca_"))
+      files.push_back(fname);
+    else if (fname.find("learning_rates_"))
+      files.push_back(fname);
+    else if (fname.find("MC_energies_"))
+      files.push_back(fname);
+    else if (fname.find("MC_samples_"))
+      files.push_back(fname);
+    else if (fname.find("msa_numerical"))
+      files.push_back(fname);
+    else if (fname.find("overlap_"))
+      files.push_back(fname);
+    else if (fname.find("ergo_"))
+      files.push_back(fname);
+    else if (fname.find("stat_MC_"))
+      files.push_back(fname);
+    else if (fname.find("stat_align_"))
+      files.push_back(fname);
+    else if (fname.find("rel_ent_grad_"))
+      files.push_back(fname);
+  }
+  closedir(dp);
+
+  for (auto it = files.begin(); it != files.end(); ++it) {
+    std::remove((*it).c_str());
+  }
 };
 
 void
