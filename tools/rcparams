@@ -37,6 +37,21 @@ ld_path_add() {
   fi
 }
 
+# Use GCC on non-standard path. Supply a path to a GCC binary, and the script
+# will then alias gcc to the correpsonding binaries and override the CC and CXX
+# environmental variables.
+#   $1 - absolute path to gcc binary file
+set_gcc() {
+  local GCC="$(echo "${1}" | sed -e "s,/g++\([0-9\-]*\)$,/gcc\1,g")"
+  local GXX="$(echo "${1}" | sed -e "s,/gcc\([0-9\-]*\)$,/g++\1,g")"
+  if [ -f "${GCC}" ] && [ -f "${GXX}" ]; then
+    alias gcc="${GCC}"
+    alias g++="${GXX}"
+    export CC="${GCC}"
+    export CXX="${GXX}"
+  fi
+}
+
 
 #
 # Set aliases and load paths
