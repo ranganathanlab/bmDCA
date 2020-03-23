@@ -235,6 +235,8 @@ The command line flags are:
  - `-t`: threshold for computing default sequence weights (default: `0.8`)
  - `-n`: input MSA, numerical format
  - `-w`: file containing sequence weights
+ - `-h`: print usage information
+ - `-f`: force a restart of inference loop (i.e., start at step 1)
 
 If `-r` is not specified, each sequence will be equally weighted, and if no
 config file is supplied, the run will default to hyperparameters hard-coded in
