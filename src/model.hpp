@@ -14,6 +14,13 @@ public:
   int Q;
 
   Model(MSAStats, double, double);
+  Model(std::string, std::string, std::string);
+  Model(std::string,
+        std::string,
+        std::string,
+        std::string,
+        std::string,
+        std::string);
 
   void writeParams(std::string, std::string);
   void writeLearningRates(std::string, std::string);

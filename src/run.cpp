@@ -3,17 +3,15 @@
 #include <armadillo>
 #include <cassert>
 #include <cstdlib>
+#include <dirent.h>
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <regex>
 #include <string>
+#include <sys/types.h>
 #include <unistd.h>
-
-#include "model.hpp"
-#include "msa.hpp"
-#include "msa_stats.hpp"
-#include "pcg_random.hpp"
-#include "utils.hpp"
+#include <vector>
 
 #define EPSILON 0.00000001
 
@@ -125,6 +123,40 @@ Sim::writeParameters(std::string output_file)
   stream << "output_binary=" << output_binary << std::endl;
 };
 
+bool
+Sim::compareParameters(std::string file_name)
+{
+  std::ifstream file(file_name);
+  bool reading_bmdca_section = false;
+  bool all_same = true;
+  if (file.is_open()) {
+    std::string line;
+    while (std::getline(file, line)) {
+      if (line[0] == '#' || line.empty()) {
+        continue;
+      } else if (line[0] == '[') {
+        if (line == "[bmDCA]") {
+          reading_bmdca_section = true;
+          continue;
+        } else {
+          reading_bmdca_section = false;
+          continue;
+        }
+      }
+      if (reading_bmdca_section) {
+        auto delim_pos = line.find("=");
+        auto key = line.substr(0, delim_pos);
+        auto value = line.substr(delim_pos + 1);
+        all_same = all_same & compareParameter(key, value);
+      }
+    }
+  } else {
+    std::cerr << "ERROR: " << file_name << " not found." << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+  return all_same;
+};
+
 void
 Sim::loadParameters(std::string file_name)
 {
@@ -155,6 +187,87 @@ Sim::loadParameters(std::string file_name)
     std::cerr << "ERROR: " << file_name << " not found." << std::endl;
     std::exit(EXIT_FAILURE);
   }
+};
+
+bool
+Sim::compareParameter(std::string key, std::string value)
+{
+  bool same = true;
+  // It's not possible to use switch blocks on strings because they are char*
+  // arrays, not actual types.
+  if (key == "lambda_reg1") {
+    same = same & (lambda_reg1 == std::stod(value));
+  } else if (key == "lambda_reg2") {
+    same = same & (lambda_reg2 == std::stod(value));
+  } else if (key == "step_max") {
+    same = same & (step_max == std::stoi(value));
+  } else if (key == "error_max") {
+    same = same & (error_max == std::stod(value));
+  } else if (key == "save_parameters") {
+    same = same & (save_parameters == std::stoi(value));
+  } else if (key == "random_seed") {
+    same = same & (random_seed == std::stoi(value));
+  } else if (key == "epsilon_0_h") {
+    same = same & (epsilon_0_h == std::stod(value));
+  } else if (key == "epsilon_0_J") {
+    same = same & (epsilon_0_J == std::stod(value));
+  } else if (key == "adapt_up") {
+    same = same & (adapt_up == std::stod(value));
+  } else if (key == "adapt_down") {
+    same = same & (adapt_down == std::stod(value));
+  } else if (key == "min_step_h") {
+    same = same & (min_step_h == std::stod(value));
+  } else if (key == "max_step_h") {
+    same = same & (max_step_h == std::stod(value));
+  } else if (key == "min_step_J") {
+    same = same & (min_step_J == std::stod(value));
+  } else if (key == "max_step_J_N") {
+    same = same & (max_step_J_N == std::stod(value));
+  } else if (key == "error_min_update") {
+    same = same & (error_min_update == std::stod(value));
+  } else if (key == "t_wait_0") {
+    same = same & (t_wait_0 == std::stoi(value));
+  } else if (key == "delta_t_0") {
+    same = same & (delta_t_0 == std::stoi(value));
+  } else if (key == "check_ergo") {
+    if (value.size() == 1) {
+      same = same & (check_ergo == (std::stoi(value) == 1));
+    } else {
+      same = same & (check_ergo == (value == "true"));
+    }
+  } else if (key == "adapt_up_time") {
+    same = same & (adapt_up_time == std::stod(value));
+  } else if (key == "adapt_down_time") {
+    same = same & (adapt_down_time == std::stod(value));
+  } else if (key == "step_importance_max") {
+    same = same & (step_importance_max == std::stoi(value));
+  } else if (key == "coherence_min") {
+    same = same & (coherence_min == std::stod(value));
+  } else if (key == "M") {
+    same = same & (M == std::stoi(value));
+  } else if (key == "count_max") {
+    same = same & (count_max == std::stoi(value));
+  } else if (key == "init_sample") {
+    if (value.size() == 1) {
+      same = same & (init_sample == (std::stoi(value) == 1));
+    } else {
+      same = same & (init_sample == (value == "true"));
+    }
+  } else if (key == "init_sample_file") {
+    same = same & (init_sample_file == value);
+  } else if (key == "temperature") {
+    same = same & (temperature == std::stod(value));
+  } else if (key == "output_binary") {
+    if (value.size() == 1) {
+      same = same & (output_binary == (std::stoi(value) == 1));
+    } else {
+      same = same & (output_binary == (value == "true"));
+    }
+  } else {
+    std::cerr << "ERROR: unknown parameter '" << key << "'" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+  return same;
 };
 
 void
@@ -236,17 +349,165 @@ Sim::setParameter(std::string key, std::string value)
   }
 };
 
-Sim::Sim(MSAStats msa_stats, std::string config_file)
+Sim::Sim(MSAStats msa_stats, std::string config_file, std::string dest_dir)
   : msa_stats(msa_stats)
 {
+
   initializeParameters();
   if (!config_file.empty()) {
+    std::cout << "loading hyperparameters... " << std::flush;
     loadParameters(config_file);
+    std::cout << "done." << std::endl;
+  } else if (checkFileExists(dest_dir + "/" + hyperparameter_file)) {
+    std::cout << "loading previously used hyperparameters..." << std::flush;
+    loadParameters(dest_dir + "/" + hyperparameter_file);
+    std::cout << "done." << std::endl;
   }
   checkParameters();
-  current_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
-  previous_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
+
+  if (!dest_dir.empty()) {
+     chdir(dest_dir.c_str());
+  }
+
+  if (checkFileExists(hyperparameter_file)) {
+    if (!compareParameters(hyperparameter_file)) {
+      std::cerr << "ERROR: current and previous hyperparameters mismatched. "
+                   "restarting... "
+                << std::endl;
+      step_offset = 0;
+      deleteAllFiles(".");
+      writeParameters(hyperparameter_file);
+    } else {
+      setStepOffset();
+    }
+  }
+
+  if (step_offset == 0) {
+    current_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
+    previous_model = new Model(msa_stats, epsilon_0_h, epsilon_0_J);
+  } else {
+    if (output_binary) {
+      current_model =
+        new Model("parameters_h_" + std::to_string(step_offset) + ".bin",
+                  "parameters_J_" + std::to_string(step_offset) + ".bin",
+                  "gradients_h_" + std::to_string(step_offset) + ".bin",
+                  "gradients_J_" + std::to_string(step_offset) + ".bin",
+                  "learning_rates_h_" + std::to_string(step_offset) + ".bin",
+                  "learning_rates_J_" + std::to_string(step_offset) + ".bin");
+      previous_model = new Model(
+        "parameters_h_" + std::to_string(step_offset - 1) + ".bin",
+        "parameters_J_" + std::to_string(step_offset - 1) + ".bin",
+        "gradients_h_" + std::to_string(step_offset - 1) + ".bin",
+        "gradients_J_" + std::to_string(step_offset - 1) + ".bin",
+        "learning_rates_h_" + std::to_string(step_offset - 1) + ".bin",
+        "learning_rates_J_" + std::to_string(step_offset - 1) + ".bin");
+    } else {
+      current_model =
+        new Model("parameters_" + std::to_string(step_offset) + ".txt",
+                  "gradients_" + std::to_string(step_offset) + ".txt",
+                  "learning_rates_" + std::to_string(step_offset) + ".txt");
+      previous_model = new Model(
+        "parameters_" + std::to_string(step_offset - 1) + ".txt",
+        "gradients_" + std::to_string(step_offset - 1) + ".txt",
+        "learning_rates_" + std::to_string(step_offset - 1) + ".txt");
+    }
+  }
   mcmc = new MCMC(msa_stats.getN(), msa_stats.getQ());
+};
+
+void
+Sim::setStepOffset(void) {
+  DIR *dp;
+  struct dirent *dirp;
+
+  dp = opendir(".");
+
+  std::vector<int> steps;
+  while ((dirp = readdir(dp)) != NULL) {
+    std::string fname = dirp->d_name;
+    if (output_binary) {
+      if (fname.find("parameters_h") == std::string::npos) continue;
+
+      const std::regex re_param_h("parameters_h_([0-9]+)\\.bin");
+      std::smatch match_param_h;
+
+      int idx = -1;
+      if (std::regex_match(fname, match_param_h, re_param_h)) {
+        if (match_param_h.size() == 2) {
+          idx = std::stoi(match_param_h[1].str());
+        }
+      }
+
+      if (checkFileExists("parameters_J_" + std::to_string(idx) + ".bin") &
+          checkFileExists("gradients_h_" + std::to_string(idx) + ".bin") &
+          checkFileExists("gradients_J_" + std::to_string(idx) + ".bin") &
+          checkFileExists("learning_rates_h_" + std::to_string(idx) + ".bin") &
+          checkFileExists("learning_rates_J_" + std::to_string(idx) +
+                          ".bin")) {
+        steps.push_back(idx);
+      }
+
+    } else {
+      if (fname.find("parameters") == std::string::npos) continue;
+
+      const std::regex re_param("parameters_([0-9]+)\\.txt");
+      std::smatch match_param;
+
+      int idx = -1;
+      if (std::regex_match(fname, match_param, re_param)) {
+        if (match_param.size() == 2) {
+          idx = std::stoi(match_param[1].str());
+        }
+      }
+
+      if (checkFileExists("gradients_" + std::to_string(idx) + ".txt") &
+          checkFileExists("learning_rates_" + std::to_string(idx) + ".txt")) {
+        steps.push_back(idx);
+      }
+    }
+  }
+  closedir(dp);
+
+  int max = -1;
+  for (auto it1 = steps.begin(); it1 != steps.end(); ++it1) {
+    if (*it1 > max) {
+      for (auto it2 = steps.begin(); it2 != steps.end(); ++it2) {
+        if (*it2 == (*it1 - 1)) {
+          max = *it1;
+        }
+      }
+    }
+  }
+  // std::cout << "offset: " << max << std::endl;
+  if (max < 0) {
+    step_offset = 0;
+  } else {
+    step_offset = max;
+  }
+};
+
+void
+Sim::setBurnTimes(void) {
+  std::ifstream stream("bmdca_run.log");
+  std::string line;
+  std::getline(stream, line);
+  while (!stream.eof()) {
+    std::getline(stream, line);
+    std::stringstream buffer(line);
+    std::string field;
+
+    std::getline(buffer, field, '\t');
+    if (step_offset == std::stoi(field)) {
+      std::string tmp1;
+      std::string tmp2;
+      std::getline(buffer, tmp1, '\t');
+      std::getline(buffer, tmp1, '\t');
+      std::getline(buffer, tmp2, '\t');
+      t_wait = std::stoi(tmp1);
+      delta_t = std::stoi(tmp2);
+      break;
+    }
+  }
 };
 
 Sim::~Sim(void)
@@ -255,6 +516,39 @@ Sim::~Sim(void)
   delete previous_model;
   delete mcmc;
   delete mcmc_stats;
+};
+
+void
+Sim::burnRNG(void) {
+  long int value;
+  std::ifstream stream("bmdca_run.log");
+  std::string line;
+  std::getline(stream, line);
+  while (!stream.eof()) {
+    std::getline(stream, line);
+    std::stringstream buffer(line);
+    std::string field;
+
+    std::getline(buffer, field, '\t');
+    if (step_offset == std::stoi(field)) {
+      std::vector<std::string> fields;
+      std::stringstream ss;
+      ss.str(line);
+      std::string field;
+      while (std::getline(ss, field, '\t')) {
+        fields.push_back(field);
+      }
+
+      value = std::stol(fields.at(17));
+      break;
+    }
+  }
+
+  std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
+  int counter = 1;
+  while ((dist(rng) != value) & (counter < 100*step_max)) {
+    counter++;
+  }
 };
 
 void
@@ -283,7 +577,6 @@ Sim::readInitialSample(int N, int Q)
 void
 Sim::run(void)
 {
-
   std::cout << "initializing run... " << std::flush;
 
   arma::wall_clock step_timer;
@@ -305,19 +598,25 @@ Sim::run(void)
 
   // Instantiate the PCG random number generator and unifrom random
   // distribution.
-  pcg32 rng(random_seed);
+  rng(random_seed);
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
 
   // Initialize the buffer.
   run_buffer = arma::Mat<double>(save_parameters, 19, arma::fill::zeros);
-  initializeRunLog();
+
+  if (step_offset == 0) {
+    initializeRunLog();
+    t_wait = t_wait_0;
+    delta_t = delta_t_0;
+  } else {
+    burnRNG();
+    setBurnTimes();
+  }
 
   std::cout << timer.toc() << " sec" << std::endl << std::endl;
 
   // BM sampling loop
-  t_wait = t_wait_0;
-  delta_t = delta_t_0;
-  for (step = 1; step <= step_max; step++) {
+  for (step = 1 + step_offset; step <= step_max; step++) {
     step_timer.tic();
     std::cout << "Step: " << step << std::endl;
 
@@ -479,8 +778,8 @@ Sim::run(void)
 
       if (converged) {
         std::cout << "writing results" << std::endl;
-        writeData("final");
         writeRunLog(step % save_parameters);
+        writeData(std::to_string(step) + "_final");
         return;
       }
 
@@ -492,19 +791,6 @@ Sim::run(void)
       updateLearningRate();
       std::cout << timer.toc() << " sec" << std::endl;
 
-      run_buffer.at((step - 1) % save_parameters, 18) = step_timer.toc();
-
-      // Save parameters
-      // if ((step % save_parameters == 0 || step == 1) &&
-      if (step % save_parameters == 0 &&
-          (step_importance == step_importance_max || flag_coherence == false)) {
-        std::cout << "writing step " << step << "... " << std::flush;
-        timer.tic();
-        writeData(std::to_string(step));
-        writeRunLog(step % save_parameters);
-        std::cout << timer.toc() << " sec" << std::endl;
-      }
-
       // Update parameters
       previous_model->params.h = current_model->params.h;
       previous_model->params.J = current_model->params.J;
@@ -512,11 +798,24 @@ Sim::run(void)
       timer.tic();
       updateReparameterization();
       std::cout << timer.toc() << " sec" << std::endl;
+
+      run_buffer.at((step - 1) % save_parameters, 18) = step_timer.toc();
+
+      // Save parameters
+      if (step % save_parameters == 0 &&
+          (step_importance == step_importance_max || flag_coherence == false)) {
+        std::cout << "writing step " << step << "... " << std::flush;
+        timer.tic();
+        writeRunLog(step % save_parameters);
+        writeData(step);
+        std::cout << timer.toc() << " sec" << std::endl;
+      }
     }
     std::cout << std::endl;
   }
   std::cout << "writing final results... " << std::flush;
-  writeData("final");
+  writeRunLog(step_max % save_parameters);
+  writeData(step_max);
   std::cout << "done" << std::endl;
   return;
 };
@@ -783,6 +1082,77 @@ Sim::updateReparameterization(void)
           current_model->gradient.h.at(a, i) +
         Dh.at(a, i);
     }
+  }
+};
+
+void
+Sim::writeData(int step)
+{
+  if (output_binary) {
+    previous_model->writeParams(
+      "parameters_h_" + std::to_string(step - 1) + ".bin",
+      "parameters_J_" + std::to_string(step - 1) + ".bin");
+    previous_model->writeGradient(
+      "gradients_h_" + std::to_string(step - 1) + ".bin",
+      "gradients_J_" + std::to_string(step - 1) + ".bin");
+    previous_model->writeLearningRates(
+      "learning_rates_h_" + std::to_string(step - 1) + ".bin",
+      "learning_rates_J_" + std::to_string(step - 1) + ".bin");
+    current_model->writeParams("parameters_h_" + std::to_string(step) + ".bin",
+                               "parameters_J_" + std::to_string(step) + ".bin");
+    current_model->writeGradient("gradients_h_" + std::to_string(step) + ".bin",
+                                 "gradients_J_" + std::to_string(step) +
+                                   ".bin");
+    current_model->writeLearningRates(
+      "learning_rates_h_" + std::to_string(step) + ".bin",
+      "learning_rates_J_" + std::to_string(step) + ".bin");
+
+    mcmc_stats->writeFrequency1p("stat_MC_1p_" + std::to_string(step) + ".bin",
+                                 "stat_MC_1p_sigma_" + std::to_string(step) +
+                                   ".bin");
+    mcmc_stats->writeFrequency2p("stat_MC_2p_" + std::to_string(step) + ".bin",
+                                 "stat_MC_2p_sigma_" + std::to_string(step) +
+                                   ".bin");
+  } else {
+    previous_model->writeParamsCompat("parameters_" + std::to_string(step - 1) +
+                                      ".txt");
+    previous_model->writeGradientCompat("gradients_" +
+                                        std::to_string(step - 1) + ".txt");
+    previous_model->writeLearningRatesCompat("learning_rates_" +
+                                             std::to_string(step - 1) + ".txt");
+
+    current_model->writeParamsCompat("parameters_" + std::to_string(step) +
+                                     ".txt");
+    current_model->writeGradientCompat("gradients_" + std::to_string(step) +
+                                       ".txt");
+    current_model->writeLearningRatesCompat("learning_rates_" +
+                                            std::to_string(step) + ".txt");
+
+    mcmc_stats->writeFrequency1pCompat(
+      "stat_MC_1p_" + std::to_string(step) + ".txt",
+      "stat_MC_1p_sigma_" + std::to_string(step) + ".txt");
+    mcmc_stats->writeFrequency2pCompat(
+      "stat_MC_2p_" + std::to_string(step) + ".txt",
+      "stat_MC_2p_sigma_" + std::to_string(step) + ".txt");
+  }
+  mcmc_stats->writeSamples("MC_samples_" + std::to_string(step) + ".txt");
+  mcmc_stats->writeSampleEnergies("MC_energies_" + std::to_string(step) +
+                                  ".txt");
+
+  if (check_ergo) {
+    // mcmc_stats->writeSampleEnergiesRelaxation("energy_" +
+    // std::to_string(step) + ".dat", delta_t);
+    // mcmc_stats->writeEnergyStats("my_energies_start_" + std::to_string(step)
+    // + ".txt",
+    //                              "my_energies_end_" + std::to_string(step) +
+    //                              ".txt", "my_energies_cfr_" +
+    //                              std::to_string(step) + ".txt",
+    //                              "my_energies_cfr_err_" +
+    //                              std::to_string(step) + ".txt");
+    mcmc_stats->writeCorrelationsStats(
+      "overlap_" + std::to_string(step) + ".txt",
+      "overlap_inf_" + std::to_string(step) + ".txt",
+      "ergo_" + std::to_string(step) + ".txt");
   }
 };
 

@@ -6,26 +6,32 @@
 #include "model.hpp"
 #include "msa.hpp"
 #include "msa_stats.hpp"
+#include "pcg_random.hpp"
 #include "utils.hpp"
 
 class Sim
 {
 public:
-  Sim(MSAStats, std::string);
+  Sim(MSAStats, std::string, std::string);
   ~Sim(void);
   void run(void);
   void loadParameters(std::string);
   void writeParameters(std::string);
+  void burnRNG();
 
 private:
   // Member functions
   void initializeParameters(void);
+  bool compareParameters(std::string);
   void checkParameters(void);
+  void setStepOffset(void);
+  void setBurnTimes(void);
   void readInitialSample(int, int);
   bool computeErrorReparametrization(void);
   void updateLearningRate(void);
   void updateReparameterization(void);
   void writeData(std::string);
+  void writeData(int);
 
   // BM settings
   double lambda_reg1;  // L2 regularization strength for 1p statistics (fields)
@@ -33,7 +39,6 @@ private:
   int step_max;        // max number of BM steps
   double error_max;    // exit error
   int save_parameters; // multiple of iterations at which to save parameters
-  // int step_check;      // ?
   int random_seed;
 
   // Learning parameters
@@ -69,6 +74,7 @@ private:
 
   // MCMC settings
   int step;                     // current step number
+  int step_offset = 0;
   int M;                        // number of samples for each MCMC run
   int count_max;                // number of independent MCMC runs
   bool init_sample = false;     // flag for loading the first positions when
@@ -78,8 +84,11 @@ private:
 
   bool output_binary = false;
 
+  std::string hyperparameter_file = "bmdca_params.conf";
+
   // Key-value wrapper for loading parameters from a file.
   void setParameter(std::string, std::string);
+  bool compareParameter(std::string, std::string);
 
   // Buffers
   arma::Mat<double> run_buffer;
@@ -102,6 +111,9 @@ private:
 
   // Stats from MCMC samples
   MCMCStats* mcmc_stats;
+
+  // RNG
+  pcg32 rng;
 };
 
 #endif

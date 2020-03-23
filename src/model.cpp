@@ -4,6 +4,33 @@
 
 #include "utils.hpp"
 
+Model::Model(std::string parameters_file,
+             std::string gradient_file,
+             std::string learning_rate_file)
+{
+  params = loadPottsModelCompat(parameters_file);
+  gradient = loadPottsModelCompat(gradient_file);
+  learning_rates = loadPottsModelCompat(learning_rate_file);
+
+  N = params.h.n_cols;
+  Q = params.h.n_rows;
+}
+
+Model::Model(std::string parameters_file_h,
+             std::string parameters_file_J,
+             std::string gradient_file_h,
+             std::string gradient_file_J,
+             std::string learning_rate_file_h,
+             std::string learning_rate_file_J)
+{
+  params = loadPottsModel(parameters_file_h, parameters_file_J);
+  gradient = loadPottsModel(gradient_file_h, gradient_file_J);
+  learning_rates = loadPottsModel(learning_rate_file_h, learning_rate_file_J);
+
+  N = params.h.n_cols;
+  Q = params.h.n_rows;
+}
+
 Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
 {
   N = msa_stats.getN();

@@ -1,8 +1,11 @@
-
 #include "utils.hpp"
 
-#include <string>
+#include <cstdio>
+#include <dirent.h>
+#include <fstream>
 #include <iostream>
+#include <string>
+#include <sys/types.h>
 
 #ifndef AA_ALPHABET_SIZE
 #define AA_ALPHABET_SIZE 21
@@ -177,4 +180,34 @@ deleteFile(std::string filename) {
   }
   fs.close();
   return 0;
+};
+
+bool
+checkFileExists(std::string filename) {
+  std::fstream fs;
+  fs.open(filename);
+  if (fs.fail()) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
+void
+deleteAllFiles(std::string directory) {
+  DIR *dp;
+  struct dirent *dirp;
+
+  dp = opendir(".");
+  std::vector<int> steps;
+  while ((dirp = readdir(dp)) != NULL) {
+    std::string fname = dirp->d_name;
+    if (fname == ".") continue;
+    if (fname == "..") continue;
+    if (std::remove(fname.c_str()) != 0) {
+      std::cerr << "ERROR: deletion of '" << fname << "' failed." << std::endl;
+    }
+  }
+  closedir(dp);
+  return;
 };
