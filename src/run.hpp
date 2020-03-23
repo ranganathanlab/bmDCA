@@ -85,6 +85,7 @@ private:
   bool output_binary = false;
 
   std::string hyperparameter_file = "bmdca_params.conf";
+  std::string run_log_file = "bmdca_run.log";
 
   // Key-value wrapper for loading parameters from a file.
   void setParameter(std::string, std::string);
