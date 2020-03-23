@@ -469,6 +469,16 @@ Sim::setStepOffset(void) {
 
   dp = opendir(".");
 
+  int run_count = 0;
+  std::ifstream stream(run_log_file);
+  if (stream) {
+    std::string line;
+    while (std::getline(stream, line)) {
+      run_count++;
+    }
+  }
+  stream.close();
+
   std::vector<int> steps;
   while ((dirp = readdir(dp)) != NULL) {
     std::string fname = dirp->d_name;
@@ -519,7 +529,7 @@ Sim::setStepOffset(void) {
   for (auto it1 = steps.begin(); it1 != steps.end(); ++it1) {
     if (*it1 > max) {
       for (auto it2 = steps.begin(); it2 != steps.end(); ++it2) {
-        if (*it2 == (*it1 - 1)) {
+        if ((*it2 == (*it1 - 1)) & (*it2 <= run_count)) {
           max = *it1;
         }
       }
