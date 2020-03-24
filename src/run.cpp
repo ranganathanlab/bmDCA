@@ -473,6 +473,7 @@ Sim::setStepOffset(void) {
   std::ifstream stream(run_log_file);
   if (stream) {
     std::string line;
+    std::getline(stream, line); // skip the file header
     while (std::getline(stream, line)) {
       run_count++;
     }
