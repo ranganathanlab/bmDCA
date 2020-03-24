@@ -41,7 +41,11 @@ main(int argc, char* argv[])
         {
           struct stat st = { 0 };
           if (stat(dest_dir.c_str(), &st) == -1) {
+#if __unix__
             mkdir(dest_dir.c_str(), 0700);
+#elif _WIN32
+            mkdir(dest_dir.c_str());
+#endif
           }
         }
         dest_dir_given = true;
