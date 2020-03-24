@@ -421,26 +421,6 @@ MCMCStats::writeFrequency1p(std::string output_file,
 };
 
 void
-MCMCStats::writeFrequency1pHDF(std::string output_file)
-{
-  arma::Mat<int> N_mat = arma::Mat<int>(1, 1);
-  arma::Mat<int> Q_mat = arma::Mat<int>(1, 1);
-  arma::Mat<int> M_mat = arma::Mat<int>(1, 1);
-  N_mat.at(0, 0) = N;
-  Q_mat.at(0, 0) = Q;
-  M_mat.at(0, 0) = M;
-
-  N_mat.save(arma::hdf5_name(output_file, "N"));
-  Q_mat.save(arma::hdf5_name(output_file, "Q", arma::hdf5_opts::append));
-  M_mat.save(arma::hdf5_name(output_file, "M", arma::hdf5_opts::append));
-
-  frequency_1p.save(
-    arma::hdf5_name(output_file, "1p", arma::hdf5_opts::append));
-  frequency_1p_sigma.save(
-    arma::hdf5_name(output_file, "1p_sigma", arma::hdf5_opts::append));
-};
-
-void
 MCMCStats::writeFrequency1pCompat(std::string output_file,
                                   std::string output_file_sigma)
 {
@@ -465,34 +445,6 @@ MCMCStats::writeFrequency2p(std::string output_file,
 {
   frequency_2p.save(output_file, arma::arma_binary);
   frequency_2p_sigma.save(output_file_sigma, arma::arma_binary);
-};
-
-void
-MCMCStats::writeFrequency2pHDF(std::string output_file)
-{
-  arma::Mat<int> N_mat = arma::Mat<int>(1, 1);
-  arma::Mat<int> Q_mat = arma::Mat<int>(1, 1);
-  arma::Mat<int> M_mat = arma::Mat<int>(1, 1);
-  N_mat.at(0, 0) = N;
-  Q_mat.at(0, 0) = Q;
-  M_mat.at(0, 0) = M;
-
-  N_mat.save(arma::hdf5_name(output_file, "N"));
-  Q_mat.save(arma::hdf5_name(output_file, "Q", arma::hdf5_opts::append));
-  M_mat.save(arma::hdf5_name(output_file, "M", arma::hdf5_opts::append));
-
-  for (int i = 0; i < N; i++) {
-    for (int j = i + 1; j < N; j++) {
-      frequency_2p.at(i, j).save(
-        arma::hdf5_name(output_file,
-                        "2p/" + std::to_string(i) + "_" + std::to_string(j),
-                        arma::hdf5_opts::append));
-      frequency_2p_sigma.at(i, j).save(arma::hdf5_name(
-        output_file,
-        "2p_sigma/" + std::to_string(i) + "_" + std::to_string(j),
-        arma::hdf5_opts::append));
-    }
-  }
 };
 
 void

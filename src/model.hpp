@@ -26,10 +26,6 @@ public:
   void writeLearningRates(std::string, std::string);
   void writeGradient(std::string, std::string);
 
-  void writeParamsHDF(std::string);
-  void writeLearningRatesHDF(std::string);
-  void writeGradientHDF(std::string);
-
   void writeParamsCompat(std::string);
   void writeLearningRatesCompat(std::string);
   void writeGradientCompat(std::string);

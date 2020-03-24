@@ -51,38 +51,6 @@ loadPottsModel(std::string h_file, std::string J_file)
 };
 
 potts_model
-loadPottsModelHDF(std::string parameters_file)
-{
-  arma::Mat<int> N_mat = arma::Mat<int>(1, 1);
-  arma::Mat<int> Q_mat = arma::Mat<int>(1, 1);
-
-  N_mat.load(arma::hdf5_name(parameters_file, "N"));
-  Q_mat.load(arma::hdf5_name(parameters_file, "Q"));
-
-  int N = (int)as_scalar(N_mat);
-  int Q = (int)as_scalar(Q_mat);
-
-  potts_model params;
-  params.h = arma::Mat<double>(Q, N, arma::fill::zeros);
-  params.J = arma::field<arma::Mat<double>>(N, N);
-  for (int i = 0; i < N; i++) {
-    for (int j = i + 1; j < N; j++) {
-      params.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
-    }
-  }
-
-  params.h.load(arma::hdf5_name(parameters_file, "h"));
-
-  for (int i = 0; i < N; i++) {
-    for (int j = i + 1; j < N; j++) {
-      params.J.at(i, j).load(arma::hdf5_name(
-        parameters_file, "J/" + std::to_string(i) + "_" + std::to_string(j)));
-    }
-  }
-  return params;
-};
-
-potts_model
 loadPottsModelCompat(std::string parameters_file)
 {
   std::ifstream input_stream(parameters_file);
