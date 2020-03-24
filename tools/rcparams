@@ -52,6 +52,21 @@ set_gcc() {
   fi
 }
 
+# Generic wrapper function, in a similar spirit as set_gcc, that creates an
+# alias for a specified binary and also export to global environmental
+# variables, if specified.
+#  $1 - absolute path to binary
+#  $2 - desired alias
+#  $3 - (optional) desired environmental variable
+set_alias() {
+  if [ -f "${1}" ]; then
+    alias "${2}"="${1}"
+    if [ "$#" -eq 3 ]; then
+      export "${3}"="${1}"
+    fi
+  fi
+}
+
 
 #
 # Set aliases and load paths
