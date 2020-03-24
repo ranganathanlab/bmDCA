@@ -16,7 +16,7 @@ main(int argc, char* argv[])
   std::string parameters_file, h_file, J_file;
   std::string dest_dir = ".";
   std::string config_file;
-  std::string output_file = "mcmc_sequences.fasta";
+  std::string output_file = "MC_samples.fasta";
 
   bool dest_dir_given = false;
   bool compat_mode = true;
@@ -65,6 +65,19 @@ main(int argc, char* argv[])
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
         std::exit(EXIT_FAILURE);
+    }
+  }
+
+  // Check inputs
+  if (compat_mode == true) {
+    if (parameters_file.size() == 0) {
+      std::cerr << "ERROR: Parameters file not given." << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
+  } else {
+    if ((h_file.size() == 0) | (J_file.size() == 0)) {
+      std::cerr << "ERROR: Parameters files not given." << std::endl;
+      std::exit(EXIT_FAILURE);
     }
   }
 
