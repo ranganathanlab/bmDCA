@@ -57,6 +57,7 @@ main(int argc, char* argv[])
         break;
       case 'h':
         print_usage();
+        return 0;
         break;
       case 'i':
         input_file = optarg;
