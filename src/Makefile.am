@@ -2,7 +2,14 @@ bin_PROGRAMS = bmdca bmdca_sample
 
 CXXFLAGS = -O3 -std=c++11 $(OPENMP_CXXFLAGS) $(ARMADILLO_CFLAGS) \
            -DARMA_DONT_USE_HDF5
+if UNIX
 LDFLAGS = -lm $(ARMADILLO_LIBS)
+else
+if WINDOWS
+LDFLAGS = -static -static-libgcc -static-libstdc++ \
+          -lm $(ARMADILLO_LIBS).dll -lopenblas -llapack
+endif
+endif
 
 DISTCLEANFILES = Makefile.in
 

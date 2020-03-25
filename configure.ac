@@ -5,6 +5,28 @@ AC_INIT([bmDCA],
         [https://github.com/ranganathanlab/bmDCA/issues],
         [bmDCA])
 
+AC_CANONICAL_HOST
+
+build_unix=no
+build_windows=no
+
+# Detect the target system
+case "${host_os}" in
+    linux*|darwin*)
+        build_unix=yes
+        ;;
+    cygwin*|mingw*)
+        build_windows=yes
+        ;;
+    *)
+        AC_MSG_ERROR(["OS $host_os is not supported"])
+        ;;
+esac
+
+# Pass the conditionals to automake
+AM_CONDITIONAL([UNIX], [test "$build_unix" = "yes"])
+AM_CONDITIONAL([WINDOWS], [test "$build_windows" = "yes"])
+
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE([enable])
 AC_PREFIX_DEFAULT(/usr/local)
