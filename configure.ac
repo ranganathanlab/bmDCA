@@ -12,15 +12,15 @@ build_windows=no
 
 # Detect the target system
 case "${host_os}" in
-    linux*|darwin*)
-        build_unix=yes
-        ;;
-    cygwin*|mingw*|msys*)
-        build_windows=yes
-        ;;
-    *)
-        AC_MSG_ERROR(["OS $host_os is not supported"])
-        ;;
+  linux*|darwin*)
+    build_unix=yes
+    ;;
+  cygwin*|mingw*|msys*)
+    build_windows=yes
+    ;;
+  *)
+    AC_MSG_ERROR(["OS $host_os is not supported"])
+    ;;
 esac
 
 # Pass the conditionals to automake
