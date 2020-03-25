@@ -15,7 +15,7 @@ case "${host_os}" in
     linux*|darwin*)
         build_unix=yes
         ;;
-    cygwin*|mingw*)
+    cygwin*|mingw*|msys*)
         build_windows=yes
         ;;
     *)
