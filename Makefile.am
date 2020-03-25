@@ -14,4 +14,6 @@ distclean-local:
 	rm -rf autom4te.cache \
 	rm -f compile \
 	rm -f depcomp \
-	rm -rf src/.deps/
+	rm -rf src/.deps/ \
+	rm -f config.guess \
+	rm -f config.sub

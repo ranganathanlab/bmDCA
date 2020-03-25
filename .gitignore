@@ -29,8 +29,10 @@ configure
 Makefile.in
 Makefile
 aclocal.m4
+config.guess
 config.log
 config.status
+config.sub
 install-sh
 missing
 
