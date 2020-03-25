@@ -19,13 +19,13 @@ case "${host_os}" in
     build_windows=yes
     ;;
   *)
-    AC_MSG_ERROR(["OS $host_os is not supported"])
+    AC_MSG_ERROR(["'$host_os' is not supported"])
     ;;
 esac
 
 # Pass the conditionals to automake
-AM_CONDITIONAL([UNIX], [test "$build_unix" = "yes"])
-AM_CONDITIONAL([WINDOWS], [test "$build_windows" = "yes"])
+AM_CONDITIONAL([UNIX], [test x$build_unix = xyes])
+AM_CONDITIONAL([WINDOWS], [test x$build_windows = xyes])
 
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE([enable])
