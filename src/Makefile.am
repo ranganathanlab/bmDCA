@@ -2,8 +2,11 @@ bin_PROGRAMS = bmdca bmdca_sample
 
 CXXFLAGS = -O3 -std=c++11 $(OPENMP_CXXFLAGS) $(ARMADILLO_CFLAGS) \
            -DARMA_DONT_USE_HDF5
-if UNIX
+if LINUX
 AM_LDFLAGS = -lm $(ARMADILLO_LIBS) -lopenblas -llapack
+endif
+if MACOS
+AM_LDFLAGS = -lm $(ARMADILLO_LIBS) -framework Accelerate
 endif
 if WINDOWS
 AM_LDFLAGS = -static -static-libgcc -static-libstdc++ \

@@ -7,13 +7,17 @@ AC_INIT([bmDCA],
 
 AC_CANONICAL_HOST
 
-build_unix=no
+build_linux=no
+build_macos=no
 build_windows=no
 
 # Detect the target system
 case "${host_os}" in
-  linux*|darwin*)
-    build_unix=yes
+  linux*)
+    build_linux=yes
+    ;;
+  darwin*)
+    build_macos=yes
     ;;
   cygwin*|mingw*|msys*)
     build_windows=yes
@@ -24,7 +28,8 @@ case "${host_os}" in
 esac
 
 # Pass the conditionals to automake
-AM_CONDITIONAL([UNIX], [test x$build_unix = xyes])
+AM_CONDITIONAL([LINUX], [test x$build_linux = xyes])
+AM_CONDITIONAL([MACOS], [test x$build_macos = xyes])
 AM_CONDITIONAL([WINDOWS], [test x$build_windows = xyes])
 
 AM_INIT_AUTOMAKE([foreign])
