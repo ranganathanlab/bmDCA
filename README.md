@@ -199,7 +199,7 @@ Windows.
 The installer defaults work fine, and if prompted, open the "MSYS2" shell in
 the dialog window.
 
-Once installed, update the system libraries by running:
+Once MSYS2 is installed and open, update the base libraries by running:
 ```
 pacman -Syu
 ```
@@ -210,8 +210,8 @@ close the terminal. Close it and open it again. Then, again run:
 pacman -Syu
 ```
 
-This will upgrade the packages packaged in the installer to their most recent
-versions.
+This will upgrade the remaining packages packaged in the installer to their
+most recent versions.
 
 Next, install the dependencies for bmDCA:
 ```
@@ -238,6 +238,9 @@ export PATH="/mingw64/bin:$PATH"
 ```
 
 Then, close and open the MSYS2 terminal again.
+
+_Optionally, edit the `/etc/pacman.conf` file. Uncomment the line `#Color` and
+add the line `ILoveCandy`. Just a cosmetic flourish for `pacman`._
 
 ## Installing bmDCA
 
@@ -305,13 +308,12 @@ from the command prompt or other terminal emulators. To update the PATH:
 4. Select 'Path' in one of the two selection windows (either 'User variables'
    or 'System variables' is fine)
 5. Once 'Path' is highlighted, click 'Edit...'
-6. Click 'New' in the new window.
-7. While the new entry is highlighted, you can either:
-   - Enter the path to `/usr/local/bin` in the MSYS2 installation folder
-     (default: `C:\msys64\usr\local\bin`).
-   - Click the 'Browse...' button and navigate to the 'usr/local/bin'
+6. Enter the `/usr/local/bin` as a new PATH entry. You can either:
+   - Click 'New' in the new window and nter the path to `/usr/local/bin` in the
+     MSYS2 installation folder (default: `C:\msys64\usr\local\bin`).
+   - Click the 'Browse...' button and navigate to the `C:\msys64\usr\local\bin`
      directory.
-8. When the new entry is added, click 'OK' on all the opened windows to set all
+7. When the new entry is added, click 'OK' on all the opened windows to set all
    the changes. You will need to close and re-open terminals for the changes to
    be reflected.
 
