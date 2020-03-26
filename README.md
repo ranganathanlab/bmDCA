@@ -1,10 +1,11 @@
 # Boltzmann-machine Direct Coupling Analysis (bmDCA)
 
 Dependencies (installation instructions detailed below):
- * [Armadillo](http://arma.sourceforge.net/)
  * [GCC](https://gcc.gnu.org/) that supports the C++11 standard and
    [OpenMP](https://en.wikipedia.org/wiki/OpenMP)
  * AutoTools
+ * pkg-config
+ * [Armadillo](http://arma.sourceforge.net/)
 
 This repository contains a C++ reimplementation of bmDCA adapted from [the
 original](https://github.com/matteofigliuzzi/bmDCA) code. Method is described
@@ -19,50 +20,114 @@ parallelize the MCMC in the inference loop.
 
 ## Installing dependencies
 
-### GCC, AutoTools, pkg-config
-
-GCC is used to compile the source code (and dependencies, if necessary). The
-code relies on the `fopenmp` flag for parallelization, so GCC is preferred over
-Clang. It also needs support for the C++11 standard, so any GCC later than
+__GCC__ is used to compile the source code (and dependencies, if necessary).
+The code relies on the `fopenmp` flag for parallelization, so GCC is preferred
+over Clang. It also needs support for the C++11 standard, so any GCC later than
 version 4.2 will suffice.
 
-AutoTools is for generating generate makefiles and install paths.
+__AutoTools__ are a set of programs used to generate makefiles for
+cross-platform compilation and installation.
 
-pkg-config is a program that provides a simple interface between installed
+__pkg-config__ is a program that provides a simple interface between installed
 programs (e.g. libraries and header files) and the compiler. It's used by
 AutoTools to check for dependencies before compilation.
 
-#### Linux
+__Armadillo__ is a C++ linear algebra library. It's used for storing data in
+matrix structures and performing quick computations in the bmDCA inference
+loop. To install, again look to your package repository.
 
-All of these packages can be simply install from your distribution's package
-repository.
+### Linux
 
-For Debian and Ubuntu:
+To install the dependencies in Linux, simply use your distributions package
+manager. Commands for Debian/Ubuntu and Arch Linux are provided below:
+
+#### Debian/Ubuntu
+
+Run:
 ```
-sudo apt install g++ automake autoconf pkg-config
+sudo apt-get update
+sudo apt-get install git gcc g++ automake autoconf pkg-config \
+  libarmadillo-dev libopenblas-dev libarpack++2-dev
 ```
+
+#### Arch Linux
 
 For Arch Linux, GCC should have been installed with the `base` and `base-devel`
-metapackages, but if not installed, run:
+metapackages (`sudo pacman -S base base-devel`), but if not installed, run:
 ```
 sudo pacman -S gcc automake autoconf pkgconf
 ```
 
-#### macOS
+For Arch, Armadillo is not in the package repositories. You will need to check
+the AUR.
 
-First, install Xcode developer tools. Run:
+First, install the SuperLU library:
+```
+git clone https://aur.archlinux.org/superlu.git
+cd superlu
+makepkg -si
+cd ..
+```
+
+SuperLU is a fast matrix factorization library required as a build dependency
+for Armadillo. Other build dependencies will be installed via `makepkg` from
+the official repositories.
+
+Now, download and install Armadillo:
+```
+git clone https://aur.archlinux.org/armadillo.git
+cd armadillo
+makepkg -si
+cd ..
+```
+
+<!-- If there is no package for Armadillo, or you do not have root privileges on the
+   - system your using, you can instead compile the library from source.
+   - 
+   - First, make sure that `cmake`, `openblas` (or `blas`), `lapack`, `arpack`, and
+   - `SuperLU` are installed. CMake is a compilation tool and the others are build
+   - dependencies. Then, to download and install Armadillo system wide, run the
+   - following:
+   - ```
+   - wget https://sourceforge.net/projects/arma/files/armadillo-9.850.1.tar.xz
+   - tar xf armadillo-9.850.1.tar.xz
+   - cd armadillo-9.850.1
+   - cmake .
+   - make -j4
+   - sudo make install
+   - cd ..
+   - ``` -->
+
+
+### macOS
+
+The macOS instructions rely on Xcode developer tools and Homebrew for package
+management. All commands will be entered into the Terminal.
+
+First, install Xcode developer tools. Open the 'Terminal' application from the
+launcher and run:
 ```
 xcode-select --install
 ```
 
-You may already have this installed.
+This may already have this installed.
 
-Next, install Homebrew. See the [online instructions](https://brew.sh) for how
-to do this.
-
-Once installed, run:
+Next, install Homebrew. From the [online instructions](https://brew.sh), run:
 ```
-brew install gcc automake autoconf pkg-config
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+```
+
+If you run into permissions errors when installing Homebrew, complaining that
+root owns the `/usr/local/` directory, you can change the ownership by running:
+```
+chmod -R <user> /usr/local
+```
+
+where `<user>` should be substituted with your username, e.g. `john`.
+
+Once Homebrew is installed, run:
+```
+brew install gcc automake autoconf pkg-config armadillo
 ```
 
 This will install the most recent GCC (9.3.0 as of writing) along with
@@ -97,6 +162,9 @@ You can append the `rcparams` file by copy-pasting the code in your favorite
 text editor. You could also do something like `cat tools/rcparams >>
 ${HOME}/.bashrc`, for example.
 
+The libraries and headers will be found via the `pkgconfig_find()` and
+`ld_lib_add()` functions specified in the `rcparams` file.
+
 __Note:__ Run commands are executed when the shell starts, not when the files
 are edited. To update your shell to reflect changes, you can either run:
 ```
@@ -106,124 +174,112 @@ source ${HOME}/.bashrc
 Or simply open a new shell. (For remote systems, you can just log out and log
 in again.)
 
+<!-- The files will be installed to `/usr/local/include` and `/usr/local/lib` by
+   - default. This requires root privileges (hence, the `sudo make install` at the
+   - end). If you want to install elsewhere, adjust the above commands:
+   - ```
+   - wget https://sourceforge.net/projects/arma/files/armadillo-9.850.1.tar.xz
+   - tar xf armadillo-9.850.1.tar.xz
+   - cd armadillo-9.850.1
+   - cmake . -DCMAKE_INSTALL_PREFIX:PATH=<alternate_path>
+   - make -j4
+   - make install
+   - cd ..
+   - ```
+   - 
+   - Here, change `<alternate_path>` to wherever you want, for example `${HOME}` or
+   - `${HOME}/.local`. -->
+
 #### Windows
 
-Until a Windows-specific set of instructions are added, install Windows
-Subsystem for Linux (WSL). Pick a Linux distribution (Ubuntu or Debian should
-work fine) and follow the Linux instructions mentioned above.
+Before starting, install [MSYS2](https://www.msys2.org). This program is a
+package distribution for GNU/Unix tools that can be used to build programs for
+Windows.
 
-### Armadillo
+The installer defaults work fine, and if prompted, open the "MSYS2" shell in
+the dialog window.
 
-Armadillo is a C++ linear algebra library. It's used for storing data in matrix
-structures and performing quick computations in the bmDCA inference loop. To
-install, again look to your package repository.
-
-#### Option 1: Package repositories
-
-##### Linux
-
-For Debian and Ubuntu:
+Once installed, update the system libraries by running:
 ```
-sudo apt install libarmadillo-dev
+pacman -Syu
 ```
 
-For Arch Linux, check the AUR. You will first need to install the SuperLU
-library from AUR:
+This will download and install some packages. You will then be prompted to
+close the terminal. Close it and open it again. Then, again run:
 ```
-git clone https://aur.archlinux.org/superlu.git
-cd superlu
-makepkg -si
-cd ..
+pacman -Syu
 ```
 
-SuperLU is a fast matrix factorization library required as a build dependency
-for Armadillo. Other build dependencies will be installed via `makepkg` from
-the official repositories.
+This will upgrade the packages packaged in the installer to their most recent
+versions.
 
-Now, download and install Armadillo:
+Next, install the dependencies for bmDCA:
 ```
-git clone https://aur.archlinux.org/armadillo.git
-cd armadillo
-makepkg -si
-cd ..
-```
-
-##### macOS
-
-For macOS:
-```
-brew install armadillo
+pacman -S nano vim git \
+   autoconf automake-wrapper pkg-config make \
+   mingw-w64-x86_64-toolchain \
+   mingw-w64-x86_64-openmp \
+   mingw-w64-x86_64-arpack \
+   mingw-w64-x86_64-lapack \
+   mingw-w64-x86_64-openblas \
+   mingw-w64-x86_64-armadillo
 ```
 
-The libraries and headers will be found via the `pkgconfig_find()` and
-`ld_lib_add()` functions specified in the `rcparams` file. If everything was
-already appended to your run command file when installing GCC, nothing else is
-needed here.
+The above command will installed the required programs in the `/mingw64/bin`
+directory. Unfortunately, this directory is not on the default PATH. You will
+need to add it manually.
 
-##### Windows
+Open your `.bashrc` file in a text editor (e.g. `vim ~/.bashrc`). Nano and Vim
+were installed in the above command block.
 
-Until a Windows-specific set of instructions are added, install Windows
-Subsystem for Linux (WSL). Pick a Linux distribution (Ubuntu or Debian should
-work fine) and follow the Linux instructions mentioned above.
-
-#### Option 2: Manual
-
-If there is no package for Armadillo, or you do not have root privileges on the
-system your using, you can instead compile the library from source.
-
-First, make sure that `cmake`, `openblas` (or `blas`), `lapack`, `arpack`, and
-`SuperLU` are installed. CMake is a compilation tool and the others are build
-dependencies. Then, to download and install Armadillo system wide, run the
-following:
+Once open, add the line (at the end of the file):
 ```
-wget https://sourceforge.net/projects/arma/files/armadillo-9.850.1.tar.xz
-tar xf armadillo-9.850.1.tar.xz
-cd armadillo-9.850.1
-cmake .
-make -j4
-sudo make install
-cd ..
+export PATH="/mingw64/bin:$PATH"
 ```
 
-The files will be installed to `/usr/local/include` and `/usr/local/lib` by
-default. This requires root privileges (hence, the `sudo make install` at the
-end). If you want to install elsewhere, adjust the above commands:
-```
-wget https://sourceforge.net/projects/arma/files/armadillo-9.850.1.tar.xz
-tar xf armadillo-9.850.1.tar.xz
-cd armadillo-9.850.1
-cmake . -DCMAKE_INSTALL_PREFIX:PATH=<alternate_path>
-make -j4
-make install
-cd ..
-```
+Then, close and open the MSYS2 terminal again.
 
-Here, change `<alternate_path>` to wherever you want, for example `${HOME}` or
-`${HOME}/.local`.
-
-## Compilation and installation
+## Installing bmDCA
 
 Now that all the dependencies have been installed, compile and install bmDCA
 globally (default: `/usr/local`) by running:
 ```
-./autogen.sh
-make
-sudo make install
+git clone https://github.com/ranganathanlab/bmDCA.git
+cd bmDCA
+./autogen.sh --prefix=/usr/local && \
+make -j4 && \
+make install
+cd ..
 ```
 
-If instead you want to install the code locally (or don't have root
-permissions), run:
+Depending on your platform, the `make install` command may fail due to
+permissions issues. To remedy this you can either run `sudo make install`
+instead.
+
+Alternately, you can instead install the code in your local directory (default:
+`/home/<username>/.local`. This is especially useful if you don't have
+administrator permissions. 
+
+Note that this local installation step is entirely unnecessary if the
+system-wide installation from above succeeded. Run:
 ```
-./autogen.sh --prefix=${HOME}/.local
-make
+./autogen.sh --prefix=${HOME}/.local && \
+make -j4 && \
 make install
 ```
 
 Replace the value to the right of `--prefix=` with any local path that is part
-of the system PATH.
+of the system PATH. If you successfully installed bmDCA 
 
-In the event you with to uninstall the code, simply run `sudo make uninstall`
+In the event you with to uninstall `bmDCA`, simply run `sudo make uninstall`
 or `make uninstall` as appropriate.
+
+Test the installation by running in the terminal:
+```
+bmdca
+```
+
+If the installation worked correctly, this will print the usage information.
 
 ## Usage
 
@@ -262,7 +318,7 @@ one. The gap symbol is mapped to 0, A is mapped to 1, etc...
 __Important:__ The MSA processing function does not handle gaps represented by
 '.' characters.
 
-#### Example 1
+#### Example 1: run from FASTA file
 
 To learn a FASTA-formatted multiple sequence alignment (with re-weighting) and
 a config file:
@@ -271,9 +327,9 @@ a config file:
 bmdca -i <input_alignment.fasta> -d <output_directory> -r -c <config_file.conf>
 ```
 
-#### Example 2
+#### Example 2: run from weighted numerical alignment
 
-If you already have a numerically-format alignment (gaps are 0) and set of
+If you already have a numerically-formatted alignment (gaps are 0) and set of
 per-sequence weights, run:
 ```
 bmdca -n <numerical_alignment.txt> -w <sequence_weights.txt>
@@ -407,6 +463,9 @@ Inference and sampling runs can be configured using a text file (see
    2. mean overlap for all sequences %d steps apart
    3. standard deviation of overlaps for all sequences %d steps apart
  - `parameters_%d.txt`: learned Potts model parameters (J and h)
+ - `parameters_h_%d.bin` and `parameters_J_%d.bin`: learned Potts model
+   parameters (J and h), stored in arma binary format (see `output_binary=true`
+   flag from config file).
  - `rel_ent_grad_align_1p.txt`: relative entropy gradient for each amino acid
    at each position
  - `sequence_weights.txt`: weights for each sequence, either a number between 0
@@ -429,15 +488,13 @@ Inference and sampling runs can be configured using a text file (see
 
 The final outputs will be stored with a `_final` suffix in the file name before
 the file extension. For example, the final learned parameters will be stored in
-`parameters_final.txt`. __Use this file for sampling synthetic sequences.__
+`parameters_final.txt`. __Use this file or the latest learned parameters for
+sampling synthetic sequences.__
 
 Depending how many times you configure `bmdca` to save steps to disk, the total
 data generated can be substantial ( > 1 Gb). At present, the only way to
 disable writing of a particular log file is to comment out the code in the
 `Sim::run()` function defined in `src/run.cpp`.
-
-Output file formats will probably be changed at a later date, likely to a
-binary format...
 
 ## Output file formats
 
@@ -457,6 +514,8 @@ The first line is:
 
 ### Learned Potts model parameters
 
+#### ASCII
+
 The output directory contains learned parameters saved in files called
 `parameters_%d.txt`. They contain the parameters for both J and h, formatted
 as follows:
@@ -466,7 +525,7 @@ J [position index i] [position index j] [amino acid index a] [amino acid index b
 .
 .
 .
-h [positoin index i] [amino acid index a]
+h [position index i] [amino acid index a]
 .
 .
 .
@@ -475,6 +534,14 @@ h [positoin index i] [amino acid index a]
 The position indices go from 0 to N-1 (N = # positions), and the amino acid
 indices go from 0 to 20 (21 amino acids total, including gaps). 0 corresponds
 to a gap.
+
+#### Armadillo binary
+
+These files (`parameters_h_%d.bin` and `parameters_J_%d.bin`) are binaries and
+cannot be viewed by a text editor. To view the contents, convert the files to
+ASCII by running:
+
+__PROGRAM PENDING__
 
 ### Sequence statistics
 
