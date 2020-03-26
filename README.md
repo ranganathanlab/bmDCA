@@ -279,7 +279,19 @@ Test the installation by running in the terminal:
 bmdca
 ```
 
-If the installation worked correctly, this will print the usage information.
+If the installation worked correctly, this will print the usage information, e.g.:
+```
+bmdca usage:
+(e.g. bmdca -i <input MSA> -r -d <directory> -c <config file>)
+  -i: input MSA (FASTA format)
+  -d: destination directory
+  -r: re-weighting flag
+  -n: numerical MSA
+  -w: sequence weights
+  -c: config file
+  -h: print usage (i.e. this message)
+  -f: force a restart of the inference loop
+```
 
 ## Usage
 
