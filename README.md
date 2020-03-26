@@ -293,6 +293,27 @@ bmdca usage:
   -f: force a restart of the inference loop
 ```
 
+### Additional notes for Windows 10
+
+Though `bmdca` should now be easily evoked from within MSYS2, one can update
+the system PATH variable to make the binaries accessible system-wide, such as
+from the command prompt or other terminal emulators. To update the PATH:
+
+1. Type 'env' in the start search bar.
+2. Click 'Edit the system environment variables'.
+3. Click on 'Environment Variables...' toward the bottom of the window that opens.
+4. Select 'Path' in one of the two selection windows (either 'User variables'
+   or 'System variables' is fine)
+5. Once 'Path' is highlighted, click 'Edit...'
+6. Click 'New' in the new window.
+7. While the new entry is highlighted, you can either:
+   - Enter the path to `/usr/local/bin` in the MSYS2 installation folder
+     (default: `C:\msys64\usr\local\bin`).
+   - Click the 'Browse...' button and navigate to the 'usr/local/bin'
+     directory.
+8. When the new entry is added, click 'OK' on all the opened windows to set all
+   the changes.
+
 ## Usage
 
 ### Inference (`bmdca`)
