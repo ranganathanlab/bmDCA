@@ -190,7 +190,7 @@ in again.)
    - Here, change `<alternate_path>` to wherever you want, for example `${HOME}` or
    - `${HOME}/.local`. -->
 
-#### Windows
+### Windows
 
 Before starting, install [MSYS2](https://www.msys2.org). This program is a
 package distribution for GNU/Unix tools that can be used to build programs for
