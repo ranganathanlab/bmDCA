@@ -120,7 +120,7 @@ Next, install Homebrew. From the [online instructions](https://brew.sh), run:
 If you run into permissions errors when installing Homebrew, complaining that
 root owns the `/usr/local/` directory, you can change the ownership by running:
 ```
-chmod -R <user> /usr/local
+sudo chown -R $(whoami) /usr/local/
 ```
 
 where `<user>` should be substituted with your username, e.g. `john`.
@@ -312,7 +312,8 @@ from the command prompt or other terminal emulators. To update the PATH:
    - Click the 'Browse...' button and navigate to the 'usr/local/bin'
      directory.
 8. When the new entry is added, click 'OK' on all the opened windows to set all
-   the changes.
+   the changes. You will need to close and re-open terminals for the changes to
+   be reflected.
 
 ## Usage
 
