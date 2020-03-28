@@ -578,7 +578,7 @@ Sim::~Sim(void)
 
 void
 Sim::burnRNG(void) {
-  long int value;
+  long int value = -1;
   std::ifstream stream(run_log_file);
   std::string line;
   std::getline(stream, line);
