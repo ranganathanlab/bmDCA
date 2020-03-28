@@ -604,7 +604,7 @@ Sim::burnRNG(void) {
 
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
   int counter = 1;
-  while ((dist(rng) != value) & (counter < 100*step_max)) {
+  while ((dist(rng) != value) & (counter < 100*step_max*step_importance_max)) {
     counter++;
   }
 };
