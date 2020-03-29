@@ -1079,14 +1079,10 @@ Sim::updateLearningRate(void)
     for (int j = i + 1; j < N; j++) {
       for (int a = 0; a < Q; a++) {
         for (int b = 0; b < Q; b++) {
-          alfa = Theta(current_model->gradient.J.at(i, j).at(a, b) *
-                       previous_model->gradient.J.at(i, j).at(a, b)) *
-                   adapt_up +
-                 Theta(-current_model->gradient.J.at(i, j).at(a, b) *
-                       previous_model->gradient.J.at(i, j).at(a, b)) *
-                   adapt_down +
-                 Delta(current_model->gradient.J.at(i, j).at(a, b) *
-                       previous_model->gradient.J.at(i, j).at(a, b));
+          alfa = current_model->gradient.J.at(i, j).at(a, b) *
+                 previous_model->gradient.J.at(i, j).at(a, b);
+          alfa =
+            Theta(alfa) * adapt_up + Theta(-alfa) * adapt_down + Delta(alfa);
 
           current_model->learning_rates.J.at(i, j).at(a, b) =
             Min(max_step_J,
