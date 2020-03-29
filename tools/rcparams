@@ -38,7 +38,7 @@ ld_path_add() {
 }
 
 # Use GCC on non-standard path. Supply a path to a GCC binary, and the script
-# will then alias gcc to the correpsonding binaries and override the CC and CXX
+# will then alias gcc to the corresponding binaries and override the CC and CXX
 # environmental variables.
 #   $1 - absolute path to gcc binary file
 set_gcc() {
@@ -73,27 +73,8 @@ set_alias() {
 #
 
 # Add alias for Homebrew GCC and export to CC and CXX environment variables.
-if [ -f /usr/local/bin/gcc-9 ]; then
-  alias gcc=/usr/local/bin/gcc-9
-  alias g++=/usr/local/bin/g++-9
-  export CC=/usr/local/bin/gcc-9
-  export CXX=/usr/local/bin/g++-9
-elif [ -f /usr/local/Cellar/gcc/bin/gcc-9 ]; then
-  alias gcc=/usr/local/Cellar/gcc/bin/gcc-9
-  alias g++=/usr/local/Cellar/gcc/bin/g++-9
-  export CC=/usr/local/Cellar/gcc/bin/gcc-9
-  export CXX=/usr/local/Cellar/gcc/bin/g++-9
-elif [ -f /usr/local/bin/gcc-8 ]; then
-  alias gcc=/usr/local/bin/gcc-8
-  alias g++=/usr/local/bin/g++-8
-  export CC=/usr/local/bin/gcc-8
-  export CXX=/usr/local/bin/g++-8
-elif [ -f /usr/local/Cellar/gcc/bin/gcc-8 ]; then
-  alias gcc=/usr/local/Cellar/gcc/bin/gcc-8
-  alias g++=/usr/local/Cellar/gcc/bin/g++-8
-  export CC=/usr/local/Cellar/gcc/bin/gcc-8
-  export CXX=/usr/local/Cellar/gcc/bin/g++-8
-fi
+set_gcc /usr/local/bin/gcc-9  # from Homebrew
+# set_gcc /usr/local/Cellar/gcc/bin/gcc-9
 
 # Look for pkg-config directories
 pkgconfig_find /usr/local/Cellar  # from Homebrew
