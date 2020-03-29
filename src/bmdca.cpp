@@ -18,7 +18,7 @@ void print_usage(void) {
   std::cout << "  -c: config file" << std::endl;
   std::cout << "  -h: print usage (i.e. this message)" << std::endl;
   std::cout << "  -f: force a restart of the inference loop" << std::endl;
-}
+};
 
 int
 main(int argc, char* argv[])
@@ -83,6 +83,7 @@ main(int argc, char* argv[])
         break;
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
+        print_usage();
         std::exit(EXIT_FAILURE);
     }
   }

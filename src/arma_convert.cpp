@@ -7,6 +7,20 @@
 
 #include "utils.hpp"
 
+void
+print_usage(void)
+{
+  std::cout << "arma2ascii usage:" << std::endl;
+  std::cout << "(e.g. bmdca_sample -p <params|params h> -P <params J>)"
+            << std::endl;
+  std::cout << "(e.g. bmdca_sample -s <stats file>)" << std::endl;
+  std::cout << "  -p: parameters (txt) _or_ fields h (bin)" << std::endl;
+  std::cout << "  -P: couplings J (bin), required if fields h given"
+            << std::endl;
+  std::cout << "  -s: sequence sample statistics file" << std::endl;
+  std::cout << "  -h: print usage (i.e. this message)" << std::endl;
+};
+
 int
 main(int argc, char* argv[])
 {
@@ -16,7 +30,7 @@ main(int argc, char* argv[])
 
   // Read command-line parameters.
   char c;
-  while ((c = getopt(argc, argv, "P:p:s:")) != -1) {
+  while ((c = getopt(argc, argv, "P:p:s:h")) != -1) {
     switch (c) {
       case 'p':
         param_h_file = optarg;
@@ -27,8 +41,13 @@ main(int argc, char* argv[])
       case 's':
         stat_file = optarg;
         break;
+      case 'h':
+        print_usage();
+        return 0;
+        break;
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
+        print_usage();
         std::exit(EXIT_FAILURE);
     }
   }
