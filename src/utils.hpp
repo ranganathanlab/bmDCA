@@ -28,6 +28,12 @@ potts_model loadPottsModel(std::string, std::string);
 
 potts_model loadPottsModelCompat(std::string);
 
+void
+convertFrequencyToAscii(std::string);
+
+void
+convertParametersToAscii(std::string, std::string);
+
 int
 Theta(double);
 

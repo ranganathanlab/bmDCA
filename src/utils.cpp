@@ -104,6 +104,173 @@ loadPottsModelCompat(std::string parameters_file)
   return params;
 };
 
+void
+convertFrequencyToAscii(std::string stats_file)
+{
+  int idx = stats_file.find_last_of(".");
+  std::string stats_name = stats_file.substr(0, idx);
+  std::string stats_ext = stats_file.substr(idx + 1);
+
+  if (stats_ext != "bin") {
+    std::cerr << "ERROR: input file does not have 'bin' extension."
+              << std::endl;
+    return;
+  }
+
+  // Guess if 1p vs 2p statistics
+  bool is_1p = false;
+  bool is_2p = false;
+  if (stats_name.find("_1p") != std::string::npos) {
+    is_1p = true;
+  } else if (stats_name.find("_2p") != std::string::npos) {
+    is_2p = true;
+  }
+
+  std::string output_file = stats_name + ".txt";
+  std::ofstream output_stream(output_file);
+
+  if (is_1p) {
+    arma::Mat<double> frequency_1p;
+    frequency_1p.load(stats_file, arma::arma_binary);
+
+    int N = frequency_1p.n_cols;
+    int Q = frequency_1p.n_rows;
+
+    if (Q == AA_ALPHABET_SIZE) {
+      for (int i = 0; i < N; i++) {
+        output_stream << i;
+        for (int aa = 0; aa < Q; aa++) {
+          output_stream << " " << frequency_1p.at(aa, i);
+        }
+        output_stream << std::endl;
+      }
+    }
+  } else if (is_2p) {
+    arma::field<arma::Mat<double>> frequency_2p;
+    frequency_2p.load(stats_file, arma::arma_binary);
+
+    int N = frequency_2p.n_rows;
+    int Q = AA_ALPHABET_SIZE;
+
+    for (int i = 0; i < N; i++) {
+      for (int j = i + 1; j < N; j++) {
+        output_stream << i << " " << j;
+        for (int aa1 = 0; aa1 < Q; aa1++) {
+          for (int aa2 = 0; aa2 < Q; aa2++) {
+            output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
+          }
+        }
+        output_stream << std::endl;
+      }
+    }
+  } else { // if name doesn't say if 1p or 2p, load files and guess again
+    arma::Mat<double> frequency_1p;
+    frequency_1p.load(stats_file, arma::arma_binary);
+
+    int N = frequency_1p.n_cols;
+    int Q = frequency_1p.n_rows;
+
+    if (Q == AA_ALPHABET_SIZE) { // 1p
+      for (int i = 0; i < N; i++) {
+        output_stream << i;
+        for (int aa = 0; aa < Q; aa++) {
+          output_stream << " " << frequency_1p.at(aa, i);
+        }
+        output_stream << std::endl;
+      }
+    } else { // 2p
+      arma::field<arma::Mat<double>> frequency_2p;
+      frequency_2p.load(stats_file, arma::arma_binary);
+
+      N = frequency_2p.n_rows;
+
+      for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+          output_stream << i << " " << j;
+          for (int aa1 = 0; aa1 < AA_ALPHABET_SIZE; aa1++) {
+            for (int aa2 = 0; aa2 < AA_ALPHABET_SIZE; aa2++) {
+              output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
+            }
+          }
+          output_stream << std::endl;
+        }
+      }
+    }
+  }
+};
+
+void
+convertParametersToAscii(std::string h_file, std::string J_file)
+{
+
+  // Check file extensions and parse out file names.
+  int idx = h_file.find_last_of(".");
+  std::string h_name = h_file.substr(0, idx);
+  std::string h_ext = h_file.substr(idx+1);
+
+  idx = J_file.find_last_of(".");
+  std::string J_name = J_file.substr(0, idx);
+  std::string J_ext = J_file.substr(idx+1);
+
+  if ( (J_ext != "bin") & (h_ext != "bin") ) {
+    std::cerr << "ERROR: input parameters do not have 'bin' extension."
+              << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
+  arma::Mat<double> h;
+
+  h.load(h_file, arma::arma_binary);
+  int N = h.n_cols;
+  int Q = h.n_rows;
+
+  arma::field<arma::Mat<double>> J(N, N);
+  J.load(J_file, arma::arma_binary);
+
+  if ((N != (int)J.n_rows) & (N != (int)J.n_cols)) {
+    std::cerr << "ERROR: parameters dimension mismatch." << std::endl;
+    return;
+  }
+  if ((Q != (int)J.at(0, 1).n_cols) & (Q != (int)J.at(0, 1).n_rows)) {
+    std::cerr << "ERROR: parameters dimension mismatch." << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
+  // Generate an output file name.
+  std::string output_file;
+  for (int i=0; i < Min(h_name.size(), J_name.size()); i++) {
+    if (h_name[i] == J_name[i]) {
+      if ( (output_file.back() == '_') && (h_name[i] == '_') )
+        continue;
+      output_file += h_name[i];
+    }
+  }
+  if (output_file.back() == '_')
+    output_file.pop_back();
+  std::ofstream output_stream(output_file + ".txt");
+
+  // Write J
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
+          output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
+                        << " " << J.at(i, j).at(aa1, aa2) << std::endl;
+        }
+      }
+    }
+  }
+
+  // Write h
+  for (int i = 0; i < N; i++) {
+    for (int aa = 0; aa < Q; aa++) {
+      output_stream << "h " << i << " " << aa << " " << h(aa, i)
+                    << std::endl;
+    }
+  }
+  return;
+};
+
 int
 Theta(double x)
 {

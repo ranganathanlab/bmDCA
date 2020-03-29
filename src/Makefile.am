@@ -1,4 +1,4 @@
-bin_PROGRAMS = bmdca bmdca_sample
+bin_PROGRAMS = bmdca bmdca_sample arma2ascii
 
 CXXFLAGS = -O3 -std=c++11 $(OPENMP_CXXFLAGS) $(ARMADILLO_CFLAGS) \
            -DARMA_DONT_USE_HDF5
@@ -31,3 +31,6 @@ bmdca_sample_SOURCES = bmdca_sample.cpp \
                        mcmc_stats.cpp \
                        graph.cpp \
                        utils.cpp
+
+arma2ascii_SOURCES = arma_convert.cpp \
+                     utils.cpp
