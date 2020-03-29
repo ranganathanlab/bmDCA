@@ -242,7 +242,7 @@ Then, close and open the MSYS2 terminal again.
 _Optionally, edit the `/etc/pacman.conf` file. Uncomment the line `#Color` and
 add the line `ILoveCandy`. Just a cosmetic flourish for `pacman`._
 
-## Installing bmDCA
+## Installing bmDCA (all platforms)
 
 Now that all the dependencies have been installed, compile and install bmDCA
 globally (default: `/usr/local`) by running:
@@ -257,22 +257,19 @@ cd ..
 
 Depending on your platform, the `make install` command may fail due to
 permissions issues. To remedy this you can either run `sudo make install`
-instead.
+instead, or you can specify a different installation directory that does not
+require administrator privileges. The latter option is particularly useful when
+working on remote system not under your control.
 
-Alternately, you can instead install the code in your local directory (default:
-`/home/<username>/.local`. This is especially useful if you don't have
-administrator permissions. 
-
-Note that this local installation step is entirely unnecessary if the
-system-wide installation from above succeeded. Run:
+Should you want to specify a local directory, for example `$HOME/.local`, run:
 ```
 ./autogen.sh --prefix=${HOME}/.local && \
 make -j4 && \
 make install
 ```
 
-Replace the value to the right of `--prefix=` with any local path that is part
-of the system PATH. If you successfully installed bmDCA 
+You can replace the value to the right of `--prefix=` with any other path.
+Note, that you should check that it is on your system PATH.
 
 In the event you with to uninstall `bmDCA`, simply run `sudo make uninstall`
 or `make uninstall` as appropriate.
@@ -282,7 +279,8 @@ Test the installation by running in the terminal:
 bmdca
 ```
 
-If the installation worked correctly, this will print the usage information, e.g.:
+If the installation worked correctly, this will print the usage information,
+e.g.:
 ```
 bmdca usage:
 (e.g. bmdca -i <input MSA> -r -d <directory> -c <config file>)
