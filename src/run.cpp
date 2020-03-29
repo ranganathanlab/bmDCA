@@ -23,7 +23,7 @@ Sim::initializeParameters(void)
   lambda_reg2 = 0.01;
   step_max = 2000;
   error_max = 0.00001;
-  save_parameters = 100;
+  save_parameters = 20;
   // step_check = step_max;
   random_seed = 1;
 
@@ -45,7 +45,7 @@ Sim::initializeParameters(void)
   adapt_up_time = 1.5;
   adapt_down_time = 0.600;
 
-  output_binary = false;
+  output_binary = true;
 
   // importance sampling settings
   step_importance_max = 1;
