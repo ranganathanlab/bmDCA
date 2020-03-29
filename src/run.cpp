@@ -904,6 +904,7 @@ Sim::computeErrorReparametrization(void)
          den_stat = 0, den_mc = 0, c_mc_av = 0, c_stat_av = 0, rho_1p = 0,
          num_rho_1p = 0, den_stat_1p = 0, den_mc_1p = 0;
 
+  double phi = 0;
   double lambda_h = lambda_reg1;
   double lambda_j = lambda_reg2;
 
@@ -913,9 +914,23 @@ Sim::computeErrorReparametrization(void)
   // Compute gradient
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
+      phi = current_model->params.h.at(aa, i);
+      for (int j = 0; j < N; j++) {
+        if (i < j) {
+          for (int bb = 0; bb < Q; bb++) {
+            phi += current_model->params.J.at(i, j).at(aa, bb) *
+                   msa_stats.frequency_1p.at(bb, j);
+          }
+        } else if (i > j) {
+          for (int bb = 0; bb < Q; bb++) {
+            phi += current_model->params.J.at(j, i).at(bb, aa) *
+                   msa_stats.frequency_1p.at(bb, j);
+          }
+        }
+      }
       delta = mcmc_stats->frequency_1p.at(aa, i) -
               msa_stats.frequency_1p.at(aa, i) +
-              lambda_h * current_model->params.h.at(aa, i);
+              lambda_h * phi;
       delta_stat =
         (mcmc_stats->frequency_1p.at(aa, i) -
          msa_stats.frequency_1p.at(aa, i)) /
