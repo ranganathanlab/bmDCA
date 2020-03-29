@@ -337,10 +337,10 @@ Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
   else if (deleteFile("temp_" + output_name + "_energies.txt") != 0)
     std::cerr << "temporary file deletion failed!" << std::endl;
 
-  std::cout << "writing final sequences" << std::endl;
+  std::cout << "writing final sequences... " << std::flush;
   writeAASequences(output_file);
   writeNumericalSequences(output_file);
-
   std::cout << "done" << std::endl;
+
   return;
 };
