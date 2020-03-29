@@ -16,7 +16,8 @@ Generator::Generator(potts_model params, int n, int q, std::string config_file)
   }
 };
 
-Generator::~Generator(void) {
+Generator::~Generator(void)
+{
   delete mcmc_stats;
 };
 
@@ -326,7 +327,6 @@ Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
       flag_mc = false;
     }
   }
-
 
   int idx = output_file.find_last_of(".");
   std::string output_name = output_file.substr(0, idx);

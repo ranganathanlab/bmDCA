@@ -6,7 +6,9 @@
 #include "msa_stats.hpp"
 #include "run.hpp"
 
-void print_usage(void) {
+void
+print_usage(void)
+{
   std::cout << "bmdca usage:" << std::endl;
   std::cout << "(e.g. bmdca -i <input MSA> -r -d <directory> -c <config file>)"
             << std::endl;
@@ -29,7 +31,7 @@ main(int argc, char* argv[])
   std::string weight_file;
   std::string dest_dir = ".";
 
-  bool reweight = false;  // if true, weight sequences by similarity
+  bool reweight = false; // if true, weight sequences by similarity
   bool numeric_msa_given = false;
   bool input_file_given = false;
   bool force_restart = false;

@@ -28,11 +28,9 @@ potts_model loadPottsModel(std::string, std::string);
 
 potts_model loadPottsModelCompat(std::string);
 
-void
-convertFrequencyToAscii(std::string);
+void convertFrequencyToAscii(std::string);
 
-void
-convertParametersToAscii(std::string, std::string);
+void convertParametersToAscii(std::string, std::string);
 
 int
 Theta(double);
@@ -46,13 +44,10 @@ Max(double, double);
 double
 Min(double, double);
 
-int
-deleteFile(std::string);
+int deleteFile(std::string);
 
-bool
-checkFileExists(std::string);
+bool checkFileExists(std::string);
 
-void
-deleteAllFiles(std::string);
+void deleteAllFiles(std::string);
 
 #endif

@@ -206,13 +206,13 @@ convertParametersToAscii(std::string h_file, std::string J_file)
   // Check file extensions and parse out file names.
   int idx = h_file.find_last_of(".");
   std::string h_name = h_file.substr(0, idx);
-  std::string h_ext = h_file.substr(idx+1);
+  std::string h_ext = h_file.substr(idx + 1);
 
   idx = J_file.find_last_of(".");
   std::string J_name = J_file.substr(0, idx);
-  std::string J_ext = J_file.substr(idx+1);
+  std::string J_ext = J_file.substr(idx + 1);
 
-  if ( (J_ext != "bin") & (h_ext != "bin") ) {
+  if ((J_ext != "bin") & (h_ext != "bin")) {
     std::cerr << "ERROR: input parameters do not have 'bin' extension."
               << std::endl;
     std::exit(EXIT_FAILURE);
@@ -238,9 +238,9 @@ convertParametersToAscii(std::string h_file, std::string J_file)
 
   // Generate an output file name.
   std::string output_file;
-  for (int i=0; i < Min(h_name.size(), J_name.size()); i++) {
+  for (int i = 0; i < Min(h_name.size(), J_name.size()); i++) {
     if (h_name[i] == J_name[i]) {
-      if ( (output_file.back() == '_') && (h_name[i] == '_') )
+      if ((output_file.back() == '_') && (h_name[i] == '_'))
         continue;
       output_file += h_name[i];
     }
@@ -264,8 +264,7 @@ convertParametersToAscii(std::string h_file, std::string J_file)
   // Write h
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
-      output_stream << "h " << i << " " << aa << " " << h(aa, i)
-                    << std::endl;
+      output_stream << "h " << i << " " << aa << " " << h(aa, i) << std::endl;
     }
   }
   return;
@@ -304,7 +303,8 @@ Min(double a, double b)
 };
 
 int
-deleteFile(std::string filename) {
+deleteFile(std::string filename)
+{
   std::fstream fs;
   fs.open(filename);
   if (!fs.fail()) {
@@ -318,7 +318,8 @@ deleteFile(std::string filename) {
 };
 
 bool
-checkFileExists(std::string filename) {
+checkFileExists(std::string filename)
+{
   std::fstream fs;
   fs.open(filename);
   if (fs.fail()) {
@@ -329,16 +330,19 @@ checkFileExists(std::string filename) {
 };
 
 void
-deleteAllFiles(std::string directory) {
-  DIR *dp;
-  struct dirent *dirp;
+deleteAllFiles(std::string directory)
+{
+  DIR* dp;
+  struct dirent* dirp;
 
   dp = opendir(".");
   std::vector<int> steps;
   while ((dirp = readdir(dp)) != NULL) {
     std::string fname = dirp->d_name;
-    if (fname == ".") continue;
-    if (fname == "..") continue;
+    if (fname == ".")
+      continue;
+    if (fname == "..")
+      continue;
     if (std::remove(fname.c_str()) != 0) {
       std::cerr << "ERROR: deletion of '" << fname << "' failed." << std::endl;
     }

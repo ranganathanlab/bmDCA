@@ -410,19 +410,20 @@ Sim::Sim(MSAStats msa_stats,
         new Model("parameters_" + std::to_string(step_offset) + ".txt",
                   "gradients_" + std::to_string(step_offset) + ".txt",
                   "learning_rates_" + std::to_string(step_offset) + ".txt");
-      previous_model = new Model(
-        "parameters_" + std::to_string(step_offset - 1) + ".txt",
-        "gradients_" + std::to_string(step_offset - 1) + ".txt",
-        "learning_rates_" + std::to_string(step_offset - 1) + ".txt");
+      previous_model =
+        new Model("parameters_" + std::to_string(step_offset - 1) + ".txt",
+                  "gradients_" + std::to_string(step_offset - 1) + ".txt",
+                  "learning_rates_" + std::to_string(step_offset - 1) + ".txt");
     }
   }
   mcmc = new MCMC(msa_stats.getN(), msa_stats.getQ());
 };
 
 void
-Sim::clearFiles(std::string dest_dir) {
-  DIR *dp;
-  struct dirent *dirp;
+Sim::clearFiles(std::string dest_dir)
+{
+  DIR* dp;
+  struct dirent* dirp;
 
   std::vector<std::string> files;
   dp = opendir(dest_dir.c_str());
@@ -463,9 +464,10 @@ Sim::clearFiles(std::string dest_dir) {
 };
 
 void
-Sim::setStepOffset(void) {
-  DIR *dp;
-  struct dirent *dirp;
+Sim::setStepOffset(void)
+{
+  DIR* dp;
+  struct dirent* dirp;
 
   dp = opendir(".");
 
@@ -484,7 +486,8 @@ Sim::setStepOffset(void) {
   while ((dirp = readdir(dp)) != NULL) {
     std::string fname = dirp->d_name;
     if (output_binary) {
-      if (fname.find("parameters_h") == std::string::npos) continue;
+      if (fname.find("parameters_h") == std::string::npos)
+        continue;
 
       const std::regex re_param_h("parameters_h_([0-9]+)\\.bin");
       std::smatch match_param_h;
@@ -500,13 +503,13 @@ Sim::setStepOffset(void) {
           checkFileExists("gradients_h_" + std::to_string(idx) + ".bin") &
           checkFileExists("gradients_J_" + std::to_string(idx) + ".bin") &
           checkFileExists("learning_rates_h_" + std::to_string(idx) + ".bin") &
-          checkFileExists("learning_rates_J_" + std::to_string(idx) +
-                          ".bin")) {
+          checkFileExists("learning_rates_J_" + std::to_string(idx) + ".bin")) {
         steps.push_back(idx);
       }
 
     } else {
-      if (fname.find("parameters") == std::string::npos) continue;
+      if (fname.find("parameters") == std::string::npos)
+        continue;
 
       const std::regex re_param("parameters_([0-9]+)\\.txt");
       std::smatch match_param;
@@ -544,7 +547,8 @@ Sim::setStepOffset(void) {
 };
 
 void
-Sim::setBurnTimes(void) {
+Sim::setBurnTimes(void)
+{
   std::ifstream stream(run_log_file);
   std::string line;
   std::getline(stream, line);
@@ -576,7 +580,8 @@ Sim::~Sim(void)
 };
 
 void
-Sim::burnRNG(void) {
+Sim::burnRNG(void)
+{
   long int value = -1;
   std::ifstream stream(run_log_file);
   std::string line;
@@ -603,7 +608,8 @@ Sim::burnRNG(void) {
 
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
   int counter = 1;
-  while ((dist(rng) != value) & (counter < 100*step_max*step_importance_max)) {
+  while ((dist(rng) != value) &
+         (counter < 100 * step_max * step_importance_max)) {
     counter++;
   }
 };

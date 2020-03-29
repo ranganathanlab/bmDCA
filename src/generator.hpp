@@ -1,6 +1,6 @@
-#include "utils.hpp"
 #include "mcmc.hpp"
 #include "mcmc_stats.hpp"
+#include "utils.hpp"
 
 class Generator
 {
@@ -29,8 +29,8 @@ private:
   arma::Cube<int> samples;
   potts_model model;
 
-  MCMC *mcmc;
-  MCMCStats *mcmc_stats;
+  MCMC* mcmc;
+  MCMCStats* mcmc_stats;
 
   void loadParameters(std::string);
   void initializeParameters(void);

@@ -12,9 +12,9 @@ void
 print_usage(void)
 {
   std::cout << "bmdca_sample usage:" << std::endl;
-  std::cout
-    << "(e.g. bmdca_sample -p <params h> -P <params|params J> -c <config file> \\"
-    << std::endl;
+  std::cout << "(e.g. bmdca_sample -p <params h> -P <params|params J> -c "
+               "<config file> \\"
+            << std::endl;
   std::cout << "                   -n <# samples per thread> -r <# threads> \\"
             << std::endl;
   std::cout << "                   -d <directory> -o <output flle>)"
