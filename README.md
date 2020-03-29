@@ -298,19 +298,20 @@ bmdca usage:
 
 ### Additional notes for Windows 10
 
-Though `bmdca` should now be easily evoked from within MSYS2, one can update
+Though `bmdca` should now be easily invoked from within MSYS2, one can update
 the system PATH variable to make the binaries accessible system-wide, such as
 from the command prompt or other terminal emulators. To update the PATH:
 
 1. Type 'env' in the start search bar.
 2. Click 'Edit the system environment variables'.
-3. Click on 'Environment Variables...' toward the bottom of the window that opens.
+3. Click on 'Environment Variables...' toward the bottom of the window that
+   opens.
 4. Select 'Path' in one of the two selection windows (either 'User variables'
    or 'System variables' is fine)
 5. Once 'Path' is highlighted, click 'Edit...'
 6. Enter the `/usr/local/bin` as a new PATH entry. You can either:
-   - Click 'New' in the new window and nter the path to `/usr/local/bin` in the
-     MSYS2 installation folder (default: `C:\msys64\usr\local\bin`).
+   - Click 'New' in the new window and enter the path to `/usr/local/bin` in
+     the MSYS2 installation folder (default: `C:\msys64\usr\local\bin`).
    - Click the 'Browse...' button and navigate to the `C:\msys64\usr\local\bin`
      directory.
 7. When the new entry is added, click 'OK' on all the opened windows to set all
@@ -334,7 +335,7 @@ The command line flags are:
          by highly similar sequences arising from the phylogeny (default:
          `false`)
  - `-c`: (_optional_) config file for bmDCA run hyperparameters, such as
-   `example/bmdca.conf`
+         `example/bmdca.conf`
  - `-t`: threshold for computing default sequence weights (default: `0.8`)
  - `-n`: input MSA, numerical format
  - `-w`: file containing sequence weights
