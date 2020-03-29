@@ -375,8 +375,8 @@ bmdca -n <numerical_alignment.txt> -w <sequence_weights.txt>
 
 ### Sampling (`bmdca_sample`)
 
-One can use a Monte-Carlo based sampler to draw sequences from the model
-specified by the learned parameters.
+Use a Monte-Carlo sampler to draw sequences from the model specified by the
+learned parameters.
 
 Run:
 ```
@@ -385,20 +385,49 @@ bmdca_sample -p <parameters.txt> -d <output_directory> \
   -r <number_of_indep_sampling_runs> -c <config_file.conf>
 ```
 
+If instead, you save parameters in binary format, run:
+```
+bmdca_sample -p <parameters_h.bin> -P <parameters_J.bin>  \
+  -d <output_directory> -o <output_file.txt> \
+  -n <number_of_sequences> -r <number_of_indep_sampling_runs> \
+  -c <config_file.conf>
+```
+
 The command line flags are:
- - `-p`: input parameters, text format
- - `-h`: (_optional_) fields (h) parameters file, binary format
- - `-j`: (_optional_) couplings (J) parameters file, binary format
+ - `-p`: input parameters, text format __or__ fields (h) parameters file,
+         binary format
+ - `-P`: (_optional_) couplings (J) parameters file, binary format
  - `-d`: directory where output files are written
  - `-c`: (_optional_) config file for bmDCA run hyperparameters, e.g.
-   `example/bmdca.conf`
+         `example/bmdca.conf`
  - `-o`: name of the output file for the sequences
  - `-n`: number of sequences to sample in each independent run (default: 1000)
  - `-r`: number of independent sequencing runs (default: 10)
 
-Note, use the `-p` parameter if the `bmdca` output is stored in text files. The
-`-j` and `-h` flags, which much be used in conjunction, correspond to `bmdca`
-output stored as binaries.
+Note, you only need to specify the `-p` option if the `bmdca` output is stored
+in text files. For binary parameters, which are stored in two `_h_%d.bin` and
+`_J_%d.bin` files, pass the fields (h) file to `-p` and couplings (J) file to
+`-P`.
+
+### Conversion (`arma2ascii`)
+
+If using the `output_binary=true` flag during the inference step, the output
+will be stored in an Armadillo-specific binary format. While this allows for
+reproducible outputs in stopped-and-restarted inference runs, the format is not
+accessible for other programs. You can use the `arma2ascii` tool to convert
+binary-stored outputs to ASCII.
+
+To convert parameters:
+```
+arma2ascii -p <parameters_h.bin> -P <parameters_J.bin>
+```
+
+To convert stats files:
+```
+arma2ascii -s <MC_stat_file.bin>
+```
+
+The output fill be stored in a `.txt` file.
 
 ## Configuration file options
 

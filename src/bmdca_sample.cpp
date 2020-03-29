@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "generator.hpp"
+#include "utils.hpp"
 
 int
 main(int argc, char* argv[])
@@ -13,7 +14,7 @@ main(int argc, char* argv[])
   int num_sequences = 1000;
   int num_replicates = 10;
 
-  std::string parameters_file, h_file, J_file;
+  std::string parameters_file, J_file;
   std::string dest_dir = ".";
   std::string config_file;
   std::string output_file = "MC_samples.fasta";
@@ -23,16 +24,12 @@ main(int argc, char* argv[])
 
   // Read command-line parameters.
   char c;
-  while ((c = getopt(argc, argv, "p:h:j:d:n:c:o:r:")) != -1) {
+  while ((c = getopt(argc, argv, "p:P:d:n:c:o:r:")) != -1) {
     switch (c) {
       case 'p':
         parameters_file = optarg;
         break;
-      case 'h':
-        h_file = optarg;
-        compat_mode = false;
-        break;
-      case 'j':
+      case 'P':
         J_file = optarg;
         compat_mode = false;
         break;
@@ -75,7 +72,7 @@ main(int argc, char* argv[])
       std::exit(EXIT_FAILURE);
     }
   } else {
-    if ((h_file.size() == 0) | (J_file.size() == 0)) {
+    if ((parameters_file.size() == 0) || (J_file.size() == 0)) {
       std::cerr << "ERROR: Parameters files not given." << std::endl;
       std::exit(EXIT_FAILURE);
     }
@@ -86,7 +83,7 @@ main(int argc, char* argv[])
   if (compat_mode) {
     params = loadPottsModelCompat(parameters_file);
   } else {
-    params = loadPottsModel(h_file, J_file);
+    params = loadPottsModel(parameters_file, J_file);
   }
 
   int N = params.h.n_cols;
