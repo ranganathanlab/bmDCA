@@ -536,7 +536,6 @@ Sim::setStepOffset(void) {
       }
     }
   }
-  // std::cout << "offset: " << max << std::endl;
   if (max < 0) {
     step_offset = 0;
   } else {
@@ -871,13 +870,18 @@ Sim::run(void)
     }
     std::cout << std::endl;
   }
-  std::cout << "writing final results... " << std::flush;
 
-  if ((step_max % save_parameters) != 0) {
-    writeRunLog(step_max % save_parameters);
+  if (step_offset != step_max) {
+    std::cout << "writing final results... " << std::flush;
+    if ((step_max % save_parameters) != 0) {
+      writeRunLog(step_max % save_parameters);
+    }
+    writeData(step_max);
+    writeData("final");
+  } else {
+    std::cout << "all " << step_offset << " steps already... " << std::flush;
   }
-  writeData(step_max);
-  writeData("final");
+
   std::cout << "done" << std::endl;
   return;
 };
