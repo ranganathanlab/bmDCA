@@ -872,8 +872,12 @@ Sim::run(void)
     std::cout << std::endl;
   }
   std::cout << "writing final results... " << std::flush;
-  writeRunLog(step_max % save_parameters);
+
+  if ((step_max % save_parameters) != 0) {
+    writeRunLog(step_max % save_parameters);
+  }
   writeData(step_max);
+  writeData("final");
   std::cout << "done" << std::endl;
   return;
 };
