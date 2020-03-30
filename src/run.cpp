@@ -200,11 +200,11 @@ Sim::compareParameter(std::string key, std::string value)
   } else if (key == "lambda_reg2") {
     same = same & (lambda_reg2 == std::stod(value));
   } else if (key == "step_max") {
-    same = same & (step_max == std::stoi(value));
+    // same = same & (step_max == std::stoi(value));
   } else if (key == "error_max") {
-    same = same & (error_max == std::stod(value));
+    // same = same & (error_max == std::stod(value));
   } else if (key == "save_parameters") {
-    same = same & (save_parameters == std::stoi(value));
+    // same = same & (save_parameters == std::stoi(value));
   } else if (key == "random_seed") {
     same = same & (random_seed == std::stoi(value));
   } else if (key == "epsilon_0_h") {
