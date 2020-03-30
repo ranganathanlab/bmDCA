@@ -578,12 +578,22 @@ The first line is:
 
 ### Learned Potts model parameters
 
+#### Armadillo binary
+
+By default, `bmdca` will save learned parameters in binary format.  These files
+(`parameters_h_%d.bin` and `parameters_J_%d.bin`) cannot be directly viewed by
+a text editor. To view the contents, convert the files to ASCII by using the
+provided `arma2ascii` tool.
+
+See the above usage section for how to use `arma2ascii`. Parameters converted
+by the program will match the format for parameters generated when
+`output_binary=false` is specified in the config file. See the below section
+for details.
+
 #### ASCII
 
-The output directory contains learned parameters saved in files called
-`parameters_%d.txt`. They contain the parameters for both J and h, formatted
-as follows:
-
+Learned parameters saved in text files are called `parameters_%d.txt`. They
+contain the parameters for both J and h, formatted as follows:
 ```
 J [position index i] [position index j] [amino acid index a] [amino acid index b]
 .
@@ -598,14 +608,6 @@ h [position index i] [amino acid index a]
 The position indices go from 0 to N-1 (N = # positions), and the amino acid
 indices go from 0 to 20 (21 amino acids total, including gaps). 0 corresponds
 to a gap.
-
-#### Armadillo binary
-
-These files (`parameters_h_%d.bin` and `parameters_J_%d.bin`) are binaries and
-cannot be viewed by a text editor. To view the contents, convert the files to
-ASCII by running:
-
-__PROGRAM PENDING__
 
 ### Sequence statistics
 
@@ -631,7 +633,6 @@ For 2 position (2p) frequencies:
 ```
 where `[amino acid frequencies (21x21)]` is a row that corresponds to the
 frequencies of the `21x21` pairs of amino acids at positions i and j.
-
 
 ## Extra
 
