@@ -939,8 +939,7 @@ Sim::computeErrorReparametrization(void)
         }
       }
       delta = mcmc_stats->frequency_1p.at(aa, i) -
-              msa_stats.frequency_1p.at(aa, i) +
-              lambda_h * phi;
+              msa_stats.frequency_1p.at(aa, i) + lambda_h * 0.5 * phi;
       delta_stat =
         (mcmc_stats->frequency_1p.at(aa, i) -
          msa_stats.frequency_1p.at(aa, i)) /
@@ -1142,14 +1141,14 @@ Sim::updateReparameterization(void)
       for (int j = 0; j < N; j++) {
         if (i < j) {
           for (int b = 0; b < Q; b++) {
-            Dh.at(a, i) += -msa_stats.frequency_1p.at(b, j) *
+            Dh.at(a, i) += msa_stats.frequency_1p.at(b, j) *
                            current_model->learning_rates.J.at(i, j).at(a, b) *
                            current_model->gradient.J.at(i, j).at(a, b);
           }
         }
         if (i > j) {
           for (int b = 0; b < Q; b++) {
-            Dh.at(a, i) += -msa_stats.frequency_1p.at(b, j) *
+            Dh.at(a, i) += msa_stats.frequency_1p.at(b, j) *
                            current_model->learning_rates.J.at(j, i).at(b, a) *
                            current_model->gradient.J.at(j, i).at(b, a);
           }
@@ -1163,7 +1162,7 @@ Sim::updateReparameterization(void)
       current_model->params.h.at(a, i) +=
         current_model->learning_rates.h.at(a, i) *
           current_model->gradient.h.at(a, i) +
-        Dh.at(a, i);
+        0.5 * Dh.at(a, i);
     }
   }
 };
