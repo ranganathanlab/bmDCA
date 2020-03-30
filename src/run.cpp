@@ -505,6 +505,31 @@ Sim::setStepOffset(void)
           checkFileExists("learning_rates_h_" + std::to_string(idx) + ".bin") &
           checkFileExists("learning_rates_J_" + std::to_string(idx) + ".bin")) {
         steps.push_back(idx);
+      } else {
+        std::string file;
+        file = "parameters_h_" + std::to_string(idx) + ".bin";
+        if (checkFileExists(file))
+          deleteFile(file);
+
+        file = "parameters_J_" + std::to_string(idx) + ".bin";
+        if (checkFileExists(file))
+          deleteFile(file);
+
+        file = "gradients_h_" + std::to_string(idx) + ".bin";
+        if (checkFileExists(file))
+          deleteFile(file);
+
+        file = "gradients_J_" + std::to_string(idx) + ".bin";
+        if (checkFileExists(file))
+          deleteFile(file);
+
+        file = "learning_rates_h_" + std::to_string(idx) + ".bin";
+        if (checkFileExists(file))
+          deleteFile(file);
+
+        file = "learning_rates_J_" + std::to_string(idx) + ".bin";
+        if (checkFileExists(file))
+          deleteFile(file);
       }
 
     } else {
@@ -524,6 +549,19 @@ Sim::setStepOffset(void)
       if (checkFileExists("gradients_" + std::to_string(idx) + ".txt") &
           checkFileExists("learning_rates_" + std::to_string(idx) + ".txt")) {
         steps.push_back(idx);
+      } else {
+        std::string file;
+        file = "parameters_" + std::to_string(idx) + ".txt";
+        if (checkFileExists(file))
+          deleteFile(file);
+
+        file = "gradients_" + std::to_string(idx) + ".txt";
+        if (checkFileExists(file))
+          deleteFile(file);
+
+        file = "learning_rates_" + std::to_string(idx) + ".txt";
+        if (checkFileExists(file))
+          deleteFile(file);
       }
     }
   }
