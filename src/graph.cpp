@@ -365,7 +365,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   arma::Mat<double> de = arma::Mat<double>(n, q, arma::fill::zeros);
   arma::Mat<double> g = arma::Mat<double>(n, q, arma::fill::zeros);
   double lambda = 0.0;
-  std::vector<double> p(n*q);
+  std::vector<double> p(n * q);
 
   for (size_t k = 0; k < mc_iters0; ++k) {
 
@@ -396,9 +396,9 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       }
     }
 
-    // g = arma::exp(de * -1.0/2.0/temperature);
+    // g = arma::exp(de * -1.0 / 2.0 / temperature);
     g = .5 + .5*arma::tanh(de * -1.0/2.0/temperature);
-    lambda = arma::accu(g) - n;
+    lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
     g = g / lambda;
 
     double rand = uniform(rng);
@@ -464,7 +464,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
 
-      // g = arma::exp(de * -1.0/2.0/temperature);
+      // g = arma::exp(de * -1.0 / 2.0 / temperature);
       g = .5 + .5*arma::tanh(de * -1.0/2.0/temperature);
       lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
       g = g / lambda;

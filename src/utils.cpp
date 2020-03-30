@@ -323,8 +323,10 @@ checkFileExists(std::string filename)
   std::fstream fs;
   fs.open(filename);
   if (fs.fail()) {
+    fs.close();
     return false;
   } else {
+    fs.close();
     return true;
   }
 };
