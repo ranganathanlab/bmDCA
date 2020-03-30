@@ -371,6 +371,35 @@ bmdca -n <numerical_alignment.txt> -w <sequence_weights.txt>
   -d <output_directory> -c <config_file.conf>
 ```
 
+#### Example 3: restarting runs
+
+Take, for example, this command:
+```
+bmdca -i <input_alignment.fasta> -d <output_directory> -r -c <config_file.conf>
+```
+
+If the run is stopped before the maximum number of steps is reached, simply
+invoke the same command again to restart it:
+```
+bmdca -i <input_alignment.fasta> -d <output_directory> -r -c <config_file.conf>
+```
+
+The inference loop will pick up from where it left off.
+
+**IMPORTANT** To guarantee that inferences loops produce the same results
+irrespective of whether they were stopped and restarted or ran continuously,
+bmDCA will check that the hyperparameters used previously and presently match.
+The only fields that may be adjusted before restarting are:
+
+1. `save_parameters`
+2. `step_max` - the max number of steps (increase to continue a loop after it
+                ends)
+3. `error_max` - the convergence threshold (lower it to continue)
+
+The hyperparameters used by any given run are stored in the `bmdca_params.conf`
+file. For boolean configuration options, it is not to specify `1` or `0`
+instead of `true` and `false`.
+
 ### Sampling (`bmdca_sample`)
 
 Use a Monte-Carlo sampler to draw sequences from the model specified by the
