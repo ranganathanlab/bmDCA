@@ -103,18 +103,28 @@ MCMCStats::computeCorrelations(void)
   double dinf, dinf2;
 
   // Compute distances within replicates
-  for (int rep = 0; rep < reps; rep++) {
-    for (int seq1 = 0; seq1 < M; seq1++) {
-      for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
-        id = 0;
-        for (int i = 0; i < N; i++) {
-          if (samples->at(seq1, i, rep) == samples->at(seq2, i, rep)) {
-            id++;
+  arma::Mat<int> slice = arma::Mat<int>(N, M);
+  int* seq1_ptr = nullptr;
+  int* seq2_ptr = nullptr;
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int rep = 0; rep < reps; rep++) {
+      slice = (samples->slice(rep)).t();
+      for (int seq1 = 0; seq1 < M; seq1++) {
+        seq1_ptr = slice.colptr(seq1);
+        for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
+          seq2_ptr = slice.colptr(seq2);
+          id = 0;
+          for (int i = 0; i < N; i++) {
+            if ( *(seq1_ptr+i) == *(seq2_ptr+i) ) {
+              id++;
+            }
           }
+          d.at(seq2 - seq1) += (double)id / N;
+          d2.at(seq2 - seq1) += (double)id * id / (N * N);
+          count.at(seq2 - seq1)++;
         }
-        d.at(seq2 - seq1) += (double)id / N;
-        d2.at(seq2 - seq1) += (double)id * id / (N * N);
-        count.at(seq2 - seq1)++;
       }
     }
   }
