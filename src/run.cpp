@@ -636,7 +636,12 @@ Sim::burnRNG(void)
         fields.push_back(field);
       }
 
-      value = std::stol(fields.at(17));
+      if (check_ergo) {
+        value = std::stol(fields.at(17));
+      } else {
+        value = std::stoi(fields.at(7));
+      }
+      std::cout << value << std::endl;
       break;
     }
   }
