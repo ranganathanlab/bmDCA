@@ -641,7 +641,6 @@ Sim::burnRNG(void)
       } else {
         value = std::stoi(fields.at(7));
       }
-      std::cout << value << std::endl;
       break;
     }
   }
