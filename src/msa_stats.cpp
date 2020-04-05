@@ -5,29 +5,30 @@
 #include <fstream>
 #include <iostream>
 
-#ifndef AA_ALPHABET_SIZE
-#define AA_ALPHABET_SIZE 21
-#endif
-
 MSAStats::MSAStats(MSA msa)
 {
   // Initialize
   N = msa.N;
   M = msa.M;
-  Q = AA_ALPHABET_SIZE;
+  Q = msa.Q;
 
-  frequency_1p = arma::Mat<double>(AA_ALPHABET_SIZE, N, arma::fill::zeros);
+  frequency_1p = arma::Mat<double>(Q, N, arma::fill::zeros);
   frequency_2p = arma::field<arma::Mat<double>>(N, N);
   rel_entropy_grad_1p =
-    arma::Mat<double>(AA_ALPHABET_SIZE, N, arma::fill::zeros);
+    arma::Mat<double>(Q, N, arma::fill::zeros);
   aa_background_frequencies =
-    arma::Col<double>::fixed<AA_ALPHABET_SIZE>(arma::fill::zeros);
+    arma::Col<double>(Q, arma::fill::ones);
 
-  aa_background_frequencies = {
-    0.000, 0.073, 0.025, 0.050, 0.061, 0.042, 0.072, 0.023, 0.053, 0.064, 0.089,
-    0.023, 0.043, 0.052, 0.040, 0.052, 0.073, 0.056, 0.063, 0.013, 0.033
-  };
+  if (Q == 21) {
+    aa_background_frequencies = {
+      0.000, 0.073, 0.025, 0.050, 0.061, 0.042, 0.072, 0.023, 0.053, 0.064, 0.089,
+      0.023, 0.043, 0.052, 0.040, 0.052, 0.073, 0.056, 0.063, 0.013, 0.033
+    };
+  } else {
+    aa_background_frequencies = aa_background_frequencies / (double)Q;
+  }
   pseudocount = 0.03;
+  aa_background_frequencies.print("Q background:");
 
   // Compute the frequecies (1p statistics) for amino acids (and gaps) for each
   // position. Use pointers to make things speedier.
@@ -48,7 +49,7 @@ MSAStats::MSAStats(MSA msa)
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
       frequency_2p.at(i, j) = arma::Mat<double>(
-        AA_ALPHABET_SIZE, AA_ALPHABET_SIZE, arma::fill::zeros);
+        Q, Q, arma::fill::zeros);
 
       int* align_ptr1 = msa.alignment.colptr(i);
       int* align_ptr2 = msa.alignment.colptr(j);
@@ -73,7 +74,7 @@ MSAStats::MSAStats(MSA msa)
   }
   theta = theta / N;
   aa_background_frequencies[0] = theta;
-  for (int i = 1; i < AA_ALPHABET_SIZE; i++) {
+  for (int i = 1; i < Q; i++) {
     aa_background_frequencies[i] = aa_background_frequencies[i] * (1. - theta);
   }
 
@@ -84,7 +85,7 @@ MSAStats::MSAStats(MSA msa)
   double pos_freq;
   double background_freq;
   for (int i = 0; i < N; i++) {
-    for (int aa = 0; aa < AA_ALPHABET_SIZE; aa++) {
+    for (int aa = 0; aa < Q; aa++) {
       pos_freq = tmp.at(aa, i);
       background_freq = aa_background_frequencies(aa);
       if (pos_freq < 1. && pos_freq > 0.) {
@@ -126,7 +127,7 @@ MSAStats::writeRelEntropyGradient(std::string output_file)
   std::ofstream output_stream(output_file);
 
   for (int i = 0; i < N; i++) {
-    for (int aa = 0; aa < AA_ALPHABET_SIZE; aa++) {
+    for (int aa = 0; aa < Q; aa++) {
       output_stream << i << " " << aa << " " << rel_entropy_grad_1p.at(aa, i)
                     << std::endl;
     }
@@ -140,7 +141,7 @@ MSAStats::writeFrequency1p(std::string output_file)
 
   for (int i = 0; i < N; i++) {
     output_stream << i;
-    for (int aa = 0; aa < AA_ALPHABET_SIZE; aa++) {
+    for (int aa = 0; aa < Q; aa++) {
       output_stream << " " << frequency_1p.at(aa, i);
     }
     output_stream << std::endl;
@@ -155,8 +156,8 @@ MSAStats::writeFrequency2p(std::string output_file)
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
       output_stream << i << " " << j;
-      for (int aa1 = 0; aa1 < AA_ALPHABET_SIZE; aa1++) {
-        for (int aa2 = 0; aa2 < AA_ALPHABET_SIZE; aa2++) {
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
         }
       }

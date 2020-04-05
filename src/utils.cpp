@@ -7,10 +7,6 @@
 #include <string>
 #include <sys/types.h>
 
-#ifndef AA_ALPHABET_SIZE
-#define AA_ALPHABET_SIZE 21
-#endif
-
 SeqRecord::SeqRecord(std::string h, std::string s)
   : header(h)
   , sequence(s){};
@@ -61,16 +57,30 @@ loadPottsModelCompat(std::string parameters_file)
     std::exit(EXIT_FAILURE);
   }
 
-  int count = 0;
-  std::string line;
-  while (std::getline(input_stream, line))
+  int N = 0;
+  int Q = 0;
+
+  int count = 1;
+  int n1, n2, aa1, aa2;
+  double value;
+  std::string tmp = "";
+  std::getline(input_stream, tmp);
+  while(std::getline(input_stream, tmp)) {
+    input_stream >> tmp;
+    input_stream >> n1 >> n2 >> aa1 >> aa2;
+    input_stream >> value;
     count++;
 
-  int N;
-  int Q = AA_ALPHABET_SIZE;
-  N =
-    (int)(sqrt(2 * count + ((double)Q - 2) * ((double)Q - 2) / 4) / (double)Q +
-          ((double)Q - 2) / (2 * (double)Q));
+    if ( (n1 == 1) & (N == 0)) {
+      N = count;
+    }
+    if ( (aa2 == 0) & (Q == 0)) {
+      Q = count;
+    }
+    if ( (N != 0) & (Q != 0))
+      break;
+  }
+  N = (int)( (double)N / (double)Q / double(Q)) + 1;
 
   input_stream.clear();
   input_stream.seekg(0);
@@ -84,10 +94,6 @@ loadPottsModelCompat(std::string parameters_file)
     }
   }
 
-  // Read parameters
-  int n1, n2, aa1, aa2;
-  double value;
-  std::string tmp = "";
   for (int count = 0; count < (int)N * (N - 1) / 2 * Q * Q; count++) {
     input_stream >> tmp;
     input_stream >> n1 >> n2 >> aa1 >> aa2;
@@ -136,21 +142,19 @@ convertFrequencyToAscii(std::string stats_file)
     int N = frequency_1p.n_cols;
     int Q = frequency_1p.n_rows;
 
-    if (Q == AA_ALPHABET_SIZE) {
-      for (int i = 0; i < N; i++) {
-        output_stream << i;
-        for (int aa = 0; aa < Q; aa++) {
-          output_stream << " " << frequency_1p.at(aa, i);
-        }
-        output_stream << std::endl;
+    for (int i = 0; i < N; i++) {
+      output_stream << i;
+      for (int aa = 0; aa < Q; aa++) {
+        output_stream << " " << frequency_1p.at(aa, i);
       }
+      output_stream << std::endl;
     }
   } else if (is_2p) {
     arma::field<arma::Mat<double>> frequency_2p;
     frequency_2p.load(stats_file, arma::arma_binary);
 
     int N = frequency_2p.n_rows;
-    int Q = AA_ALPHABET_SIZE;
+    int Q = frequency_2p.at(0, 1).n_rows;
 
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
@@ -170,7 +174,7 @@ convertFrequencyToAscii(std::string stats_file)
     int N = frequency_1p.n_cols;
     int Q = frequency_1p.n_rows;
 
-    if (Q == AA_ALPHABET_SIZE) { // 1p
+    if ((Q != 0) & (N != 0)) { // 1p
       for (int i = 0; i < N; i++) {
         output_stream << i;
         for (int aa = 0; aa < Q; aa++) {
@@ -182,13 +186,14 @@ convertFrequencyToAscii(std::string stats_file)
       arma::field<arma::Mat<double>> frequency_2p;
       frequency_2p.load(stats_file, arma::arma_binary);
 
-      N = frequency_2p.n_rows;
+      int N = frequency_2p.n_rows;
+      int Q = frequency_2p.at(0, 1).n_rows;
 
       for (int i = 0; i < N; i++) {
         for (int j = i + 1; j < N; j++) {
           output_stream << i << " " << j;
-          for (int aa1 = 0; aa1 < AA_ALPHABET_SIZE; aa1++) {
-            for (int aa2 = 0; aa2 < AA_ALPHABET_SIZE; aa2++) {
+          for (int aa1 = 0; aa1 < Q; aa1++) {
+            for (int aa2 = 0; aa2 < Q; aa2++) {
               output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
             }
           }

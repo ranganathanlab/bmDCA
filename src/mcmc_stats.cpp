@@ -5,16 +5,12 @@
 
 #include "utils.hpp"
 
-#ifndef AA_ALPHABET_SIZE
-#define AA_ALPHABET_SIZE 21
-#endif
-
 MCMCStats::MCMCStats(arma::Cube<int>* s, potts_model* p)
 {
   M = s->n_rows;
   N = s->n_cols;
   reps = s->n_slices;
-  Q = AA_ALPHABET_SIZE;
+  Q = p->h.n_rows;
 
   samples = s;
   params = p;
@@ -481,7 +477,7 @@ MCMCStats::writeSamples(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
-  output_stream << reps * M << " " << N << " " << AA_ALPHABET_SIZE << std::endl;
+  output_stream << reps * M << " " << N << " " << Q << std::endl;
 
   for (int rep = 0; rep < reps; rep++) {
     for (int m = 0; m < M; m++) {
