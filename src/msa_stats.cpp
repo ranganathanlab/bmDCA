@@ -28,7 +28,6 @@ MSAStats::MSAStats(MSA msa)
     aa_background_frequencies = aa_background_frequencies / (double)Q;
   }
   pseudocount = 0.03;
-  aa_background_frequencies.print("Q background:");
 
   // Compute the frequecies (1p statistics) for amino acids (and gaps) for each
   // position. Use pointers to make things speedier.
