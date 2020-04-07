@@ -228,7 +228,8 @@ Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
 
   // Instantiate the PCG random number generator and unifrom random
   // distribution.
-  pcg32 rng(random_seed);
+  pcg32 rng;
+  rng.seed(random_seed);
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
 
   std::cout << timer.toc() << " sec" << std::endl << std::endl;
