@@ -168,8 +168,9 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
                    long int seed,
                    double temperature)
 {
-  pcg32 rng(seed);
-  std::uniform_real_distribution<> uniform(0, 1);
+  pcg32 rng;
+  rng.seed(seed);
+  std::uniform_real_distribution<double> uniform(0, 1);
 
   size_t ts = 0;
   vector<size_t> conf(n);
@@ -255,8 +256,9 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
                         long int seed,
                         double temperature)
 {
-  pcg32 rng(seed);
-  std::uniform_real_distribution<> uniform(0, 1);
+  pcg32 rng;
+  rng.seed(seed);
+  std::uniform_real_distribution<double> uniform(0, 1);
 
   size_t ts = 0;
   vector<size_t> conf(n);
@@ -342,8 +344,9 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
                            double temperature)
 {
 
-  pcg32 rng(seed);
-  std::uniform_real_distribution<> uniform(0, 1);
+  pcg32 rng;
+  rng.seed(seed);
+  std::uniform_real_distribution<double> uniform(0, 1);
 
   // Generate random initial sequence.
   size_t ts = 0;

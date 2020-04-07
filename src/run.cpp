@@ -647,8 +647,11 @@ Sim::burnRNG(void)
 
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
   int counter = 1;
-  while ((dist(rng) != value) &
-         (counter < 100 * step_max * step_importance_max)) {
+  while (dist(rng) != value) {
+    if (counter > 1000 * step_max * step_importance_max) {
+      std::cerr << "ERROR: cannot restore RNG state." << std::endl;
+      break;
+    }
     counter++;
   }
 };
@@ -700,7 +703,7 @@ Sim::run(void)
 
   // Instantiate the PCG random number generator and unifrom random
   // distribution.
-  rng(random_seed);
+  rng.seed(random_seed);
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
 
   // Initialize the buffer.
