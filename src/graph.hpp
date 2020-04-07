@@ -49,7 +49,8 @@ public:
                            size_t,
                            size_t,
                            long int,
-                           double = 1.0);
+                           double = 1.0,
+                           std::string = "sqrt");
 
   void print_parameters(FILE* of);
 };

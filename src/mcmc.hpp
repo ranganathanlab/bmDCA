@@ -16,8 +16,15 @@ public:
   void load(potts_model);
   void run(int, int);
   void sample(arma::Cube<int>*, int, int, int, int, int, long int, double);
-  void
-  sample_zanella(arma::Cube<int>*, int, int, int, int, int, long int, double);
+  void sample_zanella(arma::Cube<int>*,
+                      int,
+                      int,
+                      int,
+                      int,
+                      int,
+                      long int,
+                      double,
+                      std::string);
   void sample_init(arma::Cube<int>*,
                    int,
                    int,

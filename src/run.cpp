@@ -764,9 +764,15 @@ Sim::run(void)
           mcmc->sample(
             &samples, count_max, M, N, t_wait, delta_t, seed, temperature);
         }
-      } else if (sampler == "z") {
+      } else if (sampler == "z-sqrt") {
         mcmc->sample_zanella(
-          &samples, count_max, M, N, t_wait, delta_t, seed, temperature);
+          &samples, count_max, M, N, t_wait, delta_t, seed, temperature, "sqrt");
+      } else if (sampler == "z-tanh") {
+        mcmc->sample_zanella(
+          &samples, count_max, M, N, t_wait, delta_t, seed, temperature, "tanh");
+      } else {
+        std::cerr << "ERROR: sampler '" << sampler << "' not recognized." << std::endl;
+        std::exit(EXIT_FAILURE);
       }
       std::cout << timer.toc() << " sec" << std::endl;
 

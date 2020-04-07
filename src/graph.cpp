@@ -341,7 +341,8 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
                            size_t mc_iters0,
                            size_t mc_iters,
                            long int seed,
-                           double temperature)
+                           double temperature,
+                           std::string mode)
 {
 
   pcg32 rng;
@@ -399,10 +400,13 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       }
     }
 
-    // g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
-    // lambda = arma::accu(g) - .5 * n;
-    g = arma::exp(de * -1.0 / 2.0 / temperature);
-    lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
+    if (mode == "sqrt") {
+      g = arma::exp(de * -1.0 / 2.0 / temperature);
+      lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
+    } else if (mode == "tanh") {
+      g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
+      lambda = arma::accu(g) - .5 * n;
+    }
     g = g / lambda;
 
     double rand = uniform(rng);
@@ -468,10 +472,13 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
 
-      // g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
-      // lambda = arma::accu(g) - .5 * n;
-      g = arma::exp(de * -1.0 / 2.0 / temperature);
-      lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
+      if (mode == "sqrt") {
+        g = arma::exp(de * -1.0 / 2.0 / temperature);
+        lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
+      } else if (mode == "tanh") {
+        g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
+        lambda = arma::accu(g) - .5 * n;
+      }
       g = g / lambda;
 
       double rand = uniform(rng);

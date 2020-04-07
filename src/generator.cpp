@@ -247,9 +247,15 @@ Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
     if (sampler == "mh") {
       mcmc->sample(
         &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature);
-    } else if (sampler == "z") {
+    } else if (sampler == "z-sqrt") {
       mcmc->sample_zanella(
-        &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature);
+        &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature, "sqrt");
+    } else if (sampler == "z-tanh") {
+      mcmc->sample_zanella(
+        &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature, "tanh");
+    } else {
+      std::cerr << "ERROR: sampler '" << sampler << "' not recognized." << std::endl;
+      std::exit(EXIT_FAILURE);
     }
     std::cout << timer.toc() << " sec" << std::endl;
 
