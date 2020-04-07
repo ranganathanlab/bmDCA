@@ -26,11 +26,12 @@ Generator::initializeParameters(void)
 {
   resample_max = 20;
   random_seed = 1;
+  adapt_up_time = 1.5;
+  adapt_down_time = 0.600;
   t_wait_0 = 100000;
   delta_t_0 = 1000;
   check_ergo = true;
-  adapt_up_time = 1.5;
-  adapt_down_time = 0.600;
+  sampler = "mh";
   temperature = 1.0;
 };
 
@@ -83,6 +84,10 @@ Generator::setParameter(std::string key, std::string value)
     resample_max = std::stoi(value);
   } else if (key == "random_seed") {
     random_seed = std::stoi(value);
+  } else if (key == "adapt_up_time") {
+    adapt_up_time = std::stod(value);
+  } else if (key == "adapt_down_time") {
+    adapt_down_time = std::stod(value);
   } else if (key == "t_wait_0") {
     t_wait_0 = std::stoi(value);
   } else if (key == "delta_t_0") {
@@ -93,10 +98,8 @@ Generator::setParameter(std::string key, std::string value)
     } else {
       check_ergo = (value == "true");
     }
-  } else if (key == "adapt_up_time") {
-    adapt_up_time = std::stod(value);
-  } else if (key == "adapt_down_time") {
-    adapt_down_time = std::stod(value);
+  } else if (key == "sampler") {
+    sampler = value;
   } else if (key == "temperature") {
     temperature = std::stod(value);
   }
@@ -241,8 +244,13 @@ Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
   while (flag_mc) {
     std::cout << "sampling model with mcmc... " << std::flush;
     timer.tic();
-    mcmc->sample(
-      &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature);
+    if (sampler == "mh") {
+      mcmc->sample(
+        &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature);
+    } else if (sampler == "z") {
+      mcmc->sample_zanella(
+        &samples, count_max, M, N, t_wait, delta_t, dist(rng), temperature);
+    }
     std::cout << timer.toc() << " sec" << std::endl;
 
     std::cout << "updating mcmc stats with samples... " << std::flush;

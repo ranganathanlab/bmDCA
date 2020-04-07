@@ -19,11 +19,12 @@ private:
 
   int resample_max;
   long int random_seed;
+  double adapt_up_time;
+  double adapt_down_time;
   int t_wait_0;
   int delta_t_0;
   bool check_ergo;
-  double adapt_up_time;
-  double adapt_down_time;
+  std::string sampler = "mh";   // MC sampler type ('mh' or 'z')
   double temperature;
 
   arma::Cube<int> samples;
