@@ -400,6 +400,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     }
 
     // g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
+    // lambda = arma::accu(g) - .5 * n;
     g = arma::exp(de * -1.0 / 2.0 / temperature);
     lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
     g = g / lambda;
@@ -468,6 +469,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     for (size_t k = 0; k < mc_iters; ++k) {
 
       // g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
+      // lambda = arma::accu(g) - .5 * n;
       g = arma::exp(de * -1.0 / 2.0 / temperature);
       lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
       g = g / lambda;
