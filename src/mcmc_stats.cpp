@@ -31,18 +31,21 @@ void
 MCMCStats::computeEnergies(void)
 {
   energies = arma::Mat<double>(reps, M, arma::fill::zeros);
-  double E;
-  for (int rep = 0; rep < reps; rep++) {
-    for (int seq = 0; seq < M; seq++) {
-      E = 0;
-      for (int i = 0; i < N; i++) {
-        E -= params->h.at(samples->at(seq, i, rep), i);
-        for (int j = i + 1; j < N; j++) {
-          E -= params->J.at(i, j).at(samples->at(seq, i, rep),
-                                     samples->at(seq, j, rep));
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int rep = 0; rep < reps; rep++) {
+      for (int seq = 0; seq < M; seq++) {
+        double E = 0;
+        for (int i = 0; i < N; i++) {
+          E -= params->h.at(samples->at(seq, i, rep), i);
+          for (int j = i + 1; j < N; j++) {
+            E -= params->J.at(i, j).at(samples->at(seq, i, rep),
+                                       samples->at(seq, j, rep));
+          }
         }
+        energies.at(rep, seq) = E;
       }
-      energies.at(rep, seq) = E;
     }
   }
 };
