@@ -127,24 +127,31 @@ MCMCStats::computeCorrelations(void)
   d2 = arma::sum(d2_mat, 0).t();
   count = arma::sum(count_mat, 0).t();
 
+  arma::Col<double> dinf_col = arma::Col<double>(M, arma::fill::zeros);
+  arma::Col<double> dinf2_col = arma::Col<double>(M, arma::fill::zeros);
+
   // Compute distances between replicates
-  double dinf = 0;
-  double dinf2 = 0;
-  int id = 0;
-  for (int seq = 0; seq < M; seq++) {
-    for (int rep1 = 0; rep1 < reps; rep1++) {
-      for (int rep2 = rep1 + 1; rep2 < reps; rep2++) {
-        id = 0;
-        for (int i = 0; i < N; i++) {
-          if (samples->at(seq, i, rep1) == samples->at(seq, i, rep2)) {
-            id++;
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int seq = 0; seq < M; seq++) {
+      for (int rep1 = 0; rep1 < reps; rep1++) {
+        for (int rep2 = rep1 + 1; rep2 < reps; rep2++) {
+          int id = 0;
+          for (int i = 0; i < N; i++) {
+            if (samples->at(seq, i, rep1) == samples->at(seq, i, rep2)) {
+              id++;
+            }
           }
+          dinf_col.at(seq) += (double)id / N;
+          dinf2_col.at(seq) += (double)(id * id) / (N * N);
         }
-        dinf += (double)id / N;
-        dinf2 += (double)(id * id) / (N * N);
       }
     }
   }
+
+  double dinf = arma::sum(dinf_col);
+  double dinf2 = arma::sum(dinf2_col);
 
   overlaps = arma::Col<double>(M - 2, arma::fill::zeros);
   overlaps_sigma = arma::Col<double>(M - 2, arma::fill::zeros);
