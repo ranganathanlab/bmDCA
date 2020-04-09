@@ -105,9 +105,7 @@ private:
   // Stats from original MSA
   MSAStats msa_stats;
 
-  // Model model;
-  Model* current_model;
-  Model* previous_model;
+  Model* model;
 
   // MCMC
   MCMC* mcmc;

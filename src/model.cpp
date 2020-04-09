@@ -5,11 +5,15 @@
 #include "utils.hpp"
 
 Model::Model(std::string parameters_file,
+             std::string parameters_prev_file,
              std::string gradient_file,
+             std::string gradient_prev_file,
              std::string learning_rate_file)
 {
   params = loadPottsModelCompat(parameters_file);
+  params_prev = loadPottsModelCompat(parameters_prev_file);
   gradient = loadPottsModelCompat(gradient_file);
+  gradient_prev = loadPottsModelCompat(gradient_prev_file);
   learning_rates = loadPottsModelCompat(learning_rate_file);
 
   N = params.h.n_cols;
@@ -18,13 +22,19 @@ Model::Model(std::string parameters_file,
 
 Model::Model(std::string parameters_file_h,
              std::string parameters_file_J,
+             std::string parameters_prev_file_h,
+             std::string parameters_prev_file_J,
              std::string gradient_file_h,
              std::string gradient_file_J,
+             std::string gradient_prev_file_h,
+             std::string gradient_prev_file_J,
              std::string learning_rate_file_h,
              std::string learning_rate_file_J)
 {
   params = loadPottsModel(parameters_file_h, parameters_file_J);
+  params_prev = loadPottsModel(parameters_prev_file_h, parameters_prev_file_J);
   gradient = loadPottsModel(gradient_file_h, gradient_file_J);
+  gradient_prev = loadPottsModel(gradient_prev_file_h, gradient_prev_file_J);
   learning_rates = loadPottsModel(learning_rate_file_h, learning_rate_file_J);
 
   N = params.h.n_cols;
@@ -39,13 +49,16 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
 
   // Initialize the parameters J and h
   params.J = arma::field<arma::Mat<double>>(N, N);
+  params_prev.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
       params.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+      params_prev.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
     }
   }
 
   params.h = arma::Mat<double>(Q, N, arma::fill::zeros);
+  params_prev.h = arma::Mat<double>(Q, N, arma::fill::zeros);
   double avg;
   double* freq_ptr = nullptr;
   for (int i = 0; i < N; i++) {
@@ -75,12 +88,15 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
 
   // Initialize the gradient
   gradient.J = arma::field<arma::Mat<double>>(N, N);
+  gradient_prev.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
       gradient.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+      gradient_prev.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
     }
   }
   gradient.h = arma::Mat<double>(Q, N, arma::fill::zeros);
+  gradient_prev.h = arma::Mat<double>(Q, N, arma::fill::zeros);
 };
 
 void
@@ -114,6 +130,42 @@ Model::writeParamsCompat(std::string output_file)
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
       output_stream << "h " << i << " " << aa << " " << params.h(aa, i)
+                    << std::endl;
+    }
+  }
+};
+
+void
+Model::writeParamsPrevious(std::string output_file_h, std::string output_file_J)
+{
+  params_prev.h.save(output_file_h, arma::arma_binary);
+  params_prev.J.save(output_file_J, arma::arma_binary);
+};
+
+void
+Model::writeParamsPreviousCompat(std::string output_file)
+{
+  std::ofstream output_stream(output_file);
+
+  int N = params_prev.h.n_cols;
+  int Q = params_prev.h.n_rows;
+
+  // Write J
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
+          output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
+                        << " " << params_prev.J.at(i, j)(aa1, aa2) << std::endl;
+        }
+      }
+    }
+  }
+
+  // Write h
+  for (int i = 0; i < N; i++) {
+    for (int aa = 0; aa < Q; aa++) {
+      output_stream << "h " << i << " " << aa << " " << params_prev.h(aa, i)
                     << std::endl;
     }
   }
@@ -187,6 +239,42 @@ Model::writeGradientCompat(std::string output_file)
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
       output_stream << "h " << i << " " << aa << " " << gradient.h(aa, i)
+                    << std::endl;
+    }
+  }
+};
+
+void
+Model::writeGradientPrevious(std::string output_file_h, std::string output_file_J)
+{
+  gradient_prev.h.save(output_file_h, arma::arma_binary);
+  gradient_prev.J.save(output_file_J, arma::arma_binary);
+};
+
+void
+Model::writeGradientPreviousCompat(std::string output_file)
+{
+  std::ofstream output_stream(output_file);
+
+  int N = gradient_prev.h.n_cols;
+  int Q = gradient_prev.h.n_rows;
+
+  // Write J
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      for (int aa1 = 0; aa1 < Q; aa1++) {
+        for (int aa2 = 0; aa2 < Q; aa2++) {
+          output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
+                        << " " << gradient_prev.J.at(i, j)(aa1, aa2) << std::endl;
+        }
+      }
+    }
+  }
+
+  // Write h
+  for (int i = 0; i < N; i++) {
+    for (int aa = 0; aa < Q; aa++) {
+      output_stream << "h " << i << " " << aa << " " << gradient_prev.h(aa, i)
                     << std::endl;
     }
   }
