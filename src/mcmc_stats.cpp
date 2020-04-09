@@ -95,34 +95,42 @@ MCMCStats::computeCorrelations(void)
   arma::Col<double> d = arma::Col<double>(M, arma::fill::zeros);
   arma::Col<double> d2 = arma::Col<double>(M, arma::fill::zeros);
   arma::Col<int> count = arma::Col<int>(M, arma::fill::zeros);
+  arma::Mat<double> d_mat = arma::Mat<double>(reps, M, arma::fill::zeros);
+  arma::Mat<double> d2_mat = arma::Mat<double>(reps, M, arma::fill::zeros);
+  arma::Mat<int> count_mat = arma::Mat<int>(reps, M, arma::fill::zeros);
 
   // Compute distances within replicates
-  arma::Mat<int> slice = arma::Mat<int>(N, M);
-  int* seq1_ptr = nullptr;
-  int* seq2_ptr = nullptr;
-  int id = 0;
-  for (int rep = 0; rep < reps; rep++) {
-    slice = (samples->slice(rep)).t();
-    for (int seq1 = 0; seq1 < M; seq1++) {
-      seq1_ptr = slice.colptr(seq1);
-      for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
-        seq2_ptr = slice.colptr(seq2);
-        id = 0;
-        for (int i = 0; i < N; i++) {
-          if ( *(seq1_ptr+i) == *(seq2_ptr+i) ) {
-            id++;
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int rep = 0; rep < reps; rep++) {
+      arma::Mat<int> slice = (samples->slice(rep)).t();
+      for (int seq1 = 0; seq1 < M; seq1++) {
+        int *seq1_ptr = slice.colptr(seq1);
+        for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
+          int *seq2_ptr = slice.colptr(seq2);
+          int id = 0;
+          for (int i = 0; i < N; i++) {
+            if ( *(seq1_ptr+i) == *(seq2_ptr+i) ) {
+              id++;
+            }
           }
+          d_mat.at(rep, seq2 - seq1) += (double)id / N;
+          d2_mat.at(rep, seq2 - seq1) += (double)id * id / (N * N);
+          count_mat.at(rep, seq2 - seq1)++;
         }
-        d.at(seq2 - seq1) += (double)id / N;
-        d2.at(seq2 - seq1) += (double)id * id / (N * N);
-        count.at(seq2 - seq1)++;
       }
     }
   }
 
+  d = arma::sum(d_mat, 0).t();
+  d2 = arma::sum(d2_mat, 0).t();
+  count = arma::sum(count_mat, 0).t();
+
   // Compute distances between replicates
   double dinf = 0;
   double dinf2 = 0;
+  int id = 0;
   for (int seq = 0; seq < M; seq++) {
     for (int rep1 = 0; rep1 < reps; rep1++) {
       for (int rep2 = rep1 + 1; rep2 < reps; rep2++) {
