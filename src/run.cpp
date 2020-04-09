@@ -730,11 +730,6 @@ Sim::run(void)
     step_timer.tic();
     std::cout << "Step: " << step << std::endl;
 
-    run_buffer.at((step - 1) % save_parameters, 0) = step;
-    run_buffer.at((step - 1) % save_parameters, 1) = count_max;
-    run_buffer.at((step - 1) % save_parameters, 2) = t_wait;
-    run_buffer.at((step - 1) % save_parameters, 3) = delta_t;
-
     std::cout << "loading params to mcmc... " << std::flush;
     timer.tic();
     mcmc->load(current_model->params);
@@ -861,6 +856,11 @@ Sim::run(void)
         flag_mc = false;
       }
     }
+
+    run_buffer.at((step - 1) % save_parameters, 0) = step;
+    run_buffer.at((step - 1) % save_parameters, 1) = count_max;
+    run_buffer.at((step - 1) % save_parameters, 2) = t_wait;
+    run_buffer.at((step - 1) % save_parameters, 3) = delta_t;
 
     // Importance sampling loop
     int step_importance = 0;
