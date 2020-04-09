@@ -654,7 +654,7 @@ Sim::burnRNG(void)
   int counter = 1;
   while (dist(rng) != value) {
     if (counter > 1000 * step_max * step_importance_max) {
-      std::cerr << "ERROR: cannot restore RNG state." << std::endl;
+      std::cerr << "WARNING: cannot restore RNG state." << std::endl;
       break;
     }
     counter++;
