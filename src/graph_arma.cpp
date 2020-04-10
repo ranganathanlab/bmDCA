@@ -149,18 +149,18 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
   rng.seed(seed);
   std::uniform_real_distribution<double> uniform(0, 1);
 
-  size_t ts = 0;
-  vector<size_t> conf(n);
+  // size_t ts = 0;
+  arma::Col<size_t> conf = arma::Col<size_t>(n);
   for (size_t i = 0; i < n; ++i) {
-    conf[i] = size_t(q * uniform(rng));
-    assert(conf[i] < q);
+    conf.at(i) = size_t(q * uniform(rng));
+    assert(conf.at(i) < q);
   }
 
   double en = 0.;
   for (size_t i = 0; i < n; ++i) {
-    en -= params->h.at(conf[i], i);
+    en -= params->h.at(conf.at(i), i);
     for (size_t j = i + 1; j < n; ++j) {
-      en -= params->J.at(i, j).at(conf[i], conf[j]);
+      en -= params->J.at(i, j).at(conf.at(i), conf.at(j));
     }
   }
 
@@ -169,28 +169,28 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
     size_t i = size_t(n * uniform(rng));
     size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
-    size_t q0 = conf[i];
+    size_t q0 = conf.at(i);
     size_t q1 = (q0 + dq) % q;
 
     double e0 = -params->h.at(q0, i);
     for (size_t j = 0; j < n; ++j) {
       if (i > j) {
-        e0 -= params->J.at(j, i).at(conf[j], q0);
+        e0 -= params->J.at(j, i).at(conf.at(j), q0);
       } else if (i < j) {
-        e0 -= params->J.at(i, j).at(q0, conf[j]);
+        e0 -= params->J.at(i, j).at(q0, conf.at(j));
       }
     }
     double e1 = -params->h.at(q1, i);
     for (size_t j = 0; j < n; ++j) {
       if (i > j) {
-        e1 -= params->J.at(j, i).at(conf[j], q1);
+        e1 -= params->J.at(j, i).at(conf.at(j), q1);
       } else if (i < j) {
-        e1 -= params->J.at(i, j).at(q1, conf[j]);
+        e1 -= params->J.at(i, j).at(q1, conf.at(j));
       }
     }
     double de = e1 - e0;
     if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
-      conf[i] = q1;
+      conf.at(i) = q1;
       tot_de += de;
     }
   }
@@ -202,33 +202,33 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
       size_t i = size_t(n * uniform(rng));
       size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
-      size_t q0 = conf[i];
+      size_t q0 = conf.at(i);
       size_t q1 = (q0 + dq) % q;
 
       double e0 = -params->h.at(q0, i);
       for (size_t j = 0; j < n; ++j) {
         if (i > j) {
-          e0 -= params->J.at(j, i).at(conf[j], q0);
+          e0 -= params->J.at(j, i).at(conf.at(j), q0);
         } else if (i < j) {
-          e0 -= params->J.at(i, j).at(q0, conf[j]);
+          e0 -= params->J.at(i, j).at(q0, conf.at(j));
         }
       }
       double e1 = -params->h.at(q1, i);
       for (size_t j = 0; j < n; ++j) {
         if (i > j) {
-          e1 -= params->J.at(j, i).at(conf[j], q1);
+          e1 -= params->J.at(j, i).at(conf.at(j), q1);
         } else if (i < j) {
-          e1 -= params->J.at(i, j).at(q1, conf[j]);
+          e1 -= params->J.at(i, j).at(q1, conf.at(j));
         }
       }
       double de = e1 - e0;
       if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
-        conf[i] = q1;
+        conf.at(i) = q1;
         tot_de += de;
       }
     }
     for (size_t i = 0; i < n; ++i) {
-      (*ptr).at(s, i) = conf[i];
+      (*ptr).at(s, i) = conf.at(i);
     }
   }
   // std::string output_string =
@@ -250,18 +250,18 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
   rng.seed(seed);
   std::uniform_real_distribution<double> uniform(0, 1);
 
-  size_t ts = 0;
-  vector<size_t> conf(n);
+  // size_t ts = 0;
+  arma::Col<size_t> conf = arma::Col<size_t>(n);
   for (size_t i = 0; i < n; ++i) {
-    conf[i] = (*ptr).at(i);
-    assert(conf[i] < q);
+    conf.at(i) = (*ptr).at(i);
+    assert(conf.at(i) < q);
   }
 
   double en = 0.;
   for (size_t i = 0; i < n; ++i) {
-    en -= params->h.at(conf[i], i);
+    en -= params->h.at(conf.at(i), i);
     for (size_t j = i + 1; j < n; ++j) {
-      en -= params->J.at(i, j).at(conf[i], conf[j]);
+      en -= params->J.at(i, j).at(conf.at(i), conf.at(j));
     }
   }
 
@@ -270,28 +270,28 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
     size_t i = size_t(n * uniform(rng));
     size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
-    size_t q0 = conf[i];
+    size_t q0 = conf.at(i);
     size_t q1 = (q0 + dq) % q;
 
     double e0 = -params->h.at(q0, i);
     for (size_t j = 0; j < n; ++j) {
       if (i > j) {
-        e0 -= params->J.at(j, i).at(conf[j], q0);
+        e0 -= params->J.at(j, i).at(conf.at(j), q0);
       } else if (i < j) {
-        e0 -= params->J.at(i, j).at(q0, conf[j]);
+        e0 -= params->J.at(i, j).at(q0, conf.at(j));
       }
     }
     double e1 = -params->h.at(q1, i);
     for (size_t j = 0; j < n; ++j) {
       if (i > j) {
-        e1 -= params->J.at(j, i).at(conf[j], q1);
+        e1 -= params->J.at(j, i).at(conf.at(j), q1);
       } else if (i < j) {
-        e1 -= params->J.at(i, j).at(q1, conf[j]);
+        e1 -= params->J.at(i, j).at(q1, conf.at(j));
       }
     }
     double de = e1 - e0;
     if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
-      conf[i] = q1;
+      conf.at(i) = q1;
       tot_de += de;
     }
   }
@@ -302,33 +302,33 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
       size_t i = size_t(n * uniform(rng));
       size_t dq = 1 + size_t((q - 1) * uniform(rng));
 
-      size_t q0 = conf[i];
+      size_t q0 = conf.at(i);
       size_t q1 = (q0 + dq) % q;
 
       double e0 = -params->h.at(q0, i);
       for (size_t j = 0; j < n; ++j) {
         if (i > j) {
-          e0 -= params->J.at(j, i).at(conf[j], q0);
+          e0 -= params->J.at(j, i).at(conf.at(j), q0);
         } else if (i < j) {
-          e0 -= params->J.at(i, j).at(q0, conf[j]);
+          e0 -= params->J.at(i, j).at(q0, conf.at(j));
         }
       }
       double e1 = -params->h.at(q1, i);
       for (size_t j = 0; j < n; ++j) {
         if (i > j) {
-          e1 -= params->J.at(j, i).at(conf[j], q1);
+          e1 -= params->J.at(j, i).at(conf.at(j), q1);
         } else if (i < j) {
-          e1 -= params->J.at(i, j).at(q1, conf[j]);
+          e1 -= params->J.at(i, j).at(q1, conf.at(j));
         }
       }
       double de = e1 - e0;
       if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
-        conf[i] = q1;
+        conf.at(i) = q1;
         tot_de += de;
       }
     }
     for (size_t i = 0; i < n; ++i) {
-      (*ptr).at(s, i) = conf[i];
+      (*ptr).at(s, i) = conf.at(i);
     }
   }
   // std::string output_string =
@@ -352,11 +352,11 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   std::uniform_real_distribution<double> uniform(0, 1);
 
   // Generate random initial sequence.
-  size_t ts = 0;
-  vector<size_t> conf(n);
+  // size_t ts = 0;
+  arma::Col<size_t> conf = arma::Col<size_t>(n);
   for (size_t i = 0; i < n; ++i) {
-    conf[i] = size_t(q * uniform(rng));
-    assert(conf[i] < q);
+    conf.at(i) = size_t(q * uniform(rng));
+    assert(conf.at(i) < q);
   }
 
   // // Compute energy of random initial sequence.
@@ -378,18 +378,13 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     // Compute initial neighborhood.
     if (k < 1) {
       for (size_t i = 0; i < n; i++) {
-        size_t q0 = conf[i];
-        double e0 = params->h.at(q0, i);
-        // for (size_t j = 0; j < n; j++) {
-        //   if (j != i) {
-        //     e0 -= params->J.at(i, j).at(q0, conf[j]);
-        //   }
-        // }
+        size_t q0 = conf.at(i);
+        double e0 = -params->h.at(q0, i);
         for (size_t j = 0; j < n; ++j) {
           if (i > j) {
-            e0 -= params->J.at(j, i).at(conf[j], q0);
+            e0 -= params->J.at(j, i).at(conf.at(j), q0);
           } else if (i < j) {
-            e0 -= params->J.at(i, j).at(q0, conf[j]);
+            e0 -= params->J.at(i, j).at(q0, conf.at(j));
           }
         }
 
@@ -397,19 +392,14 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
           if (q0 == q1) {
             de.at(i, q1) = 0.0;
           } else {
-            double e1 = params->h.at(q1, i);
+            double e1 = -params->h.at(q1, i);
             for (size_t j = 0; j < n; ++j) {
               if (i > j) {
-                e1 -= params->J.at(j, i).at(conf[j], q1);
+                e1 -= params->J.at(j, i).at(conf.at(j), q1);
               } else if (i < j) {
-                e1 -= params->J.at(i, j).at(q1, conf[j]);
+                e1 -= params->J.at(i, j).at(q1, conf.at(j));
               }
             }
-            // for (size_t j = 0; j < n; j++) {
-            //   if (j != i) {
-            //     e1 -= params->J.at(i, j).at(q1, conf[j]);
-            //   }
-            // }
             de.at(i, q1) = e1 - e0;
           }
         }
@@ -433,7 +423,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     bool done = false;
     for (i = 0; i < n; i++) {
       for (q1 = 0; q1 < q; q1++) {
-        if (conf[i] == q1) {
+        if (conf.at(i) == q1) {
           continue;
         } else {
           r_sum += g.at(i, q1);
@@ -449,19 +439,19 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     }
 
     double tmp = de.at(i, q1);
-    q0 = conf[i];
-    conf[i] = q1;
+    q0 = conf.at(i);
+    conf.at(i) = q1;
     for (size_t pos = 0; pos < n; pos++) {
       for (size_t aa = 0; aa < q; aa++) {
         if (pos != i) {
           if (pos < i) {
-            de.at(pos, aa) += params->J.at(pos, i).at(conf[pos], q1) -
-                              params->J.at(pos, i).at(conf[pos], q0) -
+            de.at(pos, aa) += params->J.at(pos, i).at(conf.at(pos), q1) -
+                              params->J.at(pos, i).at(conf.at(pos), q0) -
                               params->J.at(pos, i).at(aa, q1) +
                               params->J.at(pos, i).at(aa, q0);
           } else {
-            de.at(pos, aa) += params->J.at(i, pos).at(q1, conf[pos]) -
-                              params->J.at(i, pos).at(q0, conf[pos]) -
+            de.at(pos, aa) += params->J.at(i, pos).at(q1, conf.at(pos)) -
+                              params->J.at(i, pos).at(q0, conf.at(pos)) -
                               params->J.at(i, pos).at(q1, aa) +
                               params->J.at(i, pos).at(q0, aa);
           }
@@ -475,12 +465,12 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
             for (size_t pos2 = 0; pos2 < n; pos2++) {
               if (pos2 < i) {
                 de.at(pos, aa) +=
-                  params->J.at(pos2, i).at(conf[pos2], q1) -
-                  params->J.at(pos2, i).at(conf[pos2], q0);
+                  params->J.at(pos2, i).at(conf.at(pos2), q1) -
+                  params->J.at(pos2, i).at(conf.at(pos2), q0);
               } else if (pos2 > i) {
                 de.at(pos, aa) +=
-                  params->J.at(i, pos2).at(q1, conf[pos2]) -
-                  params->J.at(i, pos2).at(q0, conf[pos2]);
+                  params->J.at(i, pos2).at(q1, conf.at(pos2)) -
+                  params->J.at(i, pos2).at(q0, conf.at(pos2));
               }
             }
           }
@@ -509,7 +499,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       bool done = false;
       for (i = 0; i < n; i++) {
         for (q1 = 0; q1 < q; q1++) {
-          if (conf[i] == q1) {
+          if (conf.at(i) == q1) {
             continue;
           } else {
             r_sum += g.at(i, q1);
@@ -525,19 +515,19 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       }
 
       double tmp = de.at(i, q1);
-      q0 = conf[i];
-      conf[i] = q1;
+      q0 = conf.at(i);
+      conf.at(i) = q1;
       for (size_t pos = 0; pos < n; pos++) {
         for (size_t aa = 0; aa < q; aa++) {
           if (pos != i) {
             if (pos < i) {
-              de.at(pos, aa) += params->J.at(pos, i).at(conf[pos], q1) -
-                                params->J.at(pos, i).at(conf[pos], q0) -
+              de.at(pos, aa) += params->J.at(pos, i).at(conf.at(pos), q1) -
+                                params->J.at(pos, i).at(conf.at(pos), q0) -
                                 params->J.at(pos, i).at(aa, q1) +
                                 params->J.at(pos, i).at(aa, q0);
             } else {
-              de.at(pos, aa) += params->J.at(i, pos).at(q1, conf[pos]) -
-                                params->J.at(i, pos).at(q0, conf[pos]) -
+              de.at(pos, aa) += params->J.at(i, pos).at(q1, conf.at(pos)) -
+                                params->J.at(i, pos).at(q0, conf.at(pos)) -
                                 params->J.at(i, pos).at(q1, aa) +
                                 params->J.at(i, pos).at(q0, aa);
             }
@@ -547,17 +537,16 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
             } else if (q0 == aa) {
               de.at(pos, aa) = -tmp;
             } else {
-              // de.at(pos, aa) += h[pos][q1] - h[pos][q0];
               de.at(pos, aa) += params->h.at(q1, pos) - params->h.at(q0, pos);
               for (size_t pos2 = 0; pos2 < n; pos2++) {
                 if (pos2 < i) {
                   de.at(pos, aa) +=
-                    params->J.at(pos2, i).at(conf[pos2], q1) -
-                    params->J.at(pos2, i).at(conf[pos2], q0);
+                    params->J.at(pos2, i).at(conf.at(pos2), q1) -
+                    params->J.at(pos2, i).at(conf.at(pos2), q0);
                 } else if (pos2 > i) {
                   de.at(pos, aa) +=
-                    params->J.at(i, pos2).at(q1, conf[pos2]) -
-                    params->J.at(i, pos2).at(q0, conf[pos2]);
+                    params->J.at(i, pos2).at(q1, conf.at(pos2)) -
+                    params->J.at(i, pos2).at(q0, conf.at(pos2));
                 }
               }
             }
@@ -566,7 +555,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       }
     }
     for (size_t i = 0; i < n; ++i) {
-      (*ptr).at(s, i) = (int)conf[i];
+      (*ptr).at(s, i) = (int)conf.at(i);
     }
   }
   return;
