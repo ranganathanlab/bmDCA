@@ -371,7 +371,6 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   arma::Mat<double> de = arma::Mat<double>(n, q, arma::fill::zeros);
   arma::Mat<double> g = arma::Mat<double>(n, q, arma::fill::zeros);
   double lambda = 0.0;
-  std::vector<double> p(n * q);
 
   for (size_t k = 0; k < mc_iters0; ++k) {
 
