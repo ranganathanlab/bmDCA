@@ -4,7 +4,7 @@
 #include <string>
 #include <unistd.h>
 
-#include "graph.hpp"
+#include "graph_arma.hpp"
 #include "utils.hpp"
 
 class MCMC
@@ -12,8 +12,8 @@ class MCMC
 
 public:
   MCMC(size_t N, size_t Q);
-  MCMC(potts_model, size_t N, size_t Q);
-  void load(potts_model);
+  MCMC(size_t N, size_t Q, potts_model*);
+  void load(potts_model*);
   void run(int, int);
   void sample(arma::Cube<int>*, int, int, int, int, int, long int, double);
   void sample_zanella(arma::Cube<int>*,

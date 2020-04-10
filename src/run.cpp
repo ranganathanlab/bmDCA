@@ -778,7 +778,7 @@ Sim::run(void)
 
     std::cout << "loading params to mcmc... " << std::flush;
     timer.tic();
-    mcmc->load(model->params);
+    mcmc->load(&(model->params));
     std::cout << timer.toc() << " sec" << std::endl;
 
     // Sampling from MCMC (keep trying until correct properties found)

@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "graph.hpp"
+#include "graph_arma.hpp"
 
 void
-MCMC::load(potts_model model)
+MCMC::load(potts_model *model)
 {
   graph.load(model);
 };
@@ -17,7 +17,7 @@ MCMC::MCMC(size_t N, size_t Q)
   q = Q;
 };
 
-MCMC::MCMC(potts_model params, size_t N, size_t Q)
+MCMC::MCMC(size_t N, size_t Q, potts_model *params)
   : graph(N, Q)
 {
   n = N;

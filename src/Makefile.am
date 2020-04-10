@@ -22,14 +22,14 @@ bmdca_SOURCES = bmdca.cpp \
                 run.cpp \
                 mcmc.cpp \
                 mcmc_stats.cpp \
-                graph.cpp \
+                graph_arma.cpp \
                 utils.cpp
 
 bmdca_sample_SOURCES = bmdca_sample.cpp \
                        generator.cpp \
                        mcmc.cpp \
                        mcmc_stats.cpp \
-                       graph.cpp \
+                       graph_arma.cpp \
                        utils.cpp
 
 arma2ascii_SOURCES = arma_convert.cpp \

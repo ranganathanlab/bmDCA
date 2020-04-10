@@ -225,8 +225,7 @@ Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
   checkParameters();
 
   samples = arma::Cube<int>(M, N, count_max, arma::fill::zeros);
-  mcmc = new MCMC(model, N, Q);
-  mcmc->load(model);
+  mcmc = new MCMC(N, Q, &model);
   mcmc_stats = new MCMCStats(&samples, &(model));
 
   // Instantiate the PCG random number generator and unifrom random
