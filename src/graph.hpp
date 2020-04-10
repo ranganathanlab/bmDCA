@@ -5,23 +5,26 @@
 #include <iostream>
 #include <string>
 
-#include "mvector.hpp"
 #include "utils.hpp"
 
 class Graph
 {
 public:
-  Graph(size_t n, size_t q)
+
+  Graph(size_t n, size_t q, potts_model *p)
     : n(n)
     , q(q)
-    , J(xstd::mshape<4>(n, n, q, q))
-    , h(xstd::mshape<2>(n, q)){};
+    , params(p){};
 
-  void load(potts_model);
+  Graph(size_t n, size_t q)
+    : n(n)
+    , q(q){};
+
+  void load(potts_model*);
 
   size_t n, q;
-  xstd::mvector<4, double> J;
-  xstd::mvector<2, double> h;
+
+  potts_model* params;
 
   std::ostream& print_distribution(std::ostream& os);
 

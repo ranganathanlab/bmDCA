@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "graph_arma.hpp"
+#include "graph.hpp"
 
 void
 MCMC::load(potts_model *model)

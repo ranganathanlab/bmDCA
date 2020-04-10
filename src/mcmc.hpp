@@ -4,7 +4,7 @@
 #include <string>
 #include <unistd.h>
 
-#include "graph_arma.hpp"
+#include "graph.hpp"
 #include "utils.hpp"
 
 class MCMC
