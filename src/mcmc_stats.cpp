@@ -252,15 +252,14 @@ MCMCStats::computeSampleStats(void)
     }
   }
 
-  {
-    arma::Mat<double> n1 = arma::Mat<double>(Q, reps, arma::fill::zeros);
-    arma::Col<double> n1squared = arma::Col<double>(Q, arma::fill::zeros);
-    arma::Col<double> n1av = arma::Col<double>(Q, arma::fill::zeros);
 
+#pragma omp parallel
+  {
+#pragma omp for
     for (int i = 0; i < N; i++) {
-      n1.zeros();
-      n1av.zeros();
-      n1squared.zeros();
+      arma::Mat<double> n1 = arma::Mat<double>(Q, reps, arma::fill::zeros);
+      arma::Col<double> n1squared = arma::Col<double>(Q, arma::fill::zeros);
+      arma::Col<double> n1av = arma::Col<double>(Q, arma::fill::zeros);
       for (int rep = 0; rep < reps; rep++) {
         for (int m = 0; m < M; m++) {
           n1.at(samples->at(m, i, rep), rep)++;
@@ -281,16 +280,14 @@ MCMCStats::computeSampleStats(void)
     }
   }
 
+#pragma omp parallel
   {
-    arma::Cube<double> n2 = arma::Cube<double>(reps, Q, Q, arma::fill::zeros);
-    arma::Mat<double> n2av = arma::Mat<double>(Q, Q, arma::fill::zeros);
-    arma::Mat<double> n2squared = arma::Mat<double>(Q, Q, arma::fill::zeros);
-
+#pragma omp for
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
-        n2.zeros();
-        n2av.zeros();
-        n2squared.zeros();
+        arma::Cube<double> n2 = arma::Cube<double>(reps, Q, Q, arma::fill::zeros);
+        arma::Mat<double> n2av = arma::Mat<double>(Q, Q, arma::fill::zeros);
+        arma::Mat<double> n2squared = arma::Mat<double>(Q, Q, arma::fill::zeros);
         for (int rep = 0; rep < reps; rep++)
           for (int m = 0; m < M; m++) {
             n2.at(rep, samples->at(m, i, rep), samples->at(m, j, rep))++;
