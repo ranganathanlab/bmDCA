@@ -359,52 +359,49 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     assert(conf.at(i) < q);
   }
 
-  // // Compute energy of random initial sequence.
-  // double en_x = 0.;
-  // for (size_t i = 0; i < n; ++i) {
-  //   en_x -= h[i][conf[i]];
-  //   for (size_t j = i + 1; j < n; ++j) {
-  //     en_x -= J[i][j][conf[i]][conf[j]];
-  //   }
-  // }
+  // Compute energy of random initial sequence.
+  double en = 0.;
+  for (size_t i = 0; i < n; ++i) {
+    en -= params->h.at(conf.at(i), i);
+    for (size_t j = i + 1; j < n; ++j) {
+      en -= params->J.at(i, j).at(conf.at(i), conf.at(j));
+    }
+  }
 
   arma::Mat<double> de = arma::Mat<double>(n, q, arma::fill::zeros);
   arma::Mat<double> g = arma::Mat<double>(n, q, arma::fill::zeros);
   double lambda = 0.0;
 
-  for (size_t k = 0; k < mc_iters0; ++k) {
-
-    // Compute initial neighborhood.
-    if (k < 1) {
-      for (size_t i = 0; i < n; i++) {
-        size_t q0 = conf.at(i);
-        double e0 = -params->h.at(q0, i);
-        for (size_t j = 0; j < n; ++j) {
-          if (i > j) {
-            e0 -= params->J.at(j, i).at(conf.at(j), q0);
-          } else if (i < j) {
-            e0 -= params->J.at(i, j).at(q0, conf.at(j));
-          }
-        }
-
-        for (size_t q1 = 0; q1 < q; q1++) {
-          if (q0 == q1) {
-            de.at(i, q1) = 0.0;
-          } else {
-            double e1 = -params->h.at(q1, i);
-            for (size_t j = 0; j < n; ++j) {
-              if (i > j) {
-                e1 -= params->J.at(j, i).at(conf.at(j), q1);
-              } else if (i < j) {
-                e1 -= params->J.at(i, j).at(q1, conf.at(j));
-              }
-            }
-            de.at(i, q1) = e1 - e0;
-          }
-        }
+  // Compute initial neighborhood.
+  for (size_t i = 0; i < n; i++) {
+    size_t q0 = conf.at(i);
+    double e0 = -params->h.at(q0, i);
+    for (size_t j = 0; j < n; ++j) {
+      if (i > j) {
+        e0 -= params->J.at(j, i).at(conf.at(j), q0);
+      } else if (i < j) {
+        e0 -= params->J.at(i, j).at(q0, conf.at(j));
       }
     }
 
+    for (size_t q1 = 0; q1 < q; q1++) {
+      if (q0 == q1) {
+        de.at(i, q1) = 0.0;
+      } else {
+        double e1 = -params->h.at(q1, i);
+        for (size_t j = 0; j < n; ++j) {
+          if (i > j) {
+            e1 -= params->J.at(j, i).at(conf.at(j), q1);
+          } else if (i < j) {
+            e1 -= params->J.at(i, j).at(q1, conf.at(j));
+          }
+        }
+        de.at(i, q1) = e1 - e0;
+      }
+    }
+  }
+
+  for (size_t k = 0; k < mc_iters0; ++k) {
     if (mode == "sqrt") {
       g = arma::exp(de * -0.5 / temperature);
       lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
@@ -442,18 +439,16 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     conf.at(i) = q1;
     for (size_t pos = 0; pos < n; pos++) {
       for (size_t aa = 0; aa < q; aa++) {
-        if (pos != i) {
-          if (pos < i) {
-            de.at(pos, aa) += params->J.at(pos, i).at(conf.at(pos), q1) -
-                              params->J.at(pos, i).at(conf.at(pos), q0) -
-                              params->J.at(pos, i).at(aa, q1) +
-                              params->J.at(pos, i).at(aa, q0);
-          } else {
-            de.at(pos, aa) += params->J.at(i, pos).at(q1, conf.at(pos)) -
-                              params->J.at(i, pos).at(q0, conf.at(pos)) -
-                              params->J.at(i, pos).at(q1, aa) +
-                              params->J.at(i, pos).at(q0, aa);
-          }
+        if (pos < i) {
+          de.at(pos, aa) += params->J.at(pos, i).at(conf.at(pos), q1) -
+                            params->J.at(pos, i).at(conf.at(pos), q0) -
+                            params->J.at(pos, i).at(aa, q1) +
+                            params->J.at(pos, i).at(aa, q0);
+        } else if (pos > i) {
+          de.at(pos, aa) += params->J.at(i, pos).at(q1, conf.at(pos)) -
+                            params->J.at(i, pos).at(q0, conf.at(pos)) -
+                            params->J.at(i, pos).at(q1, aa) +
+                            params->J.at(i, pos).at(q0, aa);
         } else {
           if (q1 == aa) {
             de.at(pos, aa) = 0;
@@ -480,7 +475,6 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
 
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
-
       if (mode == "sqrt") {
         g = arma::exp(de * -0.5 / temperature);
         lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
@@ -518,18 +512,16 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       conf.at(i) = q1;
       for (size_t pos = 0; pos < n; pos++) {
         for (size_t aa = 0; aa < q; aa++) {
-          if (pos != i) {
-            if (pos < i) {
-              de.at(pos, aa) += params->J.at(pos, i).at(conf.at(pos), q1) -
-                                params->J.at(pos, i).at(conf.at(pos), q0) -
-                                params->J.at(pos, i).at(aa, q1) +
-                                params->J.at(pos, i).at(aa, q0);
-            } else {
-              de.at(pos, aa) += params->J.at(i, pos).at(q1, conf.at(pos)) -
-                                params->J.at(i, pos).at(q0, conf.at(pos)) -
-                                params->J.at(i, pos).at(q1, aa) +
-                                params->J.at(i, pos).at(q0, aa);
-            }
+          if (pos < i) {
+            de.at(pos, aa) += params->J.at(pos, i).at(conf.at(pos), q1) -
+                              params->J.at(pos, i).at(conf.at(pos), q0) -
+                              params->J.at(pos, i).at(aa, q1) +
+                              params->J.at(pos, i).at(aa, q0);
+          } else if (pos > i) {
+            de.at(pos, aa) += params->J.at(i, pos).at(q1, conf.at(pos)) -
+                              params->J.at(i, pos).at(q0, conf.at(pos)) -
+                              params->J.at(i, pos).at(q1, aa) +
+                              params->J.at(i, pos).at(q0, aa);
           } else {
             if (q1 == aa) {
               de.at(pos, aa) = 0;
