@@ -406,10 +406,10 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     }
 
     if (mode == "sqrt") {
-      g = arma::exp(de * -1.0 / 2.0 / temperature);
+      g = arma::exp(de * -0.5 / temperature);
       lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
     } else if (mode == "tanh") {
-      g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
+      g = 1.0 / (1.0 + arma::exp(de / temperature));
       lambda = arma::accu(g) - .5 * n;
     }
     g = g / lambda;
@@ -482,11 +482,11 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     for (size_t k = 0; k < mc_iters; ++k) {
 
       if (mode == "sqrt") {
-        g = arma::exp(de * -1.0 / 2.0 / temperature);
+        g = arma::exp(de * -0.5 / temperature);
         lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
       } else if (mode == "tanh") {
-        g = .5 + .5 * arma::tanh(de * -1.0 / 2.0 / temperature);
-        lambda = arma::accu(g) - .5 * n;
+        g = 1.0 / (1.0 + arma::exp(de / temperature));
+        lambda = arma::accu(g) - .5 * n; // n*(1/(1+exp(0))) needs to be subtracted.
       }
       g = g / lambda;
 
