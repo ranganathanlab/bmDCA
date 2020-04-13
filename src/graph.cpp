@@ -407,7 +407,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   if (mode == "sqrt") {
     g = arma::exp(de * -0.5 / temperature);
     lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
-  } else if (mode == "tanh") {
+  } else if (mode == "barker") {
     g = 1.0 / (1.0 + arma::exp(de / temperature));
     lambda = arma::accu(g) - .5 * n;
   }
@@ -481,7 +481,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
     if (mode == "sqrt") {
       g = arma::exp(de * -0.5 / temperature);
       lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
-    } else if (mode == "tanh") {
+    } else if (mode == "barker") {
       g = 1.0 / (1.0 + arma::exp(de / temperature));
       lambda = arma::accu(g) - .5 * n;
     }
@@ -564,7 +564,7 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
       if (mode == "sqrt") {
         g = arma::exp(de * -0.5 / temperature);
         lambda = arma::accu(g) - n; // n*exp(0) needs to be subtracted.
-      } else if (mode == "tanh") {
+      } else if (mode == "barker") {
         g = 1.0 / (1.0 + arma::exp(de / temperature));
         lambda = arma::accu(g) - .5 * n;
       }
