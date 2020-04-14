@@ -507,7 +507,9 @@ Sim::setStepOffset(void)
           checkFileExists("learning_rates_J_" + std::to_string(idx) + ".bin")) {
         steps.push_back(idx);
       } else {
-        invalid_steps.push_back(idx);
+        if (idx > -1) {
+          invalid_steps.push_back(idx);
+        }
       }
 
     } else {
