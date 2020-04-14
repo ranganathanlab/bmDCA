@@ -767,7 +767,7 @@ Sim::run(void)
     t_wait = t_wait_0;
     delta_t = delta_t_0;
   } else if (step_offset >= step_max) {
-    std::cout << "step"  << step_max << " already reached... done." << std::endl;
+    std::cout << "step "  << step_max << " already reached... done." << std::endl;
     return;
   } else {
     burnRNG();
