@@ -1186,7 +1186,6 @@ Sim::computeErrorReparametrization(void)
 
   bool converged = false;
   if (error_tot < error_max) {
-    std::cout << "converged" << std::endl;
     converged = true;
   }
   return converged;
