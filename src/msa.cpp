@@ -315,33 +315,32 @@ MSA::getSequenceLength(std::string sequence)
 void
 MSA::computeSequenceWeights(double threshold)
 {
-  sequence_weights = arma::vec(M, arma::fill::zeros);
+  sequence_weights = arma::Col<double>(M, arma::fill::ones);
   arma::Mat<int> alignment_T = alignment.t();
 
-  double id;
-  int* m1_ptr = nullptr;
-  int* m2_ptr = nullptr;
-  for (int m1 = 0; m1 < M; ++m1) {
-    sequence_weights.at(m1) += 1;
-    m1_ptr = alignment_T.colptr(m1);
-    for (int m2 = m1 + 1; m2 < M; ++m2) {
-      m2_ptr = alignment_T.colptr(m2);
-      id = 0;
-      for (int i = 0; i < N; ++i) {
-        if (*(m1_ptr + i) == *(m2_ptr + i)) {
-          id += 1;
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int m1 = 0; m1 < M; ++m1) {
+      int* m1_ptr = alignment_T.colptr(m1);
+      for (int m2 = 0; m2 < M; ++m2) {
+        if (m1 != m2) {
+          int* m2_ptr = alignment_T.colptr(m2);
+          double id = 0;
+          for (int i = 0; i < N; ++i) {
+            if (*(m1_ptr + i) == *(m2_ptr + i)) {
+              id += 1;
+            }
+          }
+          if (id > threshold * N) {
+            sequence_weights.at(m1) += 1;
+          }
         }
-      }
-      if (id > threshold * N) {
-        sequence_weights.at(m1) += 1;
-        sequence_weights.at(m2) += 1;
       }
     }
   }
 
-  for (int m1 = 0; m1 < M; ++m1) {
-    sequence_weights.at(m1) = 1. / sequence_weights.at(m1);
-  }
+  sequence_weights = 1. / sequence_weights;
 };
 
 void
