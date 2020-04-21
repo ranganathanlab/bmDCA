@@ -1046,7 +1046,7 @@ Sim::computeErrorReparametrization(void)
   // Compute gradient
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
-      phi = model->params.h.at(aa, i);
+      phi = 2 * model->params.h.at(aa, i);
       for (int j = 0; j < N; j++) {
         if (i < j) {
           for (int bb = 0; bb < Q; bb++) {
