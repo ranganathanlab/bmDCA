@@ -15,7 +15,7 @@ public:
   MCMC(size_t N, size_t Q, potts_model*);
   void load(potts_model*);
   void run(int, int);
-  void sample(arma::Cube<int>*, int, int, int, int, int, long int, double);
+  void sample(arma::Cube<int>*, int, int, int, int, int, long int, double=1.0);
   void sample_zanella(arma::Cube<int>*,
                       int,
                       int,
@@ -23,8 +23,8 @@ public:
                       int,
                       int,
                       long int,
-                      double,
-                      std::string);
+                      std::string,
+                      double = 1.0);
   void sample_init(arma::Cube<int>*,
                    int,
                    int,
@@ -33,7 +33,7 @@ public:
                    int,
                    arma::Col<int>*,
                    long int,
-                   double);
+                   double = 1.0);
 
 private:
   size_t n; // number of positions

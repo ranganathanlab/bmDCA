@@ -343,8 +343,8 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
                            size_t mc_iters0,
                            size_t mc_iters,
                            long int seed,
-                           double temperature,
-                           std::string mode)
+                           std::string mode,
+                           double temperature)
 {
   pcg32 rng;
   rng.seed(seed);

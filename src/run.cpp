@@ -55,7 +55,6 @@ Sim::initializeParameters(void)
   M = 1000;            // importance sampling max iterations
   count_max = 10;      // number of independent MCMC runs
   init_sample = false; // flag to load first position for mcmc seqs
-  temperature = 1.0;   // temperature at which to sample mcmc
 };
 
 void
@@ -113,7 +112,6 @@ Sim::writeParameters(std::string output_file)
   stream << "init_sample=" << init_sample << std::endl;
   stream << "init_sample_file=" << init_sample_file << std::endl;
   stream << "sampler=" << sampler << std::endl;
-  stream << "temperature=" << temperature << std::endl;
 
   // // check routine settings
   // stream << "t_wait_check=" << t_wait_check << std::endl;
@@ -258,8 +256,6 @@ Sim::compareParameter(std::string key, std::string value)
     same = same & (init_sample_file == value);
   } else if (key == "sampler") {
     same = same & (sampler == value);
-  } else if (key == "temperature") {
-    same = same & (temperature == std::stod(value));
   } else if (key == "output_binary") {
     if (value.size() == 1) {
       same = same & (output_binary == (std::stoi(value) == 1));
@@ -340,8 +336,6 @@ Sim::setParameter(std::string key, std::string value)
     init_sample_file = value;
   } else if (key == "sampler") {
     sampler = value;
-  } else if (key == "temperature") {
-    temperature = std::stod(value);
   } else if (key == "output_binary") {
     if (value.size() == 1) {
       output_binary = (std::stoi(value) == 1);
@@ -804,11 +798,10 @@ Sim::run(void)
                             t_wait,
                             delta_t,
                             &initial_sample,
-                            seed,
-                            temperature);
+                            seed);
         } else {
           mcmc->sample(
-            &samples, count_max, M, N, t_wait, delta_t, seed, temperature);
+            &samples, count_max, M, N, t_wait, delta_t, seed);
         }
       } else if (sampler == "z-sqrt") {
         mcmc->sample_zanella(&samples,
@@ -818,7 +811,6 @@ Sim::run(void)
                              t_wait,
                              delta_t,
                              seed,
-                             temperature,
                              "sqrt");
       } else if (sampler == "z-barker") {
         mcmc->sample_zanella(&samples,
@@ -828,7 +820,6 @@ Sim::run(void)
                              t_wait,
                              delta_t,
                              seed,
-                             temperature,
                              "barker");
       } else {
         std::cerr << "ERROR: sampler '" << sampler << "' not recognized." << std::endl;

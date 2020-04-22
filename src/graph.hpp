@@ -37,7 +37,7 @@ public:
                    size_t mc_iters0,
                    size_t mc_iters,
                    long int seed,
-                   double temperature = 1.0);
+                   double = 1.0);
 
   void sample_mcmc_init(arma::Mat<int>* ptr,
                         size_t m,
@@ -45,15 +45,15 @@ public:
                         size_t mc_iters,
                         arma::Col<int>* init_ptr,
                         long int seed,
-                        double temperature = 1.0);
+                        double = 1.0);
 
   void sample_mcmc_zanella(arma::Mat<int>* ptr,
                            size_t,
                            size_t,
                            size_t,
                            long int,
-                           double = 1.0,
-                           std::string = "sqrt");
+                           std::string = "sqrt",
+                           double = 1.0);
 
   void print_parameters(FILE* of);
 };

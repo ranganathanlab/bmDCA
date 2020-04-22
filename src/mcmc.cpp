@@ -56,8 +56,8 @@ MCMC::sample_zanella(arma::Cube<int>* ptr,
                      int t_wait,
                      int delta_t,
                      long int seed,
-                     double temperature,
-                     std::string mode){
+                     std::string mode,
+                     double temperature){
 #pragma omp parallel
   {
 #pragma omp for
@@ -67,8 +67,8 @@ MCMC::sample_zanella(arma::Cube<int>* ptr,
                                 t_wait,
                                 delta_t,
                                 seed + rep,
-                                temperature,
-                                mode);
+                                mode,
+                                temperature);
     }
   }
 };

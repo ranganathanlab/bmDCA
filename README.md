@@ -502,8 +502,7 @@ Inference and sampling runs can be configured using a text file (see
 27. `sampler` - sampler mode, 'mh' for Metropolis-Hastings and 'z-sqrt' or
     'z-barker' for Zanella, 2019. 'z-sqrt' corresponds to a balancing function of
     `sqrt(t)`, and 'z-barker' corresponds to `t/(1+t)`. (default: "mh")
-28. `temperature` - temperature at which to sample sequences (default 1)
-29. `output_binary` - flag to output data in binary format, which is faster and
+28. `output_binary` - flag to output data in binary format, which is faster and
     more precise (default: false)
 
 ### [sampling]
