@@ -26,6 +26,7 @@ Sim::initializeParameters(void)
   save_parameters = 20;
   // step_check = step_max;
   random_seed = 1;
+  use_reparametrization = true;
 
   // Learning rate settings
   epsilon_0_h = 0.01;
@@ -83,6 +84,7 @@ Sim::writeParameters(std::string output_file)
   stream << "save_parameters=" << save_parameters << std::endl;
   // stream << "step_check=" << step_check << std::endl;
   stream << "random_seed=" << random_seed << std::endl;
+  stream << "use_reparametrization=" << use_reparametrization << std::endl;
 
   // Learning rate settings
   stream << "epsilon_0_h=" << epsilon_0_h << std::endl;
@@ -206,6 +208,12 @@ Sim::compareParameter(std::string key, std::string value)
     // same = same & (save_parameters == std::stoi(value));
   } else if (key == "random_seed") {
     same = same & (random_seed == std::stoi(value));
+  } else if (key == "use_reparametrization") {
+    if (value.size() == 1) {
+      same = same & (use_reparametrization == (std::stoi(value) == 1));
+    } else {
+      same = same & (use_reparametrization == (value == "true"));
+    }
   } else if (key == "epsilon_0_h") {
     same = same & (epsilon_0_h == std::stod(value));
   } else if (key == "epsilon_0_J") {
@@ -286,6 +294,12 @@ Sim::setParameter(std::string key, std::string value)
     save_parameters = std::stoi(value);
   } else if (key == "random_seed") {
     random_seed = std::stoi(value);
+  } else if (key == "use_reparametrization") {
+    if (value.size() == 1) {
+      use_reparametrization = (std::stoi(value) == 1);
+    } else {
+      use_reparametrization = (value == "true");
+    }
   } else if (key == "epsilon_0_h") {
     epsilon_0_h = std::stod(value);
   } else if (key == "epsilon_0_J") {
@@ -1035,39 +1049,65 @@ Sim::computeErrorReparametrization(void)
   int count2 = 0;
 
   // Compute gradient
-  for (int i = 0; i < N; i++) {
-    for (int aa = 0; aa < Q; aa++) {
-      phi = 2 * model->params.h.at(aa, i);
-      for (int j = 0; j < N; j++) {
-        if (i < j) {
-          for (int bb = 0; bb < Q; bb++) {
-            phi += model->params.J.at(i, j).at(aa, bb) *
-                   msa_stats.frequency_1p.at(bb, j);
-          }
-        } else if (i > j) {
-          for (int bb = 0; bb < Q; bb++) {
-            phi += model->params.J.at(j, i).at(bb, aa) *
-                   msa_stats.frequency_1p.at(bb, j);
+  if (use_reparametrization) {
+    for (int i = 0; i < N; i++) {
+      for (int aa = 0; aa < Q; aa++) {
+        phi = 2 * model->params.h.at(aa, i);
+        for (int j = 0; j < N; j++) {
+          if (i < j) {
+            for (int bb = 0; bb < Q; bb++) {
+              phi += model->params.J.at(i, j).at(aa, bb) *
+                     msa_stats.frequency_1p.at(bb, j);
+            }
+          } else if (i > j) {
+            for (int bb = 0; bb < Q; bb++) {
+              phi += model->params.J.at(j, i).at(bb, aa) *
+                     msa_stats.frequency_1p.at(bb, j);
+            }
           }
         }
-      }
-      delta = mcmc_stats->frequency_1p.at(aa, i) -
-              msa_stats.frequency_1p.at(aa, i) + lambda_h * 0.5 * phi;
-      delta_stat =
-        (mcmc_stats->frequency_1p.at(aa, i) -
-         msa_stats.frequency_1p.at(aa, i)) /
-        (pow(msa_stats.frequency_1p.at(aa, i) *
-                 (1. - msa_stats.frequency_1p.at(aa, i)) / M_eff +
-               pow(mcmc_stats->frequency_1p_sigma.at(aa, i), 2) + EPSILON,
-             0.5));
-      error_1p += pow(delta, 2);
-      error_stat_1p += pow(delta_stat, 2);
-      if (pow(delta, 2) > pow(deltamax_1, 2))
-        deltamax_1 = sqrt(pow(delta, 2));
+        delta = mcmc_stats->frequency_1p.at(aa, i) -
+                msa_stats.frequency_1p.at(aa, i) + lambda_h * 0.5 * phi;
+        delta_stat =
+          (mcmc_stats->frequency_1p.at(aa, i) -
+           msa_stats.frequency_1p.at(aa, i)) /
+          (pow(msa_stats.frequency_1p.at(aa, i) *
+                   (1. - msa_stats.frequency_1p.at(aa, i)) / M_eff +
+                 pow(mcmc_stats->frequency_1p_sigma.at(aa, i), 2) + EPSILON,
+               0.5));
+        error_1p += pow(delta, 2);
+        error_stat_1p += pow(delta_stat, 2);
+        if (pow(delta, 2) > pow(deltamax_1, 2))
+          deltamax_1 = sqrt(pow(delta, 2));
 
-      if (sqrt(pow(delta_stat, 2)) > error_min_update) {
-        model->gradient.h.at(aa, i) = -delta;
-        count1++;
+        if (sqrt(pow(delta_stat, 2)) > error_min_update) {
+          model->gradient.h.at(aa, i) = -delta;
+          count1++;
+        }
+      }
+    }
+  } else {
+    for (int i = 0; i < N; i++) {
+      for (int aa = 0; aa < Q; aa++) {
+        delta = mcmc_stats->frequency_1p.at(aa, i) -
+                msa_stats.frequency_1p.at(aa, i) +
+                lambda_h * model->params.h.at(aa, i);
+        delta_stat =
+          (mcmc_stats->frequency_1p.at(aa, i) -
+           msa_stats.frequency_1p.at(aa, i)) /
+          (pow(msa_stats.frequency_1p.at(aa, i) *
+                   (1. - msa_stats.frequency_1p.at(aa, i)) / M_eff +
+                 pow(mcmc_stats->frequency_1p_sigma.at(aa, i), 2) + EPSILON,
+               0.5));
+        error_1p += pow(delta, 2);
+        error_stat_1p += pow(delta_stat, 2);
+        if (pow(delta, 2) > pow(deltamax_1, 2))
+          deltamax_1 = sqrt(pow(delta, 2));
+
+        if (sqrt(pow(delta_stat, 2)) > error_min_update) {
+          model->gradient.h.at(aa, i) = -delta;
+          count1++;
+        }
       }
     }
   }
@@ -1075,47 +1115,90 @@ Sim::computeErrorReparametrization(void)
   double error_c = 0;
   double c_mc = 0, c_stat = 0;
 
-  for (int i = 0; i < N; i++) {
-    for (int j = i + 1; j < N; j++) {
-      for (int aa1 = 0; aa1 < Q; aa1++) {
-        for (int aa2 = 0; aa2 < Q; aa2++) {
-          delta = -(msa_stats.frequency_2p.at(i, j).at(aa1, aa2) -
-                    mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) +
-                    (mcmc_stats->frequency_1p.at(aa1, i) -
-                     msa_stats.frequency_1p.at(aa1, i)) *
-                      msa_stats.frequency_1p.at(aa2, j) +
-                    (mcmc_stats->frequency_1p.at(aa2, j) -
-                     msa_stats.frequency_1p.at(aa2, j)) *
-                      msa_stats.frequency_1p.at(aa1, i) -
-                    lambda_j * current_model->params.J.at(i, j).at(aa1, aa2));
-          delta_stat =
-            (mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) -
-             msa_stats.frequency_2p.at(i, j).at(aa1, aa2)) /
-            (pow(msa_stats.frequency_2p.at(i, j).at(aa1, aa2) *
-                     (1.0 - msa_stats.frequency_2p.at(i, j).at(aa1, aa2)) /
-                     M_eff +
-                   pow(mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2), 2) +
-                   EPSILON,
-                 0.5));
+  if (use_reparametrization) {
+    for (int i = 0; i < N; i++) {
+      for (int j = i + 1; j < N; j++) {
+        for (int aa1 = 0; aa1 < Q; aa1++) {
+          for (int aa2 = 0; aa2 < Q; aa2++) {
+            delta = -(msa_stats.frequency_2p.at(i, j).at(aa1, aa2) -
+                      mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) +
+                      (mcmc_stats->frequency_1p.at(aa1, i) -
+                       msa_stats.frequency_1p.at(aa1, i)) *
+                        msa_stats.frequency_1p.at(aa2, j) +
+                      (mcmc_stats->frequency_1p.at(aa2, j) -
+                       msa_stats.frequency_1p.at(aa2, j)) *
+                        msa_stats.frequency_1p.at(aa1, i) -
+                      lambda_j * model->params.J.at(i, j).at(aa1, aa2));
+            delta_stat =
+              (mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) -
+               msa_stats.frequency_2p.at(i, j).at(aa1, aa2)) /
+              (pow(msa_stats.frequency_2p.at(i, j).at(aa1, aa2) *
+                       (1.0 - msa_stats.frequency_2p.at(i, j).at(aa1, aa2)) /
+                       M_eff +
+                     pow(mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2), 2) +
+                     EPSILON,
+                   0.5));
 
-          c_mc = mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) -
-                 mcmc_stats->frequency_1p.at(aa1, i) *
-                   mcmc_stats->frequency_1p.at(aa2, j);
-          c_stat = msa_stats.frequency_2p.at(i, j).at(aa1, aa2) -
-                   msa_stats.frequency_1p.at(aa1, i) *
-                     msa_stats.frequency_1p.at(aa2, j);
-          c_mc_av += c_mc;
-          c_stat_av += c_stat;
-          error_c += pow(c_mc - c_stat, 2);
-          error_2p += pow(delta, 2);
-          error_stat_2p += pow(delta_stat, 2);
+            c_mc = mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) -
+                   mcmc_stats->frequency_1p.at(aa1, i) *
+                     mcmc_stats->frequency_1p.at(aa2, j);
+            c_stat = msa_stats.frequency_2p.at(i, j).at(aa1, aa2) -
+                     msa_stats.frequency_1p.at(aa1, i) *
+                       msa_stats.frequency_1p.at(aa2, j);
+            c_mc_av += c_mc;
+            c_stat_av += c_stat;
+            error_c += pow(c_mc - c_stat, 2);
+            error_2p += pow(delta, 2);
+            error_stat_2p += pow(delta_stat, 2);
 
-          if (pow(delta, 2) > pow(deltamax_2, 2)) {
-            deltamax_2 = sqrt(pow(delta, 2));
+            if (pow(delta, 2) > pow(deltamax_2, 2)) {
+              deltamax_2 = sqrt(pow(delta, 2));
+            }
+            if (sqrt(pow(delta_stat, 2)) > error_min_update) {
+              model->gradient.J.at(i, j).at(aa1, aa2) = -delta;
+              count2++;
+            }
           }
-          if (sqrt(pow(delta_stat, 2)) > error_min_update) {
-            model->gradient.J.at(i, j).at(aa1, aa2) = -delta;
-            count2++;
+        }
+      }
+    }
+  } else {
+    for (int i = 0; i < N; i++) {
+      for (int j = i + 1; j < N; j++) {
+        for (int aa1 = 0; aa1 < Q; aa1++) {
+          for (int aa2 = 0; aa2 < Q; aa2++) {
+            delta = -(msa_stats.frequency_2p.at(i, j).at(aa1, aa2) -
+                      mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) -
+                      lambda_j * model->params.J.at(i, j).at(aa1, aa2));
+            delta_stat =
+              (mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) -
+               msa_stats.frequency_2p.at(i, j).at(aa1, aa2)) /
+              (pow(msa_stats.frequency_2p.at(i, j).at(aa1, aa2) *
+                       (1.0 - msa_stats.frequency_2p.at(i, j).at(aa1, aa2)) /
+                       M_eff +
+                     pow(mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2), 2) +
+                     EPSILON,
+                   0.5));
+
+            c_mc = mcmc_stats->frequency_2p.at(i, j).at(aa1, aa2) -
+                   mcmc_stats->frequency_1p.at(aa1, i) *
+                     mcmc_stats->frequency_1p.at(aa2, j);
+            c_stat = msa_stats.frequency_2p.at(i, j).at(aa1, aa2) -
+                     msa_stats.frequency_1p.at(aa1, i) *
+                       msa_stats.frequency_1p.at(aa2, j);
+            c_mc_av += c_mc;
+            c_stat_av += c_stat;
+            error_c += pow(c_mc - c_stat, 2);
+            error_2p += pow(delta, 2);
+            error_stat_2p += pow(delta_stat, 2);
+
+            if (pow(delta, 2) > pow(deltamax_2, 2)) {
+              deltamax_2 = sqrt(pow(delta, 2));
+            }
+            if (sqrt(pow(delta_stat, 2)) > error_min_update) {
+              model->gradient.J.at(i, j).at(aa1, aa2) = -delta;
+              count2++;
+            }
           }
         }
       }
@@ -1242,34 +1325,44 @@ Sim::updateReparameterization(void)
     }
   }
 
-  arma::Mat<double> Dh = arma::Mat<double>(Q, N, arma::fill::zeros);
-  for (int i = 0; i < N; i++) {
-    for (int a = 0; a < Q; a++) {
-      for (int j = 0; j < N; j++) {
-        if (i < j) {
-          for (int b = 0; b < Q; b++) {
-            Dh.at(a, i) += msa_stats.frequency_1p.at(b, j) *
-                           model->learning_rates.J.at(i, j).at(a, b) *
-                           model->gradient.J.at(i, j).at(a, b);
+  if (use_reparametrization) {
+    arma::Mat<double> Dh = arma::Mat<double>(Q, N, arma::fill::zeros);
+    for (int i = 0; i < N; i++) {
+      for (int a = 0; a < Q; a++) {
+        for (int j = 0; j < N; j++) {
+          if (i < j) {
+            for (int b = 0; b < Q; b++) {
+              Dh.at(a, i) += msa_stats.frequency_1p.at(b, j) *
+                             model->learning_rates.J.at(i, j).at(a, b) *
+                             model->gradient.J.at(i, j).at(a, b);
+            }
           }
-        }
-        if (i > j) {
-          for (int b = 0; b < Q; b++) {
-            Dh.at(a, i) += msa_stats.frequency_1p.at(b, j) *
-                           model->learning_rates.J.at(j, i).at(b, a) *
-                           model->gradient.J.at(j, i).at(b, a);
+          if (i > j) {
+            for (int b = 0; b < Q; b++) {
+              Dh.at(a, i) += msa_stats.frequency_1p.at(b, j) *
+                             model->learning_rates.J.at(j, i).at(b, a) *
+                             model->gradient.J.at(j, i).at(b, a);
+            }
           }
         }
       }
     }
-  }
 
-  for (int i = 0; i < N; i++) {
-    for (int a = 0; a < Q; a++) {
-      model->params.h.at(a, i) +=
-        model->learning_rates.h.at(a, i) *
-          model->gradient.h.at(a, i) +
-        0.5 * Dh.at(a, i);
+    for (int i = 0; i < N; i++) {
+      for (int a = 0; a < Q; a++) {
+        model->params.h.at(a, i) +=
+          model->learning_rates.h.at(a, i) *
+            model->gradient.h.at(a, i) +
+          0.5 * Dh.at(a, i);
+      }
+    }
+  } else {
+    for (int i = 0; i < N; i++) {
+      for (int a = 0; a < Q; a++) {
+        model->params.h.at(a, i) +=
+          model->learning_rates.h.at(a, i) *
+            model->gradient.h.at(a, i);
+      }
     }
   }
 };

@@ -41,6 +41,7 @@ private:
   double error_max;    // exit error
   int save_parameters; // multiple of iterations at which to save parameters
   int random_seed;
+  bool use_reparametrization = true;
 
   // Learning parameters
   double epsilon_0_h;      // starting learning rate for fields
@@ -83,7 +84,7 @@ private:
   std::string init_sample_file; // name of file with mcmc initial sample
   std::string sampler = "mh";   // MC sampler type ('mh' or 'z')
 
-  bool output_binary = false;
+  bool output_binary = true;
 
   std::string hyperparameter_file = "bmdca_params.conf";
   std::string run_log_file = "bmdca_run.log";
