@@ -34,11 +34,11 @@ public:
   void writeGradient(std::string, std::string);
   void writeGradientPrevious(std::string, std::string);
 
-  void writeParamsCompat(std::string);
-  void writeParamsPreviousCompat(std::string);
-  void writeLearningRatesCompat(std::string);
-  void writeGradientCompat(std::string);
-  void writeGradientPreviousCompat(std::string);
+  void writeParamsAscii(std::string);
+  void writeParamsPreviousAscii(std::string);
+  void writeLearningRatesAscii(std::string);
+  void writeGradientAscii(std::string);
+  void writeGradientPreviousAscii(std::string);
 };
 
 #endif

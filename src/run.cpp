@@ -1392,22 +1392,22 @@ Sim::writeData(int step)
                                  "stat_MC_2p_sigma_" + std::to_string(step) +
                                    ".bin");
   } else {
-    model->writeParamsPreviousCompat("parameters_" + std::to_string(step - 1) +
+    model->writeParamsPreviousAscii("parameters_" + std::to_string(step - 1) +
                              ".txt");
-    model->writeGradientPreviousCompat("gradients_" +
+    model->writeGradientPreviousAscii("gradients_" +
                                std::to_string(step - 1) + ".txt");
 
-    model->writeParamsCompat("parameters_" + std::to_string(step) +
+    model->writeParamsAscii("parameters_" + std::to_string(step) +
                              ".txt");
-    model->writeGradientCompat("gradients_" + std::to_string(step) +
+    model->writeGradientAscii("gradients_" + std::to_string(step) +
                                ".txt");
-    model->writeLearningRatesCompat("learning_rates_" +
+    model->writeLearningRatesAscii("learning_rates_" +
                                             std::to_string(step) + ".txt");
 
-    mcmc_stats->writeFrequency1pCompat(
+    mcmc_stats->writeFrequency1pAscii(
       "stat_MC_1p_" + std::to_string(step) + ".txt",
       "stat_MC_1p_sigma_" + std::to_string(step) + ".txt");
-    mcmc_stats->writeFrequency2pCompat(
+    mcmc_stats->writeFrequency2pAscii(
       "stat_MC_2p_" + std::to_string(step) + ".txt",
       "stat_MC_2p_sigma_" + std::to_string(step) + ".txt");
   }
@@ -1448,13 +1448,13 @@ Sim::writeData(std::string id)
     mcmc_stats->writeFrequency2p("stat_MC_2p_" + id + ".bin",
                                  "stat_MC_2p_sigma_" + id + ".bin");
   } else {
-    model->writeParamsCompat("parameters_" + id + ".txt");
-    model->writeGradientCompat("gradients_" + id + ".txt");
-    model->writeLearningRatesCompat("learning_rates_" + id + ".txt");
+    model->writeParamsAscii("parameters_" + id + ".txt");
+    model->writeGradientAscii("gradients_" + id + ".txt");
+    model->writeLearningRatesAscii("learning_rates_" + id + ".txt");
 
-    mcmc_stats->writeFrequency1pCompat("stat_MC_1p_" + id + ".txt",
+    mcmc_stats->writeFrequency1pAscii("stat_MC_1p_" + id + ".txt",
                                        "stat_MC_1p_sigma_" + id + ".txt");
-    mcmc_stats->writeFrequency2pCompat("stat_MC_2p_" + id + ".txt",
+    mcmc_stats->writeFrequency2pAscii("stat_MC_2p_" + id + ".txt",
                                        "stat_MC_2p_sigma_" + id + ".txt");
   }
   mcmc_stats->writeSamples("MC_samples_" + id + ".txt");

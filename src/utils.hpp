@@ -26,7 +26,7 @@ typedef struct
 
 potts_model loadPottsModel(std::string, std::string);
 
-potts_model loadPottsModelCompat(std::string);
+potts_model loadPottsModelAscii(std::string);
 
 void convertFrequencyToAscii(std::string);
 

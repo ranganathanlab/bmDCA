@@ -108,7 +108,7 @@ main(int argc, char* argv[])
   // Load Potts model
   potts_model params;
   if (compat_mode) {
-    params = loadPottsModelCompat(parameters_file);
+    params = loadPottsModelAscii(parameters_file);
   } else {
     params = loadPottsModel(parameters_file, J_file);
   }

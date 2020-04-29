@@ -437,7 +437,7 @@ MCMCStats::writeFrequency1p(std::string output_file,
 };
 
 void
-MCMCStats::writeFrequency1pCompat(std::string output_file,
+MCMCStats::writeFrequency1pAscii(std::string output_file,
                                   std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
@@ -464,7 +464,7 @@ MCMCStats::writeFrequency2p(std::string output_file,
 };
 
 void
-MCMCStats::writeFrequency2pCompat(std::string output_file,
+MCMCStats::writeFrequency2pAscii(std::string output_file,
                                   std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);

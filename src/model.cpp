@@ -10,11 +10,11 @@ Model::Model(std::string parameters_file,
              std::string gradient_prev_file,
              std::string learning_rate_file)
 {
-  params = loadPottsModelCompat(parameters_file);
-  params_prev = loadPottsModelCompat(parameters_prev_file);
-  gradient = loadPottsModelCompat(gradient_file);
-  gradient_prev = loadPottsModelCompat(gradient_prev_file);
-  learning_rates = loadPottsModelCompat(learning_rate_file);
+  params = loadPottsModelAscii(parameters_file);
+  params_prev = loadPottsModelAscii(parameters_prev_file);
+  gradient = loadPottsModelAscii(gradient_file);
+  gradient_prev = loadPottsModelAscii(gradient_prev_file);
+  learning_rates = loadPottsModelAscii(learning_rate_file);
 
   N = params.h.n_cols;
   Q = params.h.n_rows;
@@ -107,7 +107,7 @@ Model::writeParams(std::string output_file_h, std::string output_file_J)
 };
 
 void
-Model::writeParamsCompat(std::string output_file)
+Model::writeParamsAscii(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
@@ -143,7 +143,7 @@ Model::writeParamsPrevious(std::string output_file_h, std::string output_file_J)
 };
 
 void
-Model::writeParamsPreviousCompat(std::string output_file)
+Model::writeParamsPreviousAscii(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
@@ -179,7 +179,7 @@ Model::writeLearningRates(std::string output_file_h, std::string output_file_J)
 };
 
 void
-Model::writeLearningRatesCompat(std::string output_file)
+Model::writeLearningRatesAscii(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
@@ -216,7 +216,7 @@ Model::writeGradient(std::string output_file_h, std::string output_file_J)
 };
 
 void
-Model::writeGradientCompat(std::string output_file)
+Model::writeGradientAscii(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
@@ -252,7 +252,7 @@ Model::writeGradientPrevious(std::string output_file_h, std::string output_file_
 };
 
 void
-Model::writeGradientPreviousCompat(std::string output_file)
+Model::writeGradientPreviousAscii(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 

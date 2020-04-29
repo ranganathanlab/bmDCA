@@ -47,7 +47,7 @@ loadPottsModel(std::string h_file, std::string J_file)
 };
 
 potts_model
-loadPottsModelCompat(std::string parameters_file)
+loadPottsModelAscii(std::string parameters_file)
 {
   std::ifstream input_stream(parameters_file);
 
