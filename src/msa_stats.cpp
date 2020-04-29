@@ -142,6 +142,18 @@ MSAStats::writeRelEntropyGradient(std::string output_file)
 void
 MSAStats::writeFrequency1p(std::string output_file)
 {
+  frequency_1p.save(output_file, arma::arma_binary);
+};
+
+void
+MSAStats::writeFrequency1pRaw(std::string output_file)
+{
+  frequency_1p.save(output_file, arma::raw_binary);
+};
+
+void
+MSAStats::writeFrequency1pAscii(std::string output_file)
+{
   std::ofstream output_stream(output_file);
 
   for (int i = 0; i < N; i++) {
@@ -155,6 +167,18 @@ MSAStats::writeFrequency1p(std::string output_file)
 
 void
 MSAStats::writeFrequency2p(std::string output_file)
+{
+  frequency_2p.save(output_file, arma::arma_binary);
+};
+
+void
+MSAStats::writeFrequency2pRaw(std::string output_file)
+{
+  frequency_2p.save(output_file, arma::raw_binary);
+};
+
+void
+MSAStats::writeFrequency2pAscii(std::string output_file)
 {
   std::ofstream output_stream(output_file);
 
