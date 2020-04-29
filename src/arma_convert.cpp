@@ -11,11 +11,13 @@ void
 print_usage(void)
 {
   std::cout << "arma2ascii usage:" << std::endl;
-  std::cout << "(e.g. bmdca_sample -p <params|params h> -P <params J>)"
+  std::cout << "(e.g. bmdca_sample -p <params h> -P <params J>"
             << std::endl;
-  std::cout << "(e.g. bmdca_sample -s <stats file>)" << std::endl;
+  std::cout << " -OR- bmdca_sample -p <params>"
+            << std::endl;
+  std::cout << " -OR- bmdca_sample -s <stats file>)" << std::endl;
   std::cout << "  -p: parameters (txt) _or_ fields h (bin)" << std::endl;
-  std::cout << "  -P: couplings J (bin), required if fields h given"
+  std::cout << "  -P: couplings J (bin), *required* if fields h given"
             << std::endl;
   std::cout << "  -s: sequence sample statistics file" << std::endl;
   std::cout << "  -h: print usage (i.e. this message)" << std::endl;
@@ -28,18 +30,22 @@ main(int argc, char* argv[])
   std::string param_h_file;
   std::string param_J_file;
 
+  bool valid_input = false;
+
   // Read command-line parameters.
   char c;
   while ((c = getopt(argc, argv, "P:p:s:h")) != -1) {
     switch (c) {
       case 'p':
         param_h_file = optarg;
+        valid_input = true;
         break;
       case 'P':
         param_J_file = optarg;
         break;
       case 's':
         stat_file = optarg;
+        valid_input = true;
         break;
       case 'h':
         print_usage();
@@ -50,6 +56,12 @@ main(int argc, char* argv[])
         print_usage();
         std::exit(EXIT_FAILURE);
     }
+  }
+
+  if (!valid_input) {
+    std::cerr << "ERROR: Input file not given." << std::endl;
+    print_usage();
+    std::exit(EXIT_FAILURE);
   }
 
   // Convert 1p and/or 2p statistics from arma binary to ascii.
