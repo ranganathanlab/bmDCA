@@ -16,8 +16,6 @@ public:
   void writeRelEntropyGradient(std::string);
   void writeFrequency1p(std::string);
   void writeFrequency2p(std::string);
-  void writeFrequency1pRaw(std::string);
-  void writeFrequency2pRaw(std::string);
   void writeFrequency1pAscii(std::string);
   void writeFrequency2pAscii(std::string);
 
