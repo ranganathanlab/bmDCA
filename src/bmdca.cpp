@@ -28,7 +28,6 @@ main(int argc, char* argv[])
 {
   std::string input_file;
   std::string config_file;
-  std::string numeric_file;
   std::string weight_file;
   std::string dest_dir = ".";
 
@@ -71,7 +70,8 @@ main(int argc, char* argv[])
         input_file_given = true;
         break;
       case 'n':
-        numeric_file = optarg;
+        input_file = optarg;
+        input_file_given = true;
         numeric_msa_given = true;
         break;
       case 'r':
@@ -91,11 +91,18 @@ main(int argc, char* argv[])
     }
   }
 
+  // Exit if no input file was provided.
+  if (!input_file_given) {
+    std::cerr << "ERROR: Missing MSA input file." << std::endl;
+    print_usage();
+    std::exit(EXIT_FAILURE);
+  }
+
   // If both the numeric matrix and sequence weights are given, don't bother
   // converting the FASTA file.
   if (numeric_msa_given && weight_given) {
     // Parse the multiple sequence alignment. Reweight sequences if desired.
-    MSA msa = MSA(numeric_file, weight_file, numeric_msa_given);
+    MSA msa = MSA(input_file, weight_file, numeric_msa_given);
     msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
     msa.writeMatrix(dest_dir + "/msa_numerical.txt");
 
@@ -109,21 +116,7 @@ main(int argc, char* argv[])
     Sim sim = Sim(msa_stats, config_file, dest_dir, force_restart);
     sim.writeParameters("bmdca_params.conf");
     sim.run();
-  } else if (numeric_msa_given) {
-    MSA msa = MSA(numeric_file, reweight, numeric_msa_given, threshold);
-    msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
-    msa.writeMatrix(dest_dir + "/msa_numerical.txt");
-
-    // Compute the statistics of the MSA.
-    MSAStats msa_stats = MSAStats(msa);
-    msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.bin");
-    msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.bin");
-
-    // Initialize the MCMC using the statistics of the MSA.
-    Sim sim = Sim(msa_stats, config_file, dest_dir, force_restart);
-    sim.writeParameters("bmdca_params.conf");
-    sim.run();
-  } else if (input_file_given) {
+  } else {
     // Parse the multiple sequence alignment. Reweight sequences if desired.
     MSA msa = MSA(input_file, reweight, numeric_msa_given, threshold);
     msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
@@ -139,8 +132,6 @@ main(int argc, char* argv[])
     Sim sim = Sim(msa_stats, config_file, dest_dir, force_restart);
     sim.writeParameters("bmdca_params.conf");
     sim.run();
-  } else {
-    print_usage();
   }
 
   return 0;
