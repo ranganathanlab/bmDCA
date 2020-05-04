@@ -153,14 +153,21 @@ shell run commands. If you don't know what shell you're using, run:
 echo $SHELL
 ```
 
-For bash, append to `rcparams` to `${HOME}/.bashrc`, and for zsh, append to
-`${HOME}/.zshrc`. The general idea is that macOS versions <=10.14 (Mojave and
-earlier), uses bash as the default shell, and for >=10.15 (Catalina and later),
-Apple switched the default shell to zsh.
+For bash, copy the contents of `rcparams` to `${HOME}/.bashrc`, and for zsh,
+copy to `${HOME}/.zshrc`. The general idea is that macOS versions <=10.14
+(Mojave and earlier), uses bash as the default shell, and for >=10.15 (Catalina
+and later), Apple switched the default shell to zsh.
 
 You can append the `rcparams` file by copy-pasting the code in your favorite
 text editor. You could also do something like `cat tools/rcparams >>
 ${HOME}/.bashrc`, for example.
+
+As a side note, your macOS may not actually source the `.bashrc` file by
+default. If you notice that adding the `rcparams` function has not effect in
+new terminals, check that the `${HOME}/.bash_profile` file exists. In it, there
+should be a line like `[ -f $HOME/.bashrc ] && . $HOME/.bashrc`. (If the
+`.bashrc` file exists, use `source` on it.) If no such like is there, add it
+and reload your terminal.
 
 The libraries and headers will be found via the `pkgconfig_find()` and
 `ld_lib_add()` functions specified in the `rcparams` file.
