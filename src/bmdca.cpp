@@ -32,7 +32,7 @@ main(int argc, char* argv[])
   std::string dest_dir = ".";
 
   bool reweight = false; // if true, weight sequences by similarity
-  bool numeric_msa_given = false;
+  bool is_numeric = false;
   bool input_file_given = false;
   bool force_restart = false;
   bool weight_given = false;
@@ -72,7 +72,7 @@ main(int argc, char* argv[])
       case 'n':
         input_file = optarg;
         input_file_given = true;
-        numeric_msa_given = true;
+        is_numeric = true;
         break;
       case 'r':
         reweight = true;
@@ -98,41 +98,26 @@ main(int argc, char* argv[])
     std::exit(EXIT_FAILURE);
   }
 
-  // If both the numeric matrix and sequence weights are given, don't bother
-  // converting the FASTA file.
-  if (numeric_msa_given && weight_given) {
-    // Parse the multiple sequence alignment. Reweight sequences if desired.
-    MSA msa = MSA(input_file, weight_file, numeric_msa_given);
-    msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
-    msa.writeMatrix(dest_dir + "/msa_numerical.txt");
-
-    // Compute the statistics of the MSA.
-    MSAStats msa_stats = MSAStats(msa);
-    msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.bin");
-    msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.bin");
-    msa_stats.writeRelEntropyGradient(dest_dir + "/rel_ent_grad_align_1p.txt");
-
-    // Initialize the MCMC using the statistics of the MSA.
-    Sim sim = Sim(msa_stats, config_file, dest_dir, force_restart);
-    sim.writeParameters("bmdca_params.conf");
-    sim.run();
-  } else {
-    // Parse the multiple sequence alignment. Reweight sequences if desired.
-    MSA msa = MSA(input_file, reweight, numeric_msa_given, threshold);
-    msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
-    msa.writeMatrix(dest_dir + "/msa_numerical.txt");
-
-    // Compute the statistics of the MSA.
-    MSAStats msa_stats = MSAStats(msa);
-    msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.bin");
-    msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.bin");
-    msa_stats.writeRelEntropyGradient(dest_dir + "/rel_ent_grad_align_1p.txt");
-
-    // Initialize the MCMC using the statistics of the MSA.
-    Sim sim = Sim(msa_stats, config_file, dest_dir, force_restart);
-    sim.writeParameters("bmdca_params.conf");
-    sim.run();
+  if (reweight & (!weight_file.empty())) {
+    std::cout << "WARNING: sequence reweighting will ignore weight file."
+              << std::endl;
   }
+
+  // Parse the multiple sequence alignment. Reweight sequences if desired.
+  MSA msa = MSA(input_file, weight_file, reweight, is_numeric, threshold);
+  msa.writeSequenceWeights(dest_dir + "/sequence_weights.txt");
+  msa.writeMatrix(dest_dir + "/msa_numerical.txt");
+
+  // Compute the statistics of the MSA.
+  MSAStats msa_stats = MSAStats(msa);
+  msa_stats.writeFrequency1p(dest_dir + "/stat_align_1p.bin");
+  msa_stats.writeFrequency2p(dest_dir + "/stat_align_2p.bin");
+  msa_stats.writeRelEntropyGradient(dest_dir + "/rel_ent_grad_align_1p.txt");
+
+  // Initialize the MCMC using the statistics of the MSA.
+  Sim sim = Sim(msa_stats, config_file, dest_dir, force_restart);
+  sim.writeParameters("bmdca_params.conf");
+  sim.run();
 
   return 0;
 };

@@ -18,8 +18,7 @@ public:
 
   arma::Col<double> hamming_distances;
 
-  MSA(std::string, bool = true, bool = false, double = 0.8);
-  MSA(std::string, std::string, bool = false);
+  MSA(std::string, std::string = "", bool = true, bool = false, double = 0.8);
   void printAlignment();
   void writeMatrix(std::string);
   void writeSequenceWeights(std::string);
