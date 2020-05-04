@@ -682,17 +682,21 @@ frequencies of the `21x21` pairs of amino acids at positions i and j.
 __For users of shared resources:__ OpenMP will default to the number of
 available cores, so if the bmDCA programs are run on a shared resource, say a
 cluster, all cores will be engaged, starving other processes of resources or
-causing the scheduler or cluster manager to boot you off the system. To prevent
-this, use the `OMP_NUM_THREADS` environmental variable.
+getting you booted off the system. To prevent this, use the `OMP_NUM_THREADS`
+environmental variable.
 
 You can either set it at runtime:
 ```
 OMP_NUM_THREADS=4 bmdca -i ...
 ```
 
-Or, you can set it globally, for example as shell run command.
+Or, you can set it globally, for example in your shell rc file.
 ```
 export OMP_NUM_THREADS=4
 ```
 
-(The above examples will limit OpenMP to 4 threads.)
+The above examples will limit OpenMP to 4 threads.
+
+__You don't need to worry about this if submitting jobs through a workload
+manager__, such as Slurm or Sun Grid Engine. The manager will limit bmDCA to
+the number of cores specified, so manipulating `OMP_NUM_THREADS` is not needed.
