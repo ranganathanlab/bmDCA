@@ -11,6 +11,12 @@ MSAStats::MSAStats(MSA msa)
   N = msa.N;
   M = msa.M;
   Q = msa.Q;
+  M_effective = sum(msa.sequence_weights);
+
+  std::cout << M << " sequences" << std::endl;
+  std::cout << N << " positions" << std::endl;
+  std::cout << Q << " amino acids (including gaps)" << std::endl;
+  std::cout << M_effective << " effective sequences" << std::endl;
 
   frequency_1p = arma::Mat<double>(Q, N, arma::fill::zeros);
   frequency_2p = arma::field<arma::Mat<double>>(N, N);
@@ -31,7 +37,6 @@ MSAStats::MSAStats(MSA msa)
 
   // Compute the frequecies (1p statistics) for amino acids (and gaps) for each
   // position. Use pointers to make things speedier.
-  M_effective = sum(msa.sequence_weights);
 #pragma omp parallel
   {
 #pragma omp for
@@ -65,11 +70,6 @@ MSAStats::MSAStats(MSA msa)
       }
     }
   }
-
-  std::cout << M << " sequences" << std::endl;
-  std::cout << N << " positions" << std::endl;
-  std::cout << Q << " amino acids (including gaps)" << std::endl;
-  std::cout << M_effective << " effective sequences" << std::endl;
 
   // Update the background frequencies based by computing overall gap frequency
   // theta.
