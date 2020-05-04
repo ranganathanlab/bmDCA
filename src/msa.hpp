@@ -16,11 +16,14 @@ public:
   int N;                              // number of positions
   int Q;                              // number of amino acids
 
+  arma::Col<double> hamming_distances;
+
   MSA(std::string, bool = true, bool = false, double = 0.8);
   MSA(std::string, std::string, bool = false);
   void printAlignment();
   void writeMatrix(std::string);
   void writeSequenceWeights(std::string);
+  void writeHammingDistances(std::string);
 
 private:
   std::vector<SeqRecord> seq_records;
@@ -30,6 +33,7 @@ private:
   void readSequenceWeights(std::string);
   void makeNumericalMatrix(void);
   void computeSequenceWeights(double);
+  void computeHammingDistances(void);
 };
 
 #endif
