@@ -35,7 +35,6 @@ main(int argc, char* argv[])
   bool is_numeric = false;
   bool input_file_given = false;
   bool force_restart = false;
-  bool weight_given = false;
   double threshold = 0.8;
 
   // Read command-line parameters.
@@ -82,7 +81,6 @@ main(int argc, char* argv[])
         break;
       case 'w':
         weight_file = optarg;
-        weight_given = true;
         break;
       case '?':
         std::cerr << "ERROR: Incorrect command line usage." << std::endl;
