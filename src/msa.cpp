@@ -59,7 +59,7 @@ MSA::readInputNumericMSA(std::string numeric_msa_file)
     i = 0;
 
     while (iss >> n) {
-      alignment.at(counter, i) = n;
+      alignment(counter, i) = n;
       i++;
     }
     counter++;
@@ -86,7 +86,7 @@ MSA::readSequenceWeights(std::string weights_file)
     double n;
 
     while (iss >> n) {
-      sequence_weights.at(counter) = n;
+      sequence_weights(counter) = n;
     }
     counter++;
   }
@@ -145,87 +145,87 @@ MSA::makeNumericalMatrix(void)
         case 'U':
         case 'X':
         case 'Z':
-          alignment.at(row_idx, col_idx) = 0;
+          alignment(row_idx, col_idx) = 0;
           col_idx++;
           break;
         case 'A':
-          alignment.at(row_idx, col_idx) = 1;
+          alignment(row_idx, col_idx) = 1;
           col_idx++;
           break;
         case 'C':
-          alignment.at(row_idx, col_idx) = 2;
+          alignment(row_idx, col_idx) = 2;
           col_idx++;
           break;
         case 'D':
-          alignment.at(row_idx, col_idx) = 3;
+          alignment(row_idx, col_idx) = 3;
           col_idx++;
           break;
         case 'E':
-          alignment.at(row_idx, col_idx) = 4;
+          alignment(row_idx, col_idx) = 4;
           col_idx++;
           break;
         case 'F':
-          alignment.at(row_idx, col_idx) = 5;
+          alignment(row_idx, col_idx) = 5;
           col_idx++;
           break;
         case 'G':
-          alignment.at(row_idx, col_idx) = 6;
+          alignment(row_idx, col_idx) = 6;
           col_idx++;
           break;
         case 'H':
-          alignment.at(row_idx, col_idx) = 7;
+          alignment(row_idx, col_idx) = 7;
           col_idx++;
           break;
         case 'I':
-          alignment.at(row_idx, col_idx) = 8;
+          alignment(row_idx, col_idx) = 8;
           col_idx++;
           break;
         case 'K':
-          alignment.at(row_idx, col_idx) = 9;
+          alignment(row_idx, col_idx) = 9;
           col_idx++;
           break;
         case 'L':
-          alignment.at(row_idx, col_idx) = 10;
+          alignment(row_idx, col_idx) = 10;
           col_idx++;
           break;
         case 'M':
-          alignment.at(row_idx, col_idx) = 11;
+          alignment(row_idx, col_idx) = 11;
           col_idx++;
           break;
         case 'N':
-          alignment.at(row_idx, col_idx) = 12;
+          alignment(row_idx, col_idx) = 12;
           col_idx++;
           break;
         case 'P':
-          alignment.at(row_idx, col_idx) = 13;
+          alignment(row_idx, col_idx) = 13;
           col_idx++;
           break;
         case 'Q':
-          alignment.at(row_idx, col_idx) = 14;
+          alignment(row_idx, col_idx) = 14;
           col_idx++;
           break;
         case 'R':
-          alignment.at(row_idx, col_idx) = 15;
+          alignment(row_idx, col_idx) = 15;
           col_idx++;
           break;
         case 'S':
-          alignment.at(row_idx, col_idx) = 16;
+          alignment(row_idx, col_idx) = 16;
           col_idx++;
           break;
         case 'T':
-          alignment.at(row_idx, col_idx) = 17;
+          alignment(row_idx, col_idx) = 17;
           col_idx++;
           break;
         case 'V':
-          alignment.at(row_idx, col_idx) = 18;
+          alignment(row_idx, col_idx) = 18;
           col_idx++;
           break;
         case 'W':
-          alignment.at(row_idx, col_idx) = 19;
+          alignment(row_idx, col_idx) = 19;
           col_idx++;
           break;
         case 'Y':
-          alignment.at(row_idx, col_idx) = 20;
+          alignment(row_idx, col_idx) = 20;
           col_idx++;
           break;
       }
@@ -242,9 +242,9 @@ MSA::writeMatrix(std::string output_file)
   for (int i = 0; i < M; i++) {
     for (int j = 0; j < N; j++) {
       if (j + 1 == N) {
-        output_stream << alignment.at(i, j) << std::endl;
+        output_stream << alignment(i, j) << std::endl;
       } else {
-        output_stream << alignment.at(i, j) << " ";
+        output_stream << alignment(i, j) << " ";
       }
     }
   }
@@ -322,7 +322,7 @@ MSA::computeSequenceWeights(double threshold)
             }
           }
           if (id > threshold * N) {
-            sequence_weights.at(m1) += 1;
+            sequence_weights(m1) += 1;
           }
         }
       }
@@ -337,7 +337,7 @@ MSA::writeSequenceWeights(std::string output_file)
 {
   std::ofstream output_stream(output_file);
   for (int i = 0; i < M; i++) {
-    output_stream << sequence_weights.at(i) << std::endl;
+    output_stream << sequence_weights(i) << std::endl;
   }
 };
 
@@ -361,8 +361,8 @@ MSA::computeHammingDistances(void) {
         }
       }
       id = (double)count / N;
-      if (id > hamming_distances.at(i)) {
-        hamming_distances.at(i) = id;
+      if (id > hamming_distances(i)) {
+        hamming_distances(i) = id;
       }
     }
   }
@@ -372,6 +372,6 @@ void
 MSA::writeHammingDistances(std::string output_file) {
   std::ofstream output_stream(output_file);
   for (int i = 0; i < M; i++) {
-    output_stream << hamming_distances.at(i) << std::endl;
+    output_stream << hamming_distances(i) << std::endl;
   }
 };

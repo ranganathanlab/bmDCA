@@ -52,8 +52,8 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
   params_prev.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
-      params.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
-      params_prev.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+      params.J(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+      params_prev.J(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
     }
   }
 
@@ -69,7 +69,7 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
         log((1. - pseudocount) * (*(freq_ptr + aa)) + pseudocount * (1. / Q));
     }
     for (int aa = 0; aa < Q; aa++) {
-      params.h.at(aa, i) =
+      params.h(aa, i) =
         log((1. - pseudocount) * (*(freq_ptr + aa)) + pseudocount * (1. / Q)) -
         avg / Q;
     }
@@ -81,8 +81,8 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
   learning_rates.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
-      learning_rates.J.at(i, j) = arma::Mat<double>(Q, Q);
-      learning_rates.J.at(i, j).fill(epsilon_J);
+      learning_rates.J(i, j) = arma::Mat<double>(Q, Q);
+      learning_rates.J(i, j).fill(epsilon_J);
     }
   }
 
@@ -91,8 +91,8 @@ Model::Model(MSAStats msa_stats, double epsilon_h, double epsilon_J)
   gradient_prev.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
-      gradient.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
-      gradient_prev.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+      gradient.J(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+      gradient_prev.J(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
     }
   }
   gradient.h = arma::Mat<double>(Q, N, arma::fill::zeros);
@@ -120,7 +120,7 @@ Model::writeParamsAscii(std::string output_file)
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << params.J.at(i, j)(aa1, aa2) << std::endl;
+                        << " " << params.J(i, j)(aa1, aa2) << std::endl;
         }
       }
     }
@@ -156,7 +156,7 @@ Model::writeParamsPreviousAscii(std::string output_file)
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << params_prev.J.at(i, j)(aa1, aa2) << std::endl;
+                        << " " << params_prev.J(i, j)(aa1, aa2) << std::endl;
         }
       }
     }
@@ -192,7 +192,7 @@ Model::writeLearningRatesAscii(std::string output_file)
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << learning_rates.J.at(i, j)(aa1, aa2)
+                        << " " << learning_rates.J(i, j)(aa1, aa2)
                         << std::endl;
         }
       }
@@ -229,7 +229,7 @@ Model::writeGradientAscii(std::string output_file)
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << gradient.J.at(i, j)(aa1, aa2) << std::endl;
+                        << " " << gradient.J(i, j)(aa1, aa2) << std::endl;
         }
       }
     }
@@ -265,7 +265,7 @@ Model::writeGradientPreviousAscii(std::string output_file)
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << gradient_prev.J.at(i, j)(aa1, aa2) << std::endl;
+                        << " " << gradient_prev.J(i, j)(aa1, aa2) << std::endl;
         }
       }
     }

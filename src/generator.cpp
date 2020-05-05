@@ -119,7 +119,7 @@ Generator::writeAASequences(std::string output_file)
     for (int m = 0; m < M; m++) {
       output_stream << ">sample" << m * rep + m << std::endl;
       for (int n = 0; n < N; n++) {
-        aa = convertAA(samples.at(m, n, rep));
+        aa = convertAA(samples(m, n, rep));
         if (aa != '\0') {
           output_stream << aa;
         }

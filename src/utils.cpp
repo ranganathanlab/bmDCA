@@ -90,7 +90,7 @@ loadPottsModelAscii(std::string parameters_file)
   params.J = arma::field<arma::Mat<double>>(N, N);
   for (int i = 0; i < N; i++) {
     for (int j = i + 1; j < N; j++) {
-      params.J.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+      params.J(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
     }
   }
 
@@ -98,14 +98,14 @@ loadPottsModelAscii(std::string parameters_file)
     input_stream >> tmp;
     input_stream >> n1 >> n2 >> aa1 >> aa2;
     input_stream >> value;
-    params.J.at(n1, n2).at(aa1, aa2) = value;
+    params.J(n1, n2)(aa1, aa2) = value;
   }
 
   for (int count = 0; count < N * Q; count++) {
     input_stream >> tmp;
     input_stream >> n1 >> aa1;
     input_stream >> value;
-    params.h.at(aa1, n1) = value;
+    params.h(aa1, n1) = value;
   }
   return params;
 };
@@ -145,7 +145,7 @@ convertFrequencyToAscii(std::string stats_file)
     for (int i = 0; i < N; i++) {
       output_stream << i;
       for (int aa = 0; aa < Q; aa++) {
-        output_stream << " " << frequency_1p.at(aa, i);
+        output_stream << " " << frequency_1p(aa, i);
       }
       output_stream << std::endl;
     }
@@ -154,14 +154,14 @@ convertFrequencyToAscii(std::string stats_file)
     frequency_2p.load(stats_file, arma::arma_binary);
 
     int N = frequency_2p.n_rows;
-    int Q = frequency_2p.at(0, 1).n_rows;
+    int Q = frequency_2p(0, 1).n_rows;
 
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
         output_stream << i << " " << j;
         for (int aa1 = 0; aa1 < Q; aa1++) {
           for (int aa2 = 0; aa2 < Q; aa2++) {
-            output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
+            output_stream << " " << frequency_2p(i, j)(aa1, aa2);
           }
         }
         output_stream << std::endl;
@@ -178,7 +178,7 @@ convertFrequencyToAscii(std::string stats_file)
       for (int i = 0; i < N; i++) {
         output_stream << i;
         for (int aa = 0; aa < Q; aa++) {
-          output_stream << " " << frequency_1p.at(aa, i);
+          output_stream << " " << frequency_1p(aa, i);
         }
         output_stream << std::endl;
       }
@@ -187,14 +187,14 @@ convertFrequencyToAscii(std::string stats_file)
       frequency_2p.load(stats_file, arma::arma_binary);
 
       int N = frequency_2p.n_rows;
-      int Q = frequency_2p.at(0, 1).n_rows;
+      int Q = frequency_2p(0, 1).n_rows;
 
       for (int i = 0; i < N; i++) {
         for (int j = i + 1; j < N; j++) {
           output_stream << i << " " << j;
           for (int aa1 = 0; aa1 < Q; aa1++) {
             for (int aa2 = 0; aa2 < Q; aa2++) {
-              output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
+              output_stream << " " << frequency_2p(i, j)(aa1, aa2);
             }
           }
           output_stream << std::endl;
@@ -236,7 +236,7 @@ convertParametersToAscii(std::string h_file, std::string J_file)
     std::cerr << "ERROR: parameters dimension mismatch." << std::endl;
     return;
   }
-  if ((Q != (int)J.at(0, 1).n_cols) & (Q != (int)J.at(0, 1).n_rows)) {
+  if ((Q != (int)J(0, 1).n_cols) & (Q != (int)J(0, 1).n_rows)) {
     std::cerr << "ERROR: parameters dimension mismatch." << std::endl;
     std::exit(EXIT_FAILURE);
   }
@@ -260,7 +260,7 @@ convertParametersToAscii(std::string h_file, std::string J_file)
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << J.at(i, j).at(aa1, aa2) << std::endl;
+                        << " " << J(i, j)(aa1, aa2) << std::endl;
         }
       }
     }

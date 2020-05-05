@@ -58,15 +58,15 @@ MSAStats::MSAStats(MSA msa)
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
         double* weight_ptr = msa.sequence_weights.memptr();
-        frequency_2p.at(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
+        frequency_2p(i, j) = arma::Mat<double>(Q, Q, arma::fill::zeros);
 
         int* align_ptr1 = msa.alignment.colptr(i);
         int* align_ptr2 = msa.alignment.colptr(j);
         for (int m = 0; m < M; m++) {
-          frequency_2p.at(i, j)(*(align_ptr1 + m), *(align_ptr2 + m)) +=
+          frequency_2p(i, j)(*(align_ptr1 + m), *(align_ptr2 + m)) +=
             *(weight_ptr + m);
         }
-        frequency_2p.at(i, j) = frequency_2p.at(i, j) / M_effective;
+        frequency_2p(i, j) = frequency_2p(i, j) / M_effective;
       }
     }
   }
@@ -75,7 +75,7 @@ MSAStats::MSAStats(MSA msa)
   // theta.
   double theta = 0;
   for (int i = 0; i < N; i++) {
-    theta += frequency_1p.at(0, i);
+    theta += frequency_1p(0, i);
   }
   theta = theta / N;
   aa_background_frequencies[0] = theta;
@@ -91,10 +91,10 @@ MSAStats::MSAStats(MSA msa)
   double background_freq;
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
-      pos_freq = tmp.at(aa, i);
+      pos_freq = tmp(aa, i);
       background_freq = aa_background_frequencies(aa);
       if (pos_freq < 1. && pos_freq > 0.) {
-        rel_entropy_grad_1p.at(aa, i) =
+        rel_entropy_grad_1p(aa, i) =
           log((pos_freq * (1. - background_freq)) /
               ((1. - pos_freq) * background_freq));
       }
@@ -133,7 +133,7 @@ MSAStats::writeRelEntropyGradient(std::string output_file)
 
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
-      output_stream << i << " " << aa << " " << rel_entropy_grad_1p.at(aa, i)
+      output_stream << i << " " << aa << " " << rel_entropy_grad_1p(aa, i)
                     << std::endl;
     }
   }
@@ -153,7 +153,7 @@ MSAStats::writeFrequency1pAscii(std::string output_file)
   for (int i = 0; i < N; i++) {
     output_stream << i;
     for (int aa = 0; aa < Q; aa++) {
-      output_stream << " " << frequency_1p.at(aa, i);
+      output_stream << " " << frequency_1p(aa, i);
     }
     output_stream << std::endl;
   }
@@ -175,7 +175,7 @@ MSAStats::writeFrequency2pAscii(std::string output_file)
       output_stream << i << " " << j;
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
-          output_stream << " " << frequency_2p.at(i, j).at(aa1, aa2);
+          output_stream << " " << frequency_2p(i, j)(aa1, aa2);
         }
       }
       output_stream << std::endl;
