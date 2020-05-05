@@ -172,23 +172,16 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
     size_t q0 = conf(i);
     size_t q1 = (q0 + dq) % q;
 
-    double e0 = -params->h.at(q0, i);
+    double de = params->h(q0, i) - params->h(q1, i) ;
     for (size_t j = 0; j < n; ++j) {
       if (i > j) {
-        e0 -= params->J.at(j, i).at(conf.at(j), q0);
+        de += params->J(j, i)(conf(j), q0) -
+              params->J(j, i)(conf(j), q1);
       } else if (i < j) {
-        e0 -= params->J.at(i, j).at(q0, conf.at(j));
+        de += params->J(i, j)(q0, conf(j)) -
+              params->J(i, j)(q1, conf(j));
       }
     }
-    double e1 = -params->h.at(q1, i);
-    for (size_t j = 0; j < n; ++j) {
-      if (i > j) {
-        e1 -= params->J.at(j, i).at(conf.at(j), q1);
-      } else if (i < j) {
-        e1 -= params->J.at(i, j).at(q1, conf.at(j));
-      }
-    }
-    double de = e1 - e0;
     if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
       conf(i) = q1;
       tot_de += de;
@@ -205,23 +198,16 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
       size_t q0 = conf(i);
       size_t q1 = (q0 + dq) % q;
 
-      double e0 = -params->h.at(q0, i);
+      double de = params->h(q0, i) - params->h(q1, i) ;
       for (size_t j = 0; j < n; ++j) {
         if (i > j) {
-          e0 -= params->J.at(j, i).at(conf.at(j), q0);
+          de += params->J(j, i)(conf(j), q0) -
+                params->J(j, i)(conf(j), q1);
         } else if (i < j) {
-          e0 -= params->J.at(i, j).at(q0, conf.at(j));
+          de += params->J(i, j)(q0, conf(j)) -
+                params->J(i, j)(q1, conf(j));
         }
       }
-      double e1 = -params->h.at(q1, i);
-      for (size_t j = 0; j < n; ++j) {
-        if (i > j) {
-          e1 -= params->J.at(j, i).at(conf.at(j), q1);
-        } else if (i < j) {
-          e1 -= params->J.at(i, j).at(q1, conf.at(j));
-        }
-      }
-      double de = e1 - e0;
       if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
         conf(i) = q1;
         tot_de += de;
@@ -273,28 +259,22 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
     size_t q0 = conf(i);
     size_t q1 = (q0 + dq) % q;
 
-    double e0 = -params->h(q0, i);
+    double de = params->h(q0, i) - params->h(q1, i) ;
     for (size_t j = 0; j < n; ++j) {
       if (i > j) {
-        e0 -= params->J(j, i)(conf(j), q0);
+        de += params->J(j, i)(conf(j), q0) -
+              params->J(j, i)(conf(j), q1);
       } else if (i < j) {
-        e0 -= params->J(i, j)(q0, conf(j));
+        de += params->J(i, j)(q0, conf(j)) -
+              params->J(i, j)(q1, conf(j));
       }
     }
-    double e1 = -params->h(q1, i);
-    for (size_t j = 0; j < n; ++j) {
-      if (i > j) {
-        e1 -= params->J(j, i)(conf(j), q1);
-      } else if (i < j) {
-        e1 -= params->J(i, j)(q1, conf(j));
-      }
-    }
-    double de = e1 - e0;
     if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
       conf(i) = q1;
       tot_de += de;
     }
   }
+
   en += tot_de;
   tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
@@ -305,23 +285,16 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
       size_t q0 = conf(i);
       size_t q1 = (q0 + dq) % q;
 
-      double e0 = -params->h(q0, i);
+      double de = params->h(q0, i) - params->h(q1, i) ;
       for (size_t j = 0; j < n; ++j) {
         if (i > j) {
-          e0 -= params->J(j, i)(conf(j), q0);
+          de += params->J(j, i)(conf(j), q0) -
+                params->J(j, i)(conf(j), q1);
         } else if (i < j) {
-          e0 -= params->J(i, j)(q0, conf(j));
+          de += params->J(i, j)(q0, conf(j)) -
+                params->J(i, j)(q1, conf(j));
         }
       }
-      double e1 = -params->h(q1, i);
-      for (size_t j = 0; j < n; ++j) {
-        if (i > j) {
-          e1 -= params->J(j, i)(conf(j), q1);
-        } else if (i < j) {
-          e1 -= params->J(i, j)(q1, conf(j));
-        }
-      }
-      double de = e1 - e0;
       if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
         conf(i) = q1;
         tot_de += de;
