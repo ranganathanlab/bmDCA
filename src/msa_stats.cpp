@@ -54,7 +54,7 @@ MSAStats::MSAStats(MSA msa)
   // Compute the 2p statistics
 #pragma omp parallel
   {
-#pragma omp for
+#pragma omp for schedule(dynamic,1)
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
         double* weight_ptr = msa.sequence_weights.memptr();

@@ -282,7 +282,7 @@ MCMCStats::computeSampleStats(void)
 
 #pragma omp parallel
   {
-#pragma omp for
+#pragma omp for schedule(dynamic,1)
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
         arma::Cube<double> n2 = arma::Cube<double>(reps, Q, Q, arma::fill::zeros);
