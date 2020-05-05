@@ -1422,9 +1422,9 @@ Sim::writeData(std::string id)
     model->writeLearningRatesAscii("learning_rates_" + id + ".txt");
 
     mcmc_stats->writeFrequency1pAscii("stat_MC_1p_" + id + ".txt",
-                                       "stat_MC_1p_sigma_" + id + ".txt");
+                                      "stat_MC_1p_sigma_" + id + ".txt");
     mcmc_stats->writeFrequency2pAscii("stat_MC_2p_" + id + ".txt",
-                                       "stat_MC_2p_sigma_" + id + ".txt");
+                                      "stat_MC_2p_sigma_" + id + ".txt");
   }
   mcmc_stats->writeSamples("MC_samples_" + id + ".txt");
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
