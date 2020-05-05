@@ -29,8 +29,6 @@ public:
 
   std::ostream& print_parameters(std::ostream& os);
 
-  // std::ostream& sample_distribution(std::ostream& os, size_t m);
-
   void sample_mcmc(arma::Mat<int>* ptr,
                    size_t m,
                    size_t mc_iters0,

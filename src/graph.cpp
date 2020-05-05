@@ -70,74 +70,6 @@ Graph::print_distribution(ostream& os)
   return os;
 };
 
-// ostream&
-// Graph::sample_distribution(ostream& os, size_t m)
-// {
-//   vector<size_t> conf(n);
-//
-//   size_t num = size_t(round(pow(double(q), double(n))));
-//
-//   vector<double> cumulative(num + 1);
-//   std::cout << "flag 1" << std::endl;
-//
-//   size_t c = 1;
-//   while (true) {
-//     double x = 0;
-//     for (size_t i = 0; i < n; ++i) {
-//       x += h[i][conf[i]];
-//     }
-//     for (size_t i = 0; i < n; ++i) {
-//       for (size_t j = i + 1; j < n; ++j) {
-//         x += J[i][j][conf[i]][conf[j]];
-//       }
-//     }
-//     double nnp = exp(x);
-//     cumulative[c] = cumulative[c - 1];
-//     cumulative[c++] += nnp;
-//
-//     size_t j = 0;
-//     while (j < n && ++conf[j] == q) {
-//       conf[j] = 0;
-//       j++;
-//     }
-//     if (j == n) {
-//       break;
-//     } else {
-//     }
-//   }
-//   assert(c == num + 1);
-//
-//   double norm = cumulative[num];
-//
-//   size_t s = 0;
-//   while (s < m) {
-//     double x = norm * drand48();
-//
-//     size_t i0 = 0;
-//     size_t i1 = num;
-//     while (i1 != i0 + 1) {
-//       size_t i = i0 + (i1 - i0) / 2;
-//       if (x < cumulative[i]) {
-//         i1 = i;
-//       } else {
-//         i0 = i;
-//       }
-//     }
-//     size_t qq = i0;
-//     for (size_t i = 0; i < n; ++i) {
-//       os << qq % q;
-//       if (i < n - 1) {
-//         os << " ";
-//       } else {
-//         os << endl;
-//       }
-//       qq /= q;
-//     }
-//     ++s;
-//   }
-//   return os;
-// }
-
 void
 Graph::sample_mcmc(arma::Mat<int>* ptr,
                    size_t m,
@@ -150,22 +82,12 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
   rng.seed(seed);
   std::uniform_real_distribution<double> uniform(0, 1);
 
-  // size_t ts = 0;
   arma::Col<size_t> conf = arma::Col<size_t>(n);
   for (size_t i = 0; i < n; ++i) {
     conf(i) = size_t(q * uniform(rng));
     assert(conf(i) < q);
   }
 
-  double en = 0.;
-  for (size_t i = 0; i < n; ++i) {
-    en -= params->h(conf(i), i);
-    for (size_t j = i + 1; j < n; ++j) {
-      en -= params->J(i, j)(conf(i), conf(j));
-    }
-  }
-
-  double tot_de = 0;
   for (size_t k = 0; k < mc_iters0; ++k) {
     size_t i = size_t(n * uniform(rng));
     size_t dq = 1 + size_t((q - 1) * uniform(rng));
@@ -183,12 +105,9 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
     }
     if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
       conf(i) = q1;
-      tot_de += de;
     }
   }
 
-  en += tot_de;
-  tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
       size_t i = size_t(n * uniform(rng));
@@ -207,16 +126,12 @@ Graph::sample_mcmc(arma::Mat<int>* ptr,
       }
       if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
         conf(i) = q1;
-        tot_de += de;
       }
     }
     for (size_t i = 0; i < n; ++i) {
       (*ptr)(s, i) = conf(i);
     }
   }
-  // std::string output_string =
-  //   "sampled " + std::to_string(m) + " [de=" + std::to_string(en + tot_de) + "]\n";
-  // log_out << output_string;
   return;
 };
 
@@ -233,22 +148,12 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
   rng.seed(seed);
   std::uniform_real_distribution<double> uniform(0, 1);
 
-  // size_t ts = 0;
   arma::Col<size_t> conf = arma::Col<size_t>(n);
   for (size_t i = 0; i < n; ++i) {
     conf(i) = (*ptr)(i);
     assert(conf(i) < q);
   }
 
-  double en = 0.;
-  for (size_t i = 0; i < n; ++i) {
-    en -= params->h(conf(i), i);
-    for (size_t j = i + 1; j < n; ++j) {
-      en -= params->J(i, j)(conf(i), conf(j));
-    }
-  }
-
-  double tot_de = 0;
   for (size_t k = 0; k < mc_iters0; ++k) {
     size_t i = size_t(n * uniform(rng));
     size_t dq = 1 + size_t((q - 1) * uniform(rng));
@@ -266,12 +171,9 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
     }
     if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
       conf(i) = q1;
-      tot_de += de;
     }
   }
 
-  en += tot_de;
-  tot_de = 0.;
   for (size_t s = 0; s < m; ++s) {
     for (size_t k = 0; k < mc_iters; ++k) {
       size_t i = size_t(n * uniform(rng));
@@ -290,16 +192,12 @@ Graph::sample_mcmc_init(arma::Mat<int>* ptr,
       }
       if ((de < 0) || (uniform(rng) < exp(-de / temperature))) {
         conf(i) = q1;
-        tot_de += de;
       }
     }
     for (size_t i = 0; i < n; ++i) {
       (*ptr)(s, i) = conf(i);
     }
   }
-  // std::string output_string =
-  //   "sampled " + std::to_string(m) + " [de=" + std::to_string(tot_de) + "]\n";
-  // log_out << output_string;
   return;
 };
 
@@ -316,21 +214,10 @@ Graph::sample_mcmc_zanella(arma::Mat<int>* ptr,
   rng.seed(seed);
   std::uniform_real_distribution<double> uniform(0, 1);
 
-  // Generate random initial sequence.
-  // size_t ts = 0;
   arma::Col<size_t> conf = arma::Col<size_t>(n);
   for (size_t i = 0; i < n; ++i) {
     conf(i) = size_t(q * uniform(rng));
     assert(conf(i) < q);
-  }
-
-  // Compute energy of random initial sequence.
-  double en = 0.;
-  for (size_t i = 0; i < n; ++i) {
-    en -= params->h(conf(i), i);
-    for (size_t j = i + 1; j < n; ++j) {
-      en -= params->J(i, j)(conf(i), conf(j));
-    }
   }
 
   arma::Mat<double> de = arma::Mat<double>(n, q, arma::fill::zeros);
