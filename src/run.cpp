@@ -775,7 +775,8 @@ Sim::run(void)
     t_wait = t_wait_0;
     delta_t = delta_t_0;
   } else if (step_offset >= step_max) {
-    std::cout << "step "  << step_max << " already reached... done." << std::endl;
+    std::cout << "step " << step_max << " already reached... done."
+              << std::endl;
     return;
   } else {
     burnRNG();
@@ -805,38 +806,20 @@ Sim::run(void)
       run_buffer((step - 1) % save_parameters, 17) = seed;
       if (sampler == "mh") {
         if (init_sample) {
-          mcmc->sample_init(&samples,
-                            count_max,
-                            M,
-                            N,
-                            t_wait,
-                            delta_t,
-                            &initial_sample,
-                            seed);
+          mcmc->sample_init(
+            &samples, count_max, M, N, t_wait, delta_t, &initial_sample, seed);
         } else {
-          mcmc->sample(
-            &samples, count_max, M, N, t_wait, delta_t, seed);
+          mcmc->sample(&samples, count_max, M, N, t_wait, delta_t, seed);
         }
       } else if (sampler == "z-sqrt") {
-        mcmc->sample_zanella(&samples,
-                             count_max,
-                             M,
-                             N,
-                             t_wait,
-                             delta_t,
-                             seed,
-                             "sqrt");
+        mcmc->sample_zanella(
+          &samples, count_max, M, N, t_wait, delta_t, seed, "sqrt");
       } else if (sampler == "z-barker") {
-        mcmc->sample_zanella(&samples,
-                             count_max,
-                             M,
-                             N,
-                             t_wait,
-                             delta_t,
-                             seed,
-                             "barker");
+        mcmc->sample_zanella(
+          &samples, count_max, M, N, t_wait, delta_t, seed, "barker");
       } else {
-        std::cerr << "ERROR: sampler '" << sampler << "' not recognized." << std::endl;
+        std::cerr << "ERROR: sampler '" << sampler << "' not recognized."
+                  << std::endl;
         std::exit(EXIT_FAILURE);
       }
       std::cout << timer.toc() << " sec" << std::endl;
@@ -1056,21 +1039,20 @@ Sim::computeErrorReparametrization(void)
         for (int j = 0; j < N; j++) {
           if (i < j) {
             for (int bb = 0; bb < Q; bb++) {
-              phi += model->params.J(i, j)(aa, bb) *
-                     msa_stats.frequency_1p(bb, j);
+              phi +=
+                model->params.J(i, j)(aa, bb) * msa_stats.frequency_1p(bb, j);
             }
           } else if (i > j) {
             for (int bb = 0; bb < Q; bb++) {
-              phi += model->params.J(j, i)(bb, aa) *
-                     msa_stats.frequency_1p(bb, j);
+              phi +=
+                model->params.J(j, i)(bb, aa) * msa_stats.frequency_1p(bb, j);
             }
           }
         }
         delta = mcmc_stats->frequency_1p(aa, i) -
                 msa_stats.frequency_1p(aa, i) + lambda_h * 0.5 * phi;
         delta_stat =
-          (mcmc_stats->frequency_1p(aa, i) -
-           msa_stats.frequency_1p(aa, i)) /
+          (mcmc_stats->frequency_1p(aa, i) - msa_stats.frequency_1p(aa, i)) /
           (pow(msa_stats.frequency_1p(aa, i) *
                    (1. - msa_stats.frequency_1p(aa, i)) / M_eff +
                  pow(mcmc_stats->frequency_1p_sigma(aa, i), 2) + EPSILON,
@@ -1093,8 +1075,7 @@ Sim::computeErrorReparametrization(void)
                 msa_stats.frequency_1p(aa, i) +
                 lambda_h * model->params.h(aa, i);
         delta_stat =
-          (mcmc_stats->frequency_1p(aa, i) -
-           msa_stats.frequency_1p(aa, i)) /
+          (mcmc_stats->frequency_1p(aa, i) - msa_stats.frequency_1p(aa, i)) /
           (pow(msa_stats.frequency_1p(aa, i) *
                    (1. - msa_stats.frequency_1p(aa, i)) / M_eff +
                  pow(mcmc_stats->frequency_1p_sigma(aa, i), 2) + EPSILON,
@@ -1129,23 +1110,20 @@ Sim::computeErrorReparametrization(void)
                        msa_stats.frequency_1p(aa2, j)) *
                         msa_stats.frequency_1p(aa1, i) -
                       lambda_j * model->params.J(i, j)(aa1, aa2));
->>>>>>> 6b8b30b... use ARMA_NO_DEBUG rather than .at to disable bounds checks globally
             delta_stat =
               (mcmc_stats->frequency_2p(i, j)(aa1, aa2) -
                msa_stats.frequency_2p(i, j)(aa1, aa2)) /
               (pow(msa_stats.frequency_2p(i, j)(aa1, aa2) *
-                       (1.0 - msa_stats.frequency_2p(i, j)(aa1, aa2)) /
-                       M_eff +
-                     pow(mcmc_stats->frequency_2p(i, j)(aa1, aa2), 2) +
-                     EPSILON,
+                       (1.0 - msa_stats.frequency_2p(i, j)(aa1, aa2)) / M_eff +
+                     pow(mcmc_stats->frequency_2p(i, j)(aa1, aa2), 2) + EPSILON,
                    0.5));
 
             c_mc = mcmc_stats->frequency_2p(i, j)(aa1, aa2) -
                    mcmc_stats->frequency_1p(aa1, i) *
                      mcmc_stats->frequency_1p(aa2, j);
-            c_stat = msa_stats.frequency_2p(i, j)(aa1, aa2) -
-                     msa_stats.frequency_1p(aa1, i) *
-                       msa_stats.frequency_1p(aa2, j);
+            c_stat =
+              msa_stats.frequency_2p(i, j)(aa1, aa2) -
+              msa_stats.frequency_1p(aa1, i) * msa_stats.frequency_1p(aa2, j);
             c_mc_av += c_mc;
             c_stat_av += c_stat;
             error_c += pow(c_mc - c_stat, 2);
@@ -1175,18 +1153,16 @@ Sim::computeErrorReparametrization(void)
               (mcmc_stats->frequency_2p(i, j)(aa1, aa2) -
                msa_stats.frequency_2p(i, j)(aa1, aa2)) /
               (pow(msa_stats.frequency_2p(i, j)(aa1, aa2) *
-                       (1.0 - msa_stats.frequency_2p(i, j)(aa1, aa2)) /
-                       M_eff +
-                     pow(mcmc_stats->frequency_2p(i, j)(aa1, aa2), 2) +
-                     EPSILON,
+                       (1.0 - msa_stats.frequency_2p(i, j)(aa1, aa2)) / M_eff +
+                     pow(mcmc_stats->frequency_2p(i, j)(aa1, aa2), 2) + EPSILON,
                    0.5));
 
             c_mc = mcmc_stats->frequency_2p(i, j)(aa1, aa2) -
                    mcmc_stats->frequency_1p(aa1, i) *
                      mcmc_stats->frequency_1p(aa2, j);
-            c_stat = msa_stats.frequency_2p(i, j)(aa1, aa2) -
-                     msa_stats.frequency_1p(aa1, i) *
-                       msa_stats.frequency_1p(aa2, j);
+            c_stat =
+              msa_stats.frequency_2p(i, j)(aa1, aa2) -
+              msa_stats.frequency_1p(aa1, i) * msa_stats.frequency_1p(aa2, j);
             c_mc_av += c_mc;
             c_stat_av += c_stat;
             error_c += pow(c_mc - c_stat, 2);
@@ -1214,12 +1190,12 @@ Sim::computeErrorReparametrization(void)
     for (int j = i + 1; j < N; j++) {
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
-          c_mc = mcmc_stats->frequency_2p(i, j)(aa1, aa2) -
-                 mcmc_stats->frequency_1p(aa1, i) *
-                   mcmc_stats->frequency_1p(aa2, j);
-          c_stat = msa_stats.frequency_2p(i, j)(aa1, aa2) -
-                   msa_stats.frequency_1p(aa1, i) *
-                     msa_stats.frequency_1p(aa2, j);
+          c_mc =
+            mcmc_stats->frequency_2p(i, j)(aa1, aa2) -
+            mcmc_stats->frequency_1p(aa1, i) * mcmc_stats->frequency_1p(aa2, j);
+          c_stat =
+            msa_stats.frequency_2p(i, j)(aa1, aa2) -
+            msa_stats.frequency_1p(aa1, i) * msa_stats.frequency_1p(aa2, j);
           num_rho += (c_mc - c_mc_av) * (c_stat - c_stat_av);
           num_beta += (c_mc) * (c_stat);
           den_stat += pow(c_stat - c_stat_av, 2);
@@ -1280,15 +1256,14 @@ Sim::updateLearningRate(void)
     for (int j = i + 1; j < N; j++) {
       for (int a = 0; a < Q; a++) {
         for (int b = 0; b < Q; b++) {
-          alfa = model->gradient.J(i, j)(a, b) *
-                 model->gradient_prev.J(i, j)(a, b);
+          alfa =
+            model->gradient.J(i, j)(a, b) * model->gradient_prev.J(i, j)(a, b);
           alfa =
             Theta(alfa) * adapt_up + Theta(-alfa) * adapt_down + Delta(alfa);
 
           model->learning_rates.J(i, j)(a, b) =
             Min(max_step_J,
-                Max(min_step_J,
-                    alfa * model->learning_rates.J(i, j)(a, b)));
+                Max(min_step_J, alfa * model->learning_rates.J(i, j)(a, b)));
         }
       }
     }
@@ -1296,12 +1271,10 @@ Sim::updateLearningRate(void)
 
   for (int i = 0; i < N; i++) {
     for (int a = 0; a < Q; a++) {
-      alfa = model->gradient.h(a, i) *
-             model->gradient_prev.h(a, i);
+      alfa = model->gradient.h(a, i) * model->gradient_prev.h(a, i);
       alfa = Theta(alfa) * adapt_up + Theta(-alfa) * adapt_down + Delta(alfa);
       model->learning_rates.h(a, i) =
-        Min(max_step_h,
-            Max(min_step_h, alfa * model->learning_rates.h(a, i)));
+        Min(max_step_h, Max(min_step_h, alfa * model->learning_rates.h(a, i)));
     }
   }
 };
@@ -1319,8 +1292,7 @@ Sim::updateReparameterization(void)
       for (int a = 0; a < Q; a++) {
         for (int b = 0; b < Q; b++) {
           model->params.J(i, j)(a, b) +=
-            model->learning_rates.J(i, j)(a, b) *
-            model->gradient.J(i, j)(a, b);
+            model->learning_rates.J(i, j)(a, b) * model->gradient.J(i, j)(a, b);
         }
       }
     }
@@ -1334,15 +1306,15 @@ Sim::updateReparameterization(void)
           if (i < j) {
             for (int b = 0; b < Q; b++) {
               Dh(a, i) += msa_stats.frequency_1p(b, j) *
-                             model->learning_rates.J(i, j)(a, b) *
-                             model->gradient.J(i, j)(a, b);
+                          model->learning_rates.J(i, j)(a, b) *
+                          model->gradient.J(i, j)(a, b);
             }
           }
           if (i > j) {
             for (int b = 0; b < Q; b++) {
               Dh(a, i) += msa_stats.frequency_1p(b, j) *
-                             model->learning_rates.J(j, i)(b, a) *
-                             model->gradient.J(j, i)(b, a);
+                          model->learning_rates.J(j, i)(b, a) *
+                          model->gradient.J(j, i)(b, a);
             }
           }
         }
@@ -1352,8 +1324,7 @@ Sim::updateReparameterization(void)
     for (int i = 0; i < N; i++) {
       for (int a = 0; a < Q; a++) {
         model->params.h(a, i) +=
-          model->learning_rates.h(a, i) *
-            model->gradient.h(a, i) +
+          model->learning_rates.h(a, i) * model->gradient.h(a, i) +
           0.5 * Dh(a, i);
       }
     }
@@ -1361,8 +1332,7 @@ Sim::updateReparameterization(void)
     for (int i = 0; i < N; i++) {
       for (int a = 0; a < Q; a++) {
         model->params.h(a, i) +=
-          model->learning_rates.h(a, i) *
-            model->gradient.h(a, i);
+          model->learning_rates.h(a, i) * model->gradient.h(a, i);
       }
     }
   }
@@ -1394,16 +1364,14 @@ Sim::writeData(int step)
                                    ".bin");
   } else {
     model->writeParamsPreviousAscii("parameters_" + std::to_string(step - 1) +
-                             ".txt");
-    model->writeGradientPreviousAscii("gradients_" +
-                               std::to_string(step - 1) + ".txt");
+                                    ".txt");
+    model->writeGradientPreviousAscii("gradients_" + std::to_string(step - 1) +
+                                      ".txt");
 
-    model->writeParamsAscii("parameters_" + std::to_string(step) +
-                             ".txt");
-    model->writeGradientAscii("gradients_" + std::to_string(step) +
-                               ".txt");
-    model->writeLearningRatesAscii("learning_rates_" +
-                                            std::to_string(step) + ".txt");
+    model->writeParamsAscii("parameters_" + std::to_string(step) + ".txt");
+    model->writeGradientAscii("gradients_" + std::to_string(step) + ".txt");
+    model->writeLearningRatesAscii("learning_rates_" + std::to_string(step) +
+                                   ".txt");
 
     mcmc_stats->writeFrequency1pAscii(
       "stat_MC_1p_" + std::to_string(step) + ".txt",
@@ -1442,7 +1410,7 @@ Sim::writeData(std::string id)
     model->writeGradient("gradients_h_" + id + ".bin",
                          "gradients_J_" + id + ".bin");
     model->writeLearningRates("learning_rates_h_" + id + ".bin",
-                                      "learning_rates_J_" + id + ".bin");
+                              "learning_rates_J_" + id + ".bin");
 
     mcmc_stats->writeFrequency1p("stat_MC_1p_" + id + ".bin",
                                  "stat_MC_1p_sigma_" + id + ".bin");

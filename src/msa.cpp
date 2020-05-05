@@ -342,12 +342,13 @@ MSA::writeSequenceWeights(std::string output_file)
 };
 
 void
-MSA::computeHammingDistances(void) {
+MSA::computeHammingDistances(void)
+{
   hamming_distances = arma::Col<double>(M, arma::fill::zeros);
   arma::Mat<int> alignment_T = alignment.t();
 
-  int *i_ptr = nullptr;
-  int *j_ptr = nullptr;
+  int* i_ptr = nullptr;
+  int* j_ptr = nullptr;
   int count = 0;
   double id = 0;
   for (int i = 0; i < M; i++) {
@@ -356,7 +357,7 @@ MSA::computeHammingDistances(void) {
       count = 0;
       j_ptr = alignment_T.colptr(j);
       for (int n = 0; n < N; n++) {
-        if (*(i_ptr+n) == *(j_ptr+n)) {
+        if (*(i_ptr + n) == *(j_ptr + n)) {
           count++;
         }
       }
@@ -369,7 +370,8 @@ MSA::computeHammingDistances(void) {
 };
 
 void
-MSA::writeHammingDistances(std::string output_file) {
+MSA::writeHammingDistances(std::string output_file)
+{
   std::ofstream output_stream(output_file);
   for (int i = 0; i < M; i++) {
     output_stream << hamming_distances(i) << std::endl;

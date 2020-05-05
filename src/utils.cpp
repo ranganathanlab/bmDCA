@@ -65,22 +65,22 @@ loadPottsModelAscii(std::string parameters_file)
   double value;
   std::string tmp = "";
   std::getline(input_stream, tmp);
-  while(std::getline(input_stream, tmp)) {
+  while (std::getline(input_stream, tmp)) {
     input_stream >> tmp;
     input_stream >> n1 >> n2 >> aa1 >> aa2;
     input_stream >> value;
     count++;
 
-    if ( (n1 == 1) & (N == 0)) {
+    if ((n1 == 1) & (N == 0)) {
       N = count;
     }
-    if ( (aa2 == 0) & (Q == 0)) {
+    if ((aa2 == 0) & (Q == 0)) {
       Q = count;
     }
-    if ( (N != 0) & (Q != 0))
+    if ((N != 0) & (Q != 0))
       break;
   }
-  N = (int)( (double)N / (double)Q / double(Q)) + 1;
+  N = (int)((double)N / (double)Q / double(Q)) + 1;
 
   input_stream.clear();
   input_stream.seekg(0);

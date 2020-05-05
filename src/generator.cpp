@@ -267,7 +267,8 @@ Generator::run(int n_indep_runs, int n_per_run, std::string output_file)
                            "barker",
                            temperature);
     } else {
-      std::cerr << "ERROR: sampler '" << sampler << "' not recognized." << std::endl;
+      std::cerr << "ERROR: sampler '" << sampler << "' not recognized."
+                << std::endl;
       std::exit(EXIT_FAILURE);
     }
     std::cout << timer.toc() << " sec" << std::endl;

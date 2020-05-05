@@ -5,7 +5,7 @@
 #include "graph.hpp"
 
 void
-MCMC::load(potts_model *model)
+MCMC::load(potts_model* model)
 {
   graph.load(model);
 };
@@ -17,7 +17,7 @@ MCMC::MCMC(size_t N, size_t Q)
   q = Q;
 };
 
-MCMC::MCMC(size_t N, size_t Q, potts_model *params)
+MCMC::MCMC(size_t N, size_t Q, potts_model* params)
   : graph(N, Q)
 {
   n = N;

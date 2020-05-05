@@ -11,10 +11,8 @@ void
 print_usage(void)
 {
   std::cout << "arma2ascii usage:" << std::endl;
-  std::cout << "(e.g. bmdca_sample -p <params h> -P <params J>"
-            << std::endl;
-  std::cout << " -OR- bmdca_sample -p <params>"
-            << std::endl;
+  std::cout << "(e.g. bmdca_sample -p <params h> -P <params J>" << std::endl;
+  std::cout << " -OR- bmdca_sample -p <params>" << std::endl;
   std::cout << " -OR- bmdca_sample -s <stats file>)" << std::endl;
   std::cout << "  -p: parameters (txt) _or_ fields h (bin)" << std::endl;
   std::cout << "  -P: couplings J (bin), *required* if fields h given"

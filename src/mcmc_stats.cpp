@@ -41,7 +41,7 @@ MCMCStats::computeEnergies(void)
           E -= params->h(samples->at(seq, i, rep), i);
           for (int j = i + 1; j < N; j++) {
             E -= params->J(i, j)(samples->at(seq, i, rep),
-                                       samples->at(seq, j, rep));
+                                 samples->at(seq, j, rep));
           }
         }
         energies(rep, seq) = E;
@@ -109,12 +109,12 @@ MCMCStats::computeCorrelations(void)
     for (int rep = 0; rep < reps; rep++) {
       arma::Mat<int> slice = (samples->slice(rep)).t();
       for (int seq1 = 0; seq1 < M; seq1++) {
-        int *seq1_ptr = slice.colptr(seq1);
+        int* seq1_ptr = slice.colptr(seq1);
         for (int seq2 = seq1 + 1; seq2 < M; seq2++) {
-          int *seq2_ptr = slice.colptr(seq2);
+          int* seq2_ptr = slice.colptr(seq2);
           int id = 0;
           for (int i = 0; i < N; i++) {
-            if ( *(seq1_ptr+i) == *(seq2_ptr+i) ) {
+            if (*(seq1_ptr + i) == *(seq2_ptr + i)) {
               id++;
             }
           }
@@ -161,8 +161,8 @@ MCMCStats::computeCorrelations(void)
   for (int i = 1; i < M - 1; i++) {
     overlaps(i - 1) = (double)d(i) / (double)count(i);
     overlaps_sigma(i - 1) =
-      sqrt(1.0 / count(i)) * sqrt(d2(i) / (double)(count(i)) -
-                                     pow(d(i) / (double)(count(i)), 2));
+      sqrt(1.0 / count(i)) *
+      sqrt(d2(i) / (double)(count(i)) - pow(d(i) / (double)(count(i)), 2));
   }
 
   overlap_inf = 2.0 * dinf / (double)(reps * (reps - 1) * M);
@@ -201,8 +201,8 @@ MCMCStats::writeCorrelationsStats(std::string overlap_file,
   std::ofstream output_stream_ergo(ergo_file);
 
   for (int i = 0; i < M - 2; i++) {
-    output_stream_overlap << i << " " << overlaps(i) << " "
-                          << overlaps_sigma(i) << std::endl;
+    output_stream_overlap << i << " " << overlaps(i) << " " << overlaps_sigma(i)
+                          << std::endl;
   }
 
   output_stream_overlap_inf << "0 " << overlap_inf << " " << overlap_inf_sigma
@@ -252,7 +252,6 @@ MCMCStats::computeSampleStats(void)
     }
   }
 
-
 #pragma omp parallel
   {
 #pragma omp for
@@ -271,11 +270,10 @@ MCMCStats::computeSampleStats(void)
           n1squared(aa) += pow(n1(aa, rep), 2);
         }
         frequency_1p(aa, i) = n1av(aa) / M / reps;
-        frequency_1p_sigma(aa, i) =
-          Max(sqrt((n1squared(aa) / (M * M * reps) -
-                    pow(n1av(aa) / (M * reps), 2)) /
-                   sqrt(reps)),
-              0);
+        frequency_1p_sigma(aa, i) = Max(sqrt((n1squared(aa) / (M * M * reps) -
+                                              pow(n1av(aa) / (M * reps), 2)) /
+                                             sqrt(reps)),
+                                        0);
       }
     }
   }
@@ -285,9 +283,11 @@ MCMCStats::computeSampleStats(void)
 #pragma omp for schedule(dynamic,1)
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
-        arma::Cube<double> n2 = arma::Cube<double>(reps, Q, Q, arma::fill::zeros);
+        arma::Cube<double> n2 =
+          arma::Cube<double>(reps, Q, Q, arma::fill::zeros);
         arma::Mat<double> n2av = arma::Mat<double>(Q, Q, arma::fill::zeros);
-        arma::Mat<double> n2squared = arma::Mat<double>(Q, Q, arma::fill::zeros);
+        arma::Mat<double> n2squared =
+          arma::Mat<double>(Q, Q, arma::fill::zeros);
         for (int rep = 0; rep < reps; rep++)
           for (int m = 0; m < M; m++) {
             n2(rep, samples->at(m, i, rep), samples->at(m, j, rep))++;
@@ -324,8 +324,8 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
   for (int rep = 0; rep < reps; rep++) {
     for (int m = 0; m < M; m++) {
       for (int i = 0; i < N; i++) {
-        dE(rep, m) += cur->h(samples->at(m, i, rep)) -
-                         prev->h(samples->at(m, i, rep));
+        dE(rep, m) +=
+          cur->h(samples->at(m, i, rep)) - prev->h(samples->at(m, i, rep));
         for (int j = i + 1; j < N; j++) {
           dE(rep, m) +=
             cur->J(i, j)(samples->at(m, i, rep), samples->at(m, j, rep)) -
@@ -389,10 +389,9 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
         n1squared(aa) += w(rep) * pow(n1(aa, rep), 2);
       }
       frequency_1p(aa, i) = (double)n1av(aa);
-      frequency_1p_sigma(aa, i) =
-        Max(sqrt(((double)n1squared(aa) - pow((double)n1av(aa), 2)) *
-                 sqrt(sumw)),
-            0);
+      frequency_1p_sigma(aa, i) = Max(
+        sqrt(((double)n1squared(aa) - pow((double)n1av(aa), 2)) * sqrt(sumw)),
+        0);
     }
   }
 
@@ -405,16 +404,14 @@ MCMCStats::computeSampleStatsImportance(potts_model* cur, potts_model* prev)
       n2squared.zeros();
       for (int rep = 0; rep < reps; rep++)
         for (int m = 0; m < M; m++) {
-          n2(rep)(samples->at(m, i, rep), samples->at(m, j, rep)) +=
-            p(rep, m);
+          n2(rep)(samples->at(m, i, rep), samples->at(m, j, rep)) += p(rep, m);
         }
 
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           for (int rep = 0; rep < reps; rep++) {
             n2av(aa1, aa2) += w(rep) * n2(rep)(aa1, aa2);
-            n2squared(aa1, aa2) +=
-              w(rep) * pow(n2(rep)(aa1, aa2), 2);
+            n2squared(aa1, aa2) += w(rep) * pow(n2(rep)(aa1, aa2), 2);
           }
           frequency_2p(i, j)(aa1, aa2) = (double)n2av(aa1, aa2);
           frequency_2p_sigma(i, j)(aa1, aa2) =
@@ -438,7 +435,7 @@ MCMCStats::writeFrequency1p(std::string output_file,
 
 void
 MCMCStats::writeFrequency1pAscii(std::string output_file,
-                                  std::string output_file_sigma)
+                                 std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
   std::ofstream output_stream_sigma(output_file_sigma);
@@ -465,7 +462,7 @@ MCMCStats::writeFrequency2p(std::string output_file,
 
 void
 MCMCStats::writeFrequency2pAscii(std::string output_file,
-                                  std::string output_file_sigma)
+                                 std::string output_file_sigma)
 {
   std::ofstream output_stream(output_file);
   std::ofstream output_stream_sigma(output_file_sigma);
@@ -477,8 +474,7 @@ MCMCStats::writeFrequency2pAscii(std::string output_file,
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << " " << frequency_2p(i, j)(aa1, aa2);
-          output_stream_sigma << " "
-                              << frequency_2p_sigma(i, j)(aa1, aa2);
+          output_stream_sigma << " " << frequency_2p_sigma(i, j)(aa1, aa2);
         }
       }
       output_stream << std::endl;

@@ -18,7 +18,8 @@ print_usage(void)
   std::cout << "  -n: numerical MSA" << std::endl;
   std::cout << "  -w: sequence weights" << std::endl;
   std::cout << "  -c: config file" << std::endl;
-  std::cout << "  -t: sequence similarity threshold for reweighting" << std::endl;
+  std::cout << "  -t: sequence similarity threshold for reweighting"
+            << std::endl;
   std::cout << "  -h: print usage (i.e. this message)" << std::endl;
   std::cout << "  -f: force a restart of the inference loop" << std::endl;
 };

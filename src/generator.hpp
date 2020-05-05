@@ -24,7 +24,7 @@ private:
   int t_wait_0;
   int delta_t_0;
   bool check_ergo;
-  std::string sampler = "mh";   // MC sampler type ('mh' or 'z')
+  std::string sampler = "mh"; // MC sampler type ('mh' or 'z')
   double temperature;
 
   arma::Cube<int> samples;

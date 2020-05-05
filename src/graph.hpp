@@ -10,8 +10,7 @@
 class Graph
 {
 public:
-
-  Graph(size_t n, size_t q, potts_model *p)
+  Graph(size_t n, size_t q, potts_model* p)
     : n(n)
     , q(q)
     , params(p){};

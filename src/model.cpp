@@ -192,8 +192,7 @@ Model::writeLearningRatesAscii(std::string output_file)
       for (int aa1 = 0; aa1 < Q; aa1++) {
         for (int aa2 = 0; aa2 < Q; aa2++) {
           output_stream << "J " << i << " " << j << " " << aa1 << " " << aa2
-                        << " " << learning_rates.J(i, j)(aa1, aa2)
-                        << std::endl;
+                        << " " << learning_rates.J(i, j)(aa1, aa2) << std::endl;
         }
       }
     }
@@ -245,7 +244,8 @@ Model::writeGradientAscii(std::string output_file)
 };
 
 void
-Model::writeGradientPrevious(std::string output_file_h, std::string output_file_J)
+Model::writeGradientPrevious(std::string output_file_h,
+                             std::string output_file_J)
 {
   gradient_prev.h.save(output_file_h, arma::arma_binary);
   gradient_prev.J.save(output_file_J, arma::arma_binary);

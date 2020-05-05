@@ -20,16 +20,14 @@ MSAStats::MSAStats(MSA msa)
 
   frequency_1p = arma::Mat<double>(Q, N, arma::fill::zeros);
   frequency_2p = arma::field<arma::Mat<double>>(N, N);
-  rel_entropy_grad_1p =
-    arma::Mat<double>(Q, N, arma::fill::zeros);
-  aa_background_frequencies =
-    arma::Col<double>(Q, arma::fill::ones);
+  rel_entropy_grad_1p = arma::Mat<double>(Q, N, arma::fill::zeros);
+  aa_background_frequencies = arma::Col<double>(Q, arma::fill::ones);
 
   if (Q == 21) {
-    aa_background_frequencies = {
-      0.000, 0.073, 0.025, 0.050, 0.061, 0.042, 0.072, 0.023, 0.053, 0.064, 0.089,
-      0.023, 0.043, 0.052, 0.040, 0.052, 0.073, 0.056, 0.063, 0.013, 0.033
-    };
+    aa_background_frequencies = { 0.000, 0.073, 0.025, 0.050, 0.061, 0.042,
+                                  0.072, 0.023, 0.053, 0.064, 0.089, 0.023,
+                                  0.043, 0.052, 0.040, 0.052, 0.073, 0.056,
+                                  0.063, 0.013, 0.033 };
   } else {
     aa_background_frequencies = aa_background_frequencies / (double)Q;
   }
@@ -94,9 +92,8 @@ MSAStats::MSAStats(MSA msa)
       pos_freq = tmp(aa, i);
       background_freq = aa_background_frequencies(aa);
       if (pos_freq < 1. && pos_freq > 0.) {
-        rel_entropy_grad_1p(aa, i) =
-          log((pos_freq * (1. - background_freq)) /
-              ((1. - pos_freq) * background_freq));
+        rel_entropy_grad_1p(aa, i) = log((pos_freq * (1. - background_freq)) /
+                                         ((1. - pos_freq) * background_freq));
       }
     }
   }
