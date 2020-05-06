@@ -951,6 +951,7 @@ Sim::run(void)
       std::cout << timer.toc() << " sec" << std::endl;
 
       if (converged) {
+        run_buffer((step - 1) % save_parameters, 18) = step_timer.toc();
         std::cout << "converged! writing final results... " << std::flush;
         writeRunLog(step % save_parameters);
         writeData(std::to_string(step) + "_final");
