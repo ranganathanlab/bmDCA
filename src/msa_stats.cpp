@@ -126,13 +126,19 @@ MSAStats::getEffectiveM(void)
 void
 MSAStats::writeRelEntropyGradient(std::string output_file)
 {
-  std::ofstream output_stream(output_file);
+  rel_entropy_grad_1p.save(output_file, arma::arma_binary);
+};
 
+void
+MSAStats::writeRelEntropyGradientAscii(std::string output_file)
+{
+  std::ofstream output_stream(output_file);
   for (int i = 0; i < N; i++) {
+    output_stream << i;
     for (int aa = 0; aa < Q; aa++) {
-      output_stream << i << " " << aa << " " << rel_entropy_grad_1p(aa, i)
-                    << std::endl;
+      output_stream << " " << rel_entropy_grad_1p(aa, i);
     }
+    output_stream << std::endl;
   }
 };
 
