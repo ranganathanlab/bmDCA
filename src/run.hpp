@@ -38,6 +38,7 @@ private:
   int step_max;        // max number of BM steps
   double error_max;    // exit error
   int save_parameters; // multiple of iterations at which to save parameters
+  int save_best_steps; // multiple of iterations at which to save parameters
   int random_seed;
   bool use_reparametrization = true;
 

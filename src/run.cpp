@@ -81,7 +81,7 @@ Sim::writeParameters(std::string output_file)
   stream << "step_max=" << step_max << std::endl;
   stream << "error_max=" << error_max << std::endl;
   stream << "save_parameters=" << save_parameters << std::endl;
-  // stream << "step_check=" << step_check << std::endl;
+  stream << "save_best_steps=" << save_best_steps << std::endl;
   stream << "random_seed=" << random_seed << std::endl;
   stream << "use_reparametrization=" << use_reparametrization << std::endl;
 
@@ -196,6 +196,7 @@ Sim::compareParameter(std::string key, std::string value)
   } else if (key == "step_max") {
   } else if (key == "error_max") {
   } else if (key == "save_parameters") {
+  } else if (key == "save_best_steps") {
   } else if (key == "random_seed") {
     same = same & (random_seed == std::stoi(value));
   } else if (key == "use_reparametrization") {
@@ -282,6 +283,12 @@ Sim::setParameter(std::string key, std::string value)
     error_max = std::stod(value);
   } else if (key == "save_parameters") {
     save_parameters = std::stoi(value);
+  } else if (key == "save_best_steps") {
+    if (value.size() == 1) {
+      save_best_steps = (std::stoi(value) == 1);
+    } else {
+      save_best_steps = (value == "true");
+    }
   } else if (key == "random_seed") {
     random_seed = std::stoi(value);
   } else if (key == "use_reparametrization") {
@@ -969,7 +976,7 @@ Sim::run(void)
         buffer_offset = 0;
         writeData(step);
         std::cout << timer.toc() << " sec" << std::endl;
-      } else if (new_min_found & (step > save_parameters)) {
+      } else if (new_min_found & (step > save_parameters) & save_best_steps) {
         new_min_found = false;
         std::cout << "close... writing step... " << std::flush;
         run_buffer((step - 1) % save_parameters, 19) = step_timer.toc();

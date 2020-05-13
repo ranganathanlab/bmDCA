@@ -476,42 +476,44 @@ Inference and sampling runs can be configured using a text file (see
    (default: 2000)
 4. `error_max` - error convergence criterion for stopping (default: 1e-05)
 5. `save_parameters` - save parameters every `save_parameters` number of steps
-   (default 100)
-6. `random_seed` - initial seed for the random number generator (default: 1)
-7. `use_reparametrization` - use the re-parametrized model for inference
+   (default: 100)
+6. `save_best_steps` - save steps that yield the lowest RMSE of the gradient
+   (default: false)
+7. `random_seed` - initial seed for the random number generator (default: 1)
+8. `use_reparametrization` - use the re-parametrized model for inference
    (default: true)
-8. `epsilon_0_h` - initial learning rate for fields (default: 0.01)
-9. `epsilon_0_J` - initial learning rate for couplings (default: 0.001)
-10. `adapt_up` - multiple by which to increase Potts (J and h) gradient
+9. `epsilon_0_h` - initial learning rate for fields (default: 0.01)
+10. `epsilon_0_J` - initial learning rate for couplings (default: 0.001)
+11. `adapt_up` - multiple by which to increase Potts (J and h) gradient
     (default: 1.5)
-11. `adapt_down` - multiple by which to decrease Potts (J and h) gradient
+12. `adapt_down` - multiple by which to decrease Potts (J and h) gradient
     (default: 0.6)
-12. `min_step_h` - minimum learning rate for h (default: 0.001)
-13. `max_step_h` - maximum learning rate for h (default: 2.5)
-14. `min_step_J` - minimum learning rate for J (default: 1e-05)
-15. `max_step_J_N` - maximum learning rate for J, scaled by effective number of
+13. `min_step_h` - minimum learning rate for h (default: 0.001)
+14. `max_step_h` - maximum learning rate for h (default: 2.5)
+15. `min_step_J` - minimum learning rate for J (default: 1e-05)
+16. `max_step_J_N` - maximum learning rate for J, scaled by effective number of
     sequences (default: 2.5)
-16. `error_min_update` - threshold for differences in MSA and MCMC frequencies
+17. `error_min_update` - threshold for differences in MSA and MCMC frequencies
     above which parameters (J and h) are updated (default: -1)
-17. `t_wait_0` - initial burn-in time (default: 10000)
-18. `delta_t_0` - initial wait time between sampling sequences (default: 100)
-19. `check_ergo` - flag to check MCMC sample energies and autocorrelations,
+18. `t_wait_0` - initial burn-in time (default: 10000)
+19. `delta_t_0` - initial wait time between sampling sequences (default: 100)
+20. `check_ergo` - flag to check MCMC sample energies and autocorrelations,
     without which wait and burn-in times are not updated (default: true)
-20. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default: 1.5)
-21. `adapt_down_time` - multiple to decrease MCMC wait/burn-in time (default
+21. `adapt_up_time` - multiple to increase MCMC wait/burn-in time (default: 1.5)
+22. `adapt_down_time` - multiple to decrease MCMC wait/burn-in time (default
     0.6)
-22. `step_important_max` - maximum number of importance sampling steps
+23. `step_important_max` - maximum number of importance sampling steps
     (default: 1, i.e.importance sampling disabled)
-23. `coherence_min` - (default=.9999)
-24. `M` - number of sequences to sample for each MCMC replicate (default: 1000)
-25. `count_max` - number of independent MCMC replicates (default: 10)
-26. `init_sample` - flag for whether of not to use seed sequence for
+24. `coherence_min` - (default=.9999)
+25. `M` - number of sequences to sample for each MCMC replicate (default: 1000)
+26. `count_max` - number of independent MCMC replicates (default: 10)
+27. `init_sample` - flag for whether of not to use seed sequence for
     initializing the MCMC (default: false)
-27. `init_sample_file` - file containing the MCMC seed sequences (default: "")
-28. `sampler` - sampler mode, 'mh' for Metropolis-Hastings and 'z-sqrt' or
+28. `init_sample_file` - file containing the MCMC seed sequences (default: "")
+29. `sampler` - sampler mode, 'mh' for Metropolis-Hastings and 'z-sqrt' or
     'z-barker' for Zanella, 2019. 'z-sqrt' corresponds to a balancing function of
     `sqrt(t)`, and 'z-barker' corresponds to `t/(1+t)`. (default: "mh")
-29. `output_binary` - flag to output data in binary format, which is faster and
+30. `output_binary` - flag to output data in binary format, which is faster and
     more precise (default: false)
 
 ### [sampling]
