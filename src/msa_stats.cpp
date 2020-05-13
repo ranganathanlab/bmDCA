@@ -163,7 +163,7 @@ MSAStats::writeRelEntropyGradientAscii(std::string output_file)
 // };
 
 void
-MSAStats::writeRelEntropyPos(std::string output_file)
+MSAStats::writeRelEntropyPosAscii(std::string output_file)
 {
   std::ofstream output_stream(output_file);
   for (int i = 0; i < N; i++) {

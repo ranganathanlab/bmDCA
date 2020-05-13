@@ -15,8 +15,8 @@ public:
   double getQ();
   void writeRelEntropy(std::string);
   void writeRelEntropyAscii(std::string);
-  void writeRelEntropyPos(std::string);
-  // void writeRelEntropyPosAscii(std::string);
+  // void writeRelEntropyPos(std::string);
+  void writeRelEntropyPosAscii(std::string);
   void writeRelEntropyGradient(std::string);
   void writeRelEntropyGradientAscii(std::string);
   void writeFrequency1p(std::string);
