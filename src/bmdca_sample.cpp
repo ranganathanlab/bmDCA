@@ -96,11 +96,13 @@ main(int argc, char* argv[])
   if (compat_mode == true) {
     if (parameters_file.size() == 0) {
       std::cerr << "ERROR: Parameters file not given." << std::endl;
+      print_usage();
       std::exit(EXIT_FAILURE);
     }
   } else {
     if ((parameters_file.size() == 0) || (J_file.size() == 0)) {
       std::cerr << "ERROR: Both parameters files not given." << std::endl;
+      print_usage();
       std::exit(EXIT_FAILURE);
     }
   }
