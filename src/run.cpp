@@ -24,7 +24,6 @@ Sim::initializeParameters(void)
   step_max = 2000;
   error_max = 0.00001;
   save_parameters = 20;
-  // step_check = step_max;
   random_seed = 1;
   use_reparametrization = true;
 
@@ -115,12 +114,6 @@ Sim::writeParameters(std::string output_file)
   stream << "init_sample_file=" << init_sample_file << std::endl;
   stream << "sampler=" << sampler << std::endl;
 
-  // // check routine settings
-  // stream << "t_wait_check=" << t_wait_check << std::endl;
-  // stream << "delta_t_check=" << delta_t_check << std::endl;
-  // stream << "M_check=" << M_check << std::endl;
-  // stream << "count_check=" << count_check << std::endl;
-
   stream << "output_binary=" << output_binary << std::endl;
 };
 
@@ -201,11 +194,8 @@ Sim::compareParameter(std::string key, std::string value)
   } else if (key == "lambda_reg2") {
     same = same & (lambda_reg2 == std::stod(value));
   } else if (key == "step_max") {
-    // same = same & (step_max == std::stoi(value));
   } else if (key == "error_max") {
-    // same = same & (error_max == std::stod(value));
   } else if (key == "save_parameters") {
-    // same = same & (save_parameters == std::stoi(value));
   } else if (key == "random_seed") {
     same = same & (random_seed == std::stoi(value));
   } else if (key == "use_reparametrization") {
@@ -1009,7 +999,6 @@ Sim::computeErrorReparametrization(void)
 {
   double M_eff = msa_stats.getEffectiveM();
   int N = msa_stats.getN();
-  int M = msa_stats.getM();
   int Q = msa_stats.getQ();
 
   double error_stat_1p = 0;
@@ -1247,9 +1236,7 @@ Sim::computeErrorReparametrization(void)
 void
 Sim::updateLearningRate(void)
 {
-  double M_eff = msa_stats.getEffectiveM();
   int N = msa_stats.getN();
-  int M = msa_stats.getM();
   int Q = msa_stats.getQ();
   double max_step_J = max_step_J_N / N;
 
@@ -1284,9 +1271,7 @@ Sim::updateLearningRate(void)
 void
 Sim::updateReparameterization(void)
 {
-  double M_eff = msa_stats.getEffectiveM();
   int N = msa_stats.getN();
-  int M = msa_stats.getM();
   int Q = msa_stats.getQ();
 
   for (int i = 0; i < N; i++) {
@@ -1387,15 +1372,6 @@ Sim::writeData(int step)
                                   ".txt");
 
   if (check_ergo) {
-    // mcmc_stats->writeSampleEnergiesRelaxation("energy_" +
-    // std::to_string(step) + ".dat", delta_t);
-    // mcmc_stats->writeEnergyStats("my_energies_start_" + std::to_string(step)
-    // + ".txt",
-    //                              "my_energies_end_" + std::to_string(step) +
-    //                              ".txt", "my_energies_cfr_" +
-    //                              std::to_string(step) + ".txt",
-    //                              "my_energies_cfr_err_" +
-    //                              std::to_string(step) + ".txt");
     mcmc_stats->writeCorrelationsStats(
       "overlap_" + std::to_string(step) + ".txt",
       "overlap_inf_" + std::to_string(step) + ".txt",
@@ -1432,11 +1408,6 @@ Sim::writeData(std::string id)
   mcmc_stats->writeSampleEnergies("MC_energies_" + id + ".txt");
 
   if (check_ergo) {
-    // mcmc_stats->writeSampleEnergiesRelaxation("energy_" + id + ".dat", delta_t);
-    // mcmc_stats->writeEnergyStats("my_energies_start_" + id + ".txt",
-    //                              "my_energies_end_" + id + ".txt",
-    //                              "my_energies_cfr_" + id + ".txt",
-    //                              "my_energies_cfr_err_" + id + ".txt");
     mcmc_stats->writeCorrelationsStats("overlap_" + id + ".txt",
                                        "overlap_inf_" + id + ".txt",
                                        "ergo_" + id + ".txt");
