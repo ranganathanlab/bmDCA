@@ -745,6 +745,8 @@ Sim::run(void)
 
   // Initialize sample data structure
   samples = arma::Cube<int>(M, N, count_max, arma::fill::zeros);
+
+  mcmc->load(&(model->params));
   mcmc_stats = new MCMCStats(&samples, &(model->params));
 
   if (init_sample) {
@@ -779,11 +781,6 @@ Sim::run(void)
   for (step = 1 + step_offset; step <= step_max; step++) {
     step_timer.tic();
     std::cout << "Step: " << step << std::endl;
-
-    std::cout << "loading params to mcmc... " << std::flush;
-    timer.tic();
-    mcmc->load(&(model->params));
-    std::cout << timer.toc() << " sec" << std::endl;
 
     // Sampling from MCMC (keep trying until correct properties found)
     bool flag_mc = true;
