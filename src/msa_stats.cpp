@@ -51,7 +51,11 @@ MSAStats::MSAStats(MSA msa)
   }
   frequency_1p = frequency_1p / M_effective;
 
+  double mean_1p_var =
+    arma::accu(frequency_1p % (1. - frequency_1p)) / (double)(N*Q);
+
   // Compute the 2p statistics
+  arma::Col<double> mean_2p_var_vec = arma::Col<double>(N, arma::fill::zeros);
 #pragma omp parallel
   {
 #pragma omp for schedule(dynamic,1)
@@ -65,11 +69,17 @@ MSAStats::MSAStats(MSA msa)
         for (int m = 0; m < M; m++) {
           frequency_2p(i, j)(*(align_ptr1 + m), *(align_ptr2 + m)) +=
             *(weight_ptr + m);
+          mean_2p_var_vec(i) +=
+            arma::accu(frequency_2p(i, j) % (1. - frequency_2p(i, j)));
         }
         frequency_2p(i, j) = frequency_2p(i, j) / M_effective;
       }
     }
   }
+
+  double mean_2p_var =
+    arma::accu(mean_2p_var_vec) / (double)(N * (N - 1) / 2 * Q * Q);
+  freq_rms = sqrt(mean_1p_var) + sqrt(mean_2p_var);
 
   // Update the background frequencies based by computing overall gap frequency
   // theta.

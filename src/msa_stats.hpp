@@ -30,6 +30,8 @@ public:
   arma::Col<double> rel_entropy_pos_1p;
   arma::Mat<double> rel_entropy_grad_1p;
 
+  double freq_rms;
+
 private:
   double pseudocount;
   int M;              // number of sequences
