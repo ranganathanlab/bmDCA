@@ -514,7 +514,7 @@ Inference and sampling runs can be configured using a text file (see
     'z-barker' for Zanella, 2019. 'z-sqrt' corresponds to a balancing function of
     `sqrt(t)`, and 'z-barker' corresponds to `t/(1+t)`. (default: "mh")
 30. `output_binary` - flag to output data in binary format, which is faster and
-    more precise (default: false)
+    more precise (default: true)
 
 ### [sampling]
 
