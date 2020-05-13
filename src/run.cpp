@@ -937,8 +937,17 @@ Sim::run(void)
 
       std::cout << "computing error and updating gradient... " << std::flush;
       timer.tic();
-      bool converged = computeErrorReparametrization();
+      computeErrorReparametrization();
       std::cout << timer.toc() << " sec" << std::endl;
+
+      run_buffer((step - 1) % save_parameters, 14) = error_1p;
+      run_buffer((step - 1) % save_parameters, 15) = error_2p;
+      run_buffer((step - 1) % save_parameters, 16) = error_tot;
+
+      bool converged = false;
+      if (error_tot < error_max) {
+        converged = true;
+      }
 
       if (converged) {
         run_buffer((step - 1) % save_parameters, 18) = step_timer.toc();
@@ -948,6 +957,12 @@ Sim::run(void)
         writeData(std::to_string(step) + "_final");
         std::cout << "done" << std::endl;
         return;
+      } else if ((error_tot < error_tot_min) & (step > save_parameters)) {
+        error_tot_min = error_tot;
+        error_stat_tot_min = error_stat_tot;
+        std::cout << "close... writing step... " << std::flush;
+        writeData(step);
+        std::cout << "done" << std::endl;
       }
 
       // Update learning rate
@@ -994,20 +1009,19 @@ Sim::run(void)
   return;
 };
 
-bool
+void
 Sim::computeErrorReparametrization(void)
 {
   double M_eff = msa_stats.getEffectiveM();
   int N = msa_stats.getN();
   int Q = msa_stats.getQ();
 
-  double error_stat_1p = 0;
-  double error_stat_2p = 0;
-  double error_stat_tot = 0;
-  double error_1p = 0;
-  double error_2p = 0;
-  double error_tot = 0;
-  double delta;
+  error_1p = 0;
+  error_2p = 0;
+  error_stat_1p = 0;
+  error_stat_2p = 0;
+
+  double delta = 0;
   double delta_stat = 0;
   double deltamax_1 = 0;
   double deltamax_2 = 0;
@@ -1222,15 +1236,7 @@ Sim::computeErrorReparametrization(void)
   error_tot = error_1p + error_2p;
   error_stat_tot = error_stat_1p + error_stat_2p;
 
-  run_buffer((step - 1) % save_parameters, 14) = error_1p;
-  run_buffer((step - 1) % save_parameters, 15) = error_2p;
-  run_buffer((step - 1) % save_parameters, 16) = error_tot;
-
-  bool converged = false;
-  if (error_tot < error_max) {
-    converged = true;
-  }
-  return converged;
+  return;
 };
 
 void

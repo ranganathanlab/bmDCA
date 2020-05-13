@@ -27,7 +27,7 @@ private:
   void setStepOffset(void);
   void setBurnTimes(void);
   void readInitialSample(int, int);
-  bool computeErrorReparametrization(void);
+  void computeErrorReparametrization(void);
   void updateLearningRate(void);
   void updateReparameterization(void);
   void writeData(std::string);
@@ -85,6 +85,15 @@ private:
   std::string sampler = "mh";   // MC sampler type ('mh' or 'z')
 
   bool output_binary = true;
+
+  double error_1p;
+  double error_2p;
+  double error_tot;
+  double error_tot_min = 1;
+  double error_stat_1p;
+  double error_stat_2p;
+  double error_stat_tot;
+  double error_stat_tot_min = 1;
 
   std::string hyperparameter_file = "bmdca_params.conf";
   std::string run_log_file = "bmdca_run.log";
