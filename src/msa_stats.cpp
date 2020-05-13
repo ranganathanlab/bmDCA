@@ -69,10 +69,10 @@ MSAStats::MSAStats(MSA msa)
         for (int m = 0; m < M; m++) {
           frequency_2p(i, j)(*(align_ptr1 + m), *(align_ptr2 + m)) +=
             *(weight_ptr + m);
-          mean_2p_var_vec(i) +=
-            arma::accu(frequency_2p(i, j) % (1. - frequency_2p(i, j)));
         }
         frequency_2p(i, j) = frequency_2p(i, j) / M_effective;
+        mean_2p_var_vec(i) +=
+          arma::accu(frequency_2p(i, j) % (1. - frequency_2p(i, j)));
       }
     }
   }
