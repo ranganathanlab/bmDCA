@@ -17,15 +17,13 @@ public:
   void run(void);
   void loadParameters(std::string);
   void writeParameters(std::string);
-  void burnRNG();
 
 private:
-  // Member functions
   void initializeParameters(void);
   bool compareParameters(std::string);
   void checkParameters(void);
   void setStepOffset(void);
-  void setBurnTimes(void);
+  void restoreRunState(void);
   void readInitialSample(int, int);
   void computeErrorReparametrization(void);
   void updateLearningRate(void);
@@ -105,7 +103,7 @@ private:
   // Buffers
   arma::Mat<double> run_buffer;
   void initializeRunLog();
-  void writeRunLog(int = -1);
+  void writeRunLog(int = -1, int = 0, bool = false);
 
   // Sample data
   arma::Cube<int> samples;

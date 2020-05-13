@@ -633,31 +633,6 @@ Sim::setStepOffset(void)
   }
 };
 
-void
-Sim::setBurnTimes(void)
-{
-  std::ifstream stream(run_log_file);
-  std::string line;
-  std::getline(stream, line);
-  while (!stream.eof()) {
-    std::getline(stream, line);
-    std::stringstream buffer(line);
-    std::string field;
-
-    std::getline(buffer, field, '\t');
-    if (step_offset == std::stoi(field)) {
-      std::string tmp1;
-      std::string tmp2;
-      std::getline(buffer, tmp1, '\t');
-      std::getline(buffer, tmp1, '\t');
-      std::getline(buffer, tmp2, '\t');
-      t_wait = std::stoi(tmp1);
-      delta_t = std::stoi(tmp2);
-      break;
-    }
-  }
-};
-
 Sim::~Sim(void)
 {
   delete model;
@@ -666,9 +641,9 @@ Sim::~Sim(void)
 };
 
 void
-Sim::burnRNG(void)
+Sim::restoreRunState(void)
 {
-  long int value = -1;
+  long int prev_seed = -1;
   std::ifstream stream(run_log_file);
   std::string line;
   std::getline(stream, line);
@@ -687,10 +662,15 @@ Sim::burnRNG(void)
         fields.push_back(field);
       }
 
+      t_wait = std::stoi(fields.at(2));
+      delta_t = std::stoi(fields.at(3));
+      error_tot_min = std::stod(fields.at(17));
+
+      // get random seed
       if (check_ergo) {
-        value = std::stol(fields.at(17));
+        prev_seed = std::stol(fields.at(18));
       } else {
-        value = std::stoi(fields.at(7));
+        prev_seed = std::stol(fields.at(8));
       }
       break;
     }
@@ -698,7 +678,7 @@ Sim::burnRNG(void)
 
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
   int counter = 1;
-  while (dist(rng) != value) {
+  while (dist(rng) != prev_seed) {
     if (counter > 1000 * step_max * step_importance_max) {
       std::cerr << "WARNING: cannot restore RNG state." << std::endl;
       break;
@@ -760,7 +740,8 @@ Sim::run(void)
   std::uniform_int_distribution<long int> dist(0, RAND_MAX - count_max);
 
   // Initialize the buffer.
-  run_buffer = arma::Mat<double>(save_parameters, 19, arma::fill::zeros);
+  run_buffer = arma::Mat<double>(save_parameters, 20, arma::fill::zeros);
+  int buffer_offset = 0;
 
   if (step_offset == 0) {
     initializeRunLog();
@@ -771,8 +752,8 @@ Sim::run(void)
               << std::endl;
     return;
   } else {
-    burnRNG();
-    setBurnTimes();
+    restoreRunState();
+    buffer_offset = (step_offset % save_parameters);
   }
 
   std::cout << timer.toc() << " sec" << std::endl << std::endl;
@@ -790,7 +771,7 @@ Sim::run(void)
       std::cout << "sampling model with mcmc... " << std::flush;
       timer.tic();
       seed = dist(rng);
-      run_buffer((step - 1) % save_parameters, 17) = seed;
+      run_buffer((step - 1) % save_parameters, 18) = seed;
       if (sampler == "mh") {
         if (init_sample) {
           mcmc->sample_init(
@@ -905,6 +886,7 @@ Sim::run(void)
     // Importance sampling loop
     int step_importance = 0;
     bool flag_coherence = true;
+    bool new_min_found = false;
     while (step_importance < step_importance_max and flag_coherence == true) {
       step_importance++;
       if (step_importance > 1) {
@@ -940,6 +922,12 @@ Sim::run(void)
       run_buffer((step - 1) % save_parameters, 14) = error_1p;
       run_buffer((step - 1) % save_parameters, 15) = error_2p;
       run_buffer((step - 1) % save_parameters, 16) = error_tot;
+      if (error_tot < error_tot_min) {
+        error_tot_min = error_tot;
+        error_stat_tot_min = error_stat_tot;
+        new_min_found = true;
+      }
+      run_buffer((step - 1) % save_parameters, 17) = error_tot_min;
 
       bool converged = false;
       if (error_tot < error_max) {
@@ -947,19 +935,13 @@ Sim::run(void)
       }
 
       if (converged) {
-        run_buffer((step - 1) % save_parameters, 18) = step_timer.toc();
+        run_buffer((step - 1) % save_parameters, 19) = step_timer.toc();
         std::cout << "converged! writing final results... " << std::flush;
-        writeRunLog(step % save_parameters);
+        writeRunLog(step % save_parameters, buffer_offset);
         writeData(step);
         writeData(std::to_string(step) + "_final");
         std::cout << "done" << std::endl;
         return;
-      } else if ((error_tot < error_tot_min) & (step > save_parameters)) {
-        error_tot_min = error_tot;
-        error_stat_tot_min = error_stat_tot;
-        std::cout << "close... writing step... " << std::flush;
-        writeData(step);
-        std::cout << "done" << std::endl;
       }
 
       // Update learning rate
@@ -976,16 +958,25 @@ Sim::run(void)
       updateReparameterization();
       std::cout << timer.toc() << " sec" << std::endl;
 
-      run_buffer((step - 1) % save_parameters, 18) = step_timer.toc();
+      run_buffer((step - 1) % save_parameters, 19) = step_timer.toc();
 
       // Save parameters
       if (step % save_parameters == 0 &&
           (step_importance == step_importance_max || flag_coherence == false)) {
         std::cout << "writing step " << step << "... " << std::flush;
         timer.tic();
-        writeRunLog(step % save_parameters);
+        writeRunLog(step % save_parameters,  buffer_offset);
+        buffer_offset = 0;
         writeData(step);
         std::cout << timer.toc() << " sec" << std::endl;
+      } else if (new_min_found & (step > save_parameters)) {
+        new_min_found = false;
+        std::cout << "close... writing step... " << std::flush;
+        run_buffer((step - 1) % save_parameters, 19) = step_timer.toc();
+        writeRunLog(step % save_parameters, buffer_offset, true);
+        buffer_offset = step % save_parameters;
+        writeData(step);
+        std::cout << "done" << std::endl;
       }
     }
     std::cout << std::endl;
@@ -1457,6 +1448,8 @@ Sim::initializeRunLog()
          << "\t"
          << "error-tot"
          << "\t"
+         << "error-tot-min"
+         << "\t"
          << "seed"
          << "\t"
          << "step-time" << std::endl;
@@ -1464,7 +1457,7 @@ Sim::initializeRunLog()
 };
 
 void
-Sim::writeRunLog(int current_step)
+Sim::writeRunLog(int current_step, int offset, bool keep)
 {
   std::ofstream stream{ run_log_file, std::ios_base::app };
 
@@ -1474,7 +1467,7 @@ Sim::writeRunLog(int current_step)
   } else {
     n_entries = current_step;
   }
-  for (int i = 0; i < n_entries; i++) {
+  for (int i = 0 + offset; i < n_entries; i++) {
     stream << (int)run_buffer(i, 0) << "\t";
     stream << (int)run_buffer(i, 1) << "\t";
     stream << (int)run_buffer(i, 2) << "\t";
@@ -1494,9 +1487,12 @@ Sim::writeRunLog(int current_step)
     stream << run_buffer(i, 14) << "\t";
     stream << run_buffer(i, 15) << "\t";
     stream << run_buffer(i, 16) << "\t";
-    stream << (long int)run_buffer(i, 17) << "\t";
-    stream << run_buffer(i, 18) << std::endl;
+    stream << run_buffer(i, 17) << "\t";
+    stream << (long int)run_buffer(i, 18) << "\t";
+    stream << run_buffer(i, 19) << std::endl;
   }
-  run_buffer.zeros();
+  if (!keep) {
+    run_buffer.zeros();
+  }
   stream.close();
 };
