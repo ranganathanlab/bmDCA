@@ -20,6 +20,7 @@ MSAStats::MSAStats(MSA msa)
 
   frequency_1p = arma::Mat<double>(Q, N, arma::fill::zeros);
   frequency_2p = arma::field<arma::Mat<double>>(N, N);
+  rel_entropy_1p = arma::Mat<double>(Q, N, arma::fill::zeros);
   rel_entropy_grad_1p = arma::Mat<double>(Q, N, arma::fill::zeros);
   aa_background_frequencies = arma::Col<double>(Q, arma::fill::ones);
 
@@ -85,13 +86,14 @@ MSAStats::MSAStats(MSA msa)
   // entropy gradient for each position.
   arma::Mat<double> tmp = frequency_1p * (1. - pseudocount);
   tmp.each_col() += pseudocount * aa_background_frequencies;
-  double pos_freq;
-  double background_freq;
   for (int i = 0; i < N; i++) {
     for (int aa = 0; aa < Q; aa++) {
-      pos_freq = tmp(aa, i);
-      background_freq = aa_background_frequencies(aa);
+      double pos_freq = tmp(aa, i);
+      double background_freq = aa_background_frequencies(aa);
       if (pos_freq < 1. && pos_freq > 0.) {
+        rel_entropy_1p(aa, i) =
+          pos_freq * log(pos_freq / background_freq) +
+          (1 - pos_freq) * log((1 - pos_freq) / (1 - background_freq));
         rel_entropy_grad_1p(aa, i) = log((pos_freq * (1. - background_freq)) /
                                          ((1. - pos_freq) * background_freq));
       }

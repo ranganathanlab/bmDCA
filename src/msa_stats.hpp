@@ -23,6 +23,7 @@ public:
   arma::Mat<double> frequency_1p;
   arma::field<arma::Mat<double>> frequency_2p;
   arma::Mat<double> rel_entropy_grad_1p;
+  arma::Mat<double> rel_entropy_1p;
 
 private:
   double pseudocount;
