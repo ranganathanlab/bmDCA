@@ -31,7 +31,7 @@ MSA::MSA(std::string msa_file,
   } else if (!weight_file.empty()) {
     readSequenceWeights(weight_file);
   } else {
-    sequence_weights = arma::vec(M, arma::fill::ones);
+    sequence_weights = arma::Col<double>(M, arma::fill::ones);
   }
 };
 
