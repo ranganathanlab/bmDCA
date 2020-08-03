@@ -671,12 +671,13 @@ Sim::restoreRunState(void)
 
       t_wait = std::stoi(fields.at(2));
       delta_t = std::stoi(fields.at(3));
-      error_tot_min = std::stod(fields.at(17));
 
-      // get random seed
+      // position of some variables depend on whether some flags are set
       if (check_ergo) {
+        error_tot_min = std::stod(fields.at(17));
         prev_seed = std::stol(fields.at(18));
       } else {
+        error_tot_min = std::stod(fields.at(7));
         prev_seed = std::stol(fields.at(8));
       }
       break;
