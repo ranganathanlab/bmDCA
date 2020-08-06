@@ -373,7 +373,7 @@ Sim::Sim(MSAStats msa_stats,
     std::cout << "done." << std::endl;
   } else if ((!force_restart) &
              (checkFileExists(dest_dir + "/" + hyperparameter_file))) {
-    std::cout << "loading previously used hyperparameters..." << std::flush;
+    std::cout << "loading previously used hyperparameters... " << std::flush;
     loadParameters(dest_dir + "/" + hyperparameter_file);
     std::cout << "done." << std::endl;
   }
