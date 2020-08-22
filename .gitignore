@@ -14,6 +14,7 @@ src/preprocess
 src/bmdca
 src/bmdca_sample
 src/arma2ascii
+src/numeric2fasta
 src/statMC_sigma
 src/statMC_sigma_importance
 src/statMSA
