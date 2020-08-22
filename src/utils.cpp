@@ -357,3 +357,75 @@ deleteAllFiles(std::string directory)
   closedir(dp);
   return;
 };
+
+char
+convertAA(int n)
+{
+  char aa = '\0';
+  switch (n) {
+    case 0:
+      aa = '-';
+      break;
+    case 1:
+      aa = 'A';
+      break;
+    case 2:
+      aa = 'C';
+      break;
+    case 3:
+      aa = 'D';
+      break;
+    case 4:
+      aa = 'E';
+      break;
+    case 5:
+      aa = 'F';
+      break;
+    case 6:
+      aa = 'G';
+      break;
+    case 7:
+      aa = 'H';
+      break;
+    case 8:
+      aa = 'I';
+      break;
+    case 9:
+      aa = 'K';
+      break;
+    case 10:
+      aa = 'L';
+      break;
+    case 11:
+      aa = 'M';
+      break;
+    case 12:
+      aa = 'N';
+      break;
+    case 13:
+      aa = 'P';
+      break;
+    case 14:
+      aa = 'Q';
+      break;
+    case 15:
+      aa = 'R';
+      break;
+    case 16:
+      aa = 'S';
+      break;
+    case 17:
+      aa = 'T';
+      break;
+    case 18:
+      aa = 'V';
+      break;
+    case 19:
+      aa = 'W';
+      break;
+    case 20:
+      aa = 'Y';
+      break;
+  }
+  return aa;
+};

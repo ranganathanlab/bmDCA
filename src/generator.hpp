@@ -37,6 +37,4 @@ private:
   void initializeParameters(void);
   void checkParameters(void);
   void setParameter(std::string, std::string);
-
-  char convertAA(int);
 };
