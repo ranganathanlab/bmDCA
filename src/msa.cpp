@@ -98,7 +98,7 @@ MSA::readInputMSA(std::string msa_file)
   std::ifstream input_stream(msa_file);
 
   if (!input_stream) {
-    std::cerr << "ERROR: cannot write to '" << msa_file << "'." << std::endl;
+    std::cerr << "ERROR: cannot read from '" << msa_file << "'." << std::endl;
     exit(2);
   }
 
